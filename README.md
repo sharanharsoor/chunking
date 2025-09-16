@@ -45,6 +45,25 @@ for chunk in result.chunks:
     print(f"Strategy used: {result.strategy_used}")
 ```
 
+### Quick CLI Examples
+
+```bash
+# Simple text file chunking
+python -m chunking_strategy chunk my_document.txt --strategy sentence_based
+
+# PDF with specific output format
+python -m chunking_strategy chunk report.pdf --strategy pdf_chunker --format json
+
+# See all available strategies
+python -m chunking_strategy list-strategies
+
+# Process multiple files at once
+python -m chunking_strategy batch *.txt --strategy paragraph_based --workers 4
+
+# Get help for any command
+python -m chunking_strategy chunk --help
+```
+
 ### Choose Your Approach
 
 **🤖 Intelligent Auto Selection (Recommended)**
@@ -96,20 +115,15 @@ cpp_chunker = create_chunker("c_cpp_code")        # C/C++ syntax understanding
 ### ⚡ **Performance & Scalability**
 - **True Streaming Processing**: Handle multi-gigabyte files with constant memory usage through memory-mapped streaming
 - **Parallel Processing**: Multi-core batch processing for multiple files
-- **40+ Chunking Strategies**: Comprehensive variety of text, code, document, and multimedia chunkers
+- **40 Chunking Strategies**: Comprehensive variety of text, code, document, and multimedia chunkers
 - **Quality Metrics**: Built-in evaluation and optimization
 
 ### 🔥 **Key Differentiators**
 - **Memory-Mapped Streaming**: Process massive documents (1GB+) that would crash other libraries
-- **Format Variety**: 40+ specialized chunkers vs. 5-8 in most libraries
+- **Format Variety**: 40 specialized chunkers vs. 5-8 in most libraries
 - **True Universal Framework**: Apply any strategy to any file type
+- **Token-Precise Control**: Advanced tokenizer integration (tiktoken, transformers, etc.) for LLM applications
 - **Comprehensive Testing**: Extensively tested with real-world files and edge cases
-
-### ⚠️ **When NOT to Use This Library**
-- **Simple text splitting**: If you just need basic text splitting, LangChain's text-splitters are simpler
-- **Lightweight applications**: This library has more dependencies than minimal solutions
-- **Just getting started**: The variety of options may be overwhelming for beginners
-- **Token-precise splitting**: Currently lacks precise tokenizer integration (planned feature)
 
 ---
 
