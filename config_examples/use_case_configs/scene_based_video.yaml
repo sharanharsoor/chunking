@@ -1,0 +1,149 @@
+# Scene-based Video Chunking Configuration
+#
+# This configuration uses scene detection to segment video files at natural
+# content boundaries where visual elements change significantly.
+#
+# Use Cases:
+# - Content analysis and indexing by scene
+# - Video summarization and highlights
+# - Educational content segmentation
+# - Film and media analysis
+# - Automatic trailer generation
+# - Content-aware video processing
+
+chunking:
+  # Default strategy for video files
+  default_strategy: "scene_based_video"
+
+  # Strategy selection by file extension
+  strategy_selection:
+    .mp4: "scene_based_video"
+    .avi: "scene_based_video"
+    .mov: "scene_based_video"
+    .mkv: "scene_based_video"
+    .webm: "scene_based_video"
+    .flv: "scene_based_video"
+    .wmv: "scene_based_video"
+    .m4v: "scene_based_video"
+
+  # Strategy-specific parameters
+  strategy_params:
+    scene_based_video:
+      # Scene Detection Parameters
+      scene_threshold: 30.0          # Sensitivity for scene change detection (0-100, higher = more sensitive)
+      detection_method: "histogram"  # Scene detection method: "histogram", "ssim", or "combined"
+      sample_rate: 1.0              # Frame sampling rate for analysis (frames per second)
+
+      # Scene Duration Controls
+      min_scene_duration: 2.0       # Minimum duration of a scene in seconds
+      max_scene_duration: 120.0     # Maximum duration of a scene in seconds (splits longer scenes)
+
+      # Quality and Format Control
+      preserve_format: true         # Whether to preserve original video format
+      target_fps: null              # Target frame rate (null to preserve original)
+      target_resolution: null       # Target resolution as [width, height] or "widthxheight" (null to preserve)
+
+      # Performance tuning examples for different use cases:
+      #
+      # High sensitivity scene detection (more segments):
+      # scene_threshold: 20.0
+      # detection_method: "combined"
+      # sample_rate: 2.0
+      #
+      # Performance optimized (fewer computations):
+      # scene_threshold: 40.0
+      # detection_method: "histogram"
+      # sample_rate: 0.5
+      #
+      # Short-form content (social media):
+      # min_scene_duration: 1.0
+      # max_scene_duration: 30.0
+      # target_resolution: "1080x1920"  # Portrait format
+      #
+      # Long-form content (documentaries):
+      # min_scene_duration: 5.0
+      # max_scene_duration: 300.0
+      # scene_threshold: 35.0
+      #
+      # High-quality analysis:
+      # detection_method: "combined"
+      # sample_rate: 2.0
+      # scene_threshold: 25.0
+      #
+      # Fast processing:
+      # detection_method: "histogram"
+      # sample_rate: 0.5
+      # target_fps: 15
+      # target_resolution: "640x360"
+
+# Processing Configuration
+processing:
+  # Enable parallel processing where applicable
+  parallel: true
+  max_workers: 4
+
+  # Memory management for video processing
+  max_memory_mb: 2048
+
+  # Temporary file handling
+  temp_dir: null                    # Use system default temp directory
+  cleanup_temp_files: true
+
+# Output Configuration
+output:
+  # Include rich metadata about scene detection
+  include_metadata: true
+
+  # Output format
+  format: "json"
+
+  # Metadata fields to include
+  metadata_fields:
+    - "scene_boundaries"
+    - "detection_method"
+    - "scene_threshold"
+    - "duration_seconds"
+    - "start_time_seconds"
+    - "end_time_seconds"
+    - "boundary_type"
+
+# Quality Settings
+quality:
+  # Scene duration constraints
+  min_chunk_size: 1024              # Minimum chunk size in bytes
+  max_chunk_size: 100000000         # Maximum chunk size in bytes (100MB)
+
+  # Quality scoring for scene detection
+  enable_quality_scoring: true
+  quality_threshold: 0.7
+
+# Logging Configuration
+logging:
+  level: "INFO"
+
+  # Scene detection specific logging
+  log_scene_boundaries: true
+  log_detection_stats: true
+
+  # Performance monitoring
+  log_processing_time: true
+  log_memory_usage: false
+
+# Advanced Configuration
+advanced:
+  # Scene detection algorithm tuning
+  histogram_bins: [50, 60, 60]       # HSV histogram bins for color analysis
+  gaussian_blur_kernel: [11, 11]    # Gaussian blur kernel size for SSIM
+  gaussian_blur_sigma: 1.5          # Gaussian blur sigma for SSIM
+
+  # Performance optimizations
+  frame_cache_size: 10              # Number of frames to cache for comparison
+  parallel_frame_analysis: false    # Enable parallel frame processing (experimental)
+
+  # Error handling
+  skip_corrupted_frames: true       # Skip frames that can't be processed
+  max_retry_attempts: 3             # Maximum retries for failed operations
+
+  # Fallback behavior
+  fallback_to_time_based: true      # Fall back to time-based chunking if scene detection fails
+  fallback_segment_duration: 30.0   # Segment duration for fallback mode

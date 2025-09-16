@@ -1,0 +1,362 @@
+// SCSS Variables
+$primary-color: #3498db;
+$secondary-color: #2ecc71;
+$danger-color: #e74c3c;
+$warning-color: #f39c12;
+$info-color: #9b59b6;
+
+$font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-size-base: 1rem;
+$line-height-base: 1.6;
+
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+$border-radius: 6px;
+$box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+// SCSS Mixins
+@mixin button-style($bg-color, $hover-color: darken($bg-color, 10%)) {
+    background-color: $bg-color;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        background-color: $hover-color;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    &:active {
+        transform: translateY(0);
+    }
+    
+    &:disabled {
+        background-color: lighten($bg-color, 20%);
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin responsive-font($min-size, $max-size) {
+    font-size: clamp(#{$min-size}, 4vw, #{$max-size});
+}
+
+@mixin media-breakpoint($breakpoint) {
+    @if $breakpoint == xs {
+        @media (max-width: 575px) { @content; }
+    }
+    @if $breakpoint == sm {
+        @media (max-width: 767px) { @content; }
+    }
+    @if $breakpoint == md {
+        @media (max-width: 991px) { @content; }
+    }
+    @if $breakpoint == lg {
+        @media (max-width: 1199px) { @content; }
+    }
+}
+
+// Component: Navigation
+.navbar {
+    background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 20%) 100%);
+    padding: $spacing-md 0;
+    box-shadow: $box-shadow;
+    
+    .container {
+        @include flex-center;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 $spacing-md;
+    }
+    
+    .brand {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        
+        &:hover {
+            color: lighten($primary-color, 30%);
+        }
+    }
+    
+    .nav-menu {
+        @include flex-center;
+        gap: $spacing-lg;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        
+        .nav-item {
+            .nav-link {
+                color: white;
+                text-decoration: none;
+                padding: $spacing-sm $spacing-md;
+                border-radius: $border-radius;
+                transition: background-color 0.3s ease;
+                
+                &:hover {
+                    background-color: rgba(white, 0.1);
+                }
+                
+                &.active {
+                    background-color: rgba(white, 0.2);
+                    font-weight: 500;
+                }
+            }
+        }
+        
+        @include media-breakpoint(md) {
+            flex-direction: column;
+            gap: $spacing-sm;
+        }
+    }
+}
+
+// Component: Cards
+.card {
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        padding: $spacing-lg;
+        border-bottom: 1px solid #f0f0f0;
+        background: lighten($primary-color, 45%);
+        
+        .card-title {
+            margin: 0;
+            color: darken($primary-color, 20%);
+            @include responsive-font(1.25rem, 1.5rem);
+        }
+        
+        .card-subtitle {
+            margin: $spacing-xs 0 0 0;
+            color: lighten($primary-color, 10%);
+            font-size: 0.9rem;
+        }
+    }
+    
+    .card-body {
+        padding: $spacing-lg;
+        
+        .card-text {
+            margin-bottom: $spacing-md;
+            line-height: $line-height-base;
+            color: #555;
+        }
+    }
+    
+    .card-footer {
+        padding: $spacing-md $spacing-lg;
+        background: #f8f9fa;
+        border-top: 1px solid #f0f0f0;
+        @include flex-center;
+        justify-content: flex-end;
+        gap: $spacing-sm;
+    }
+    
+    // Card variants
+    &.card-primary {
+        border-left: 4px solid $primary-color;
+    }
+    
+    &.card-success {
+        border-left: 4px solid $secondary-color;
+    }
+    
+    &.card-danger {
+        border-left: 4px solid $danger-color;
+    }
+    
+    &.card-warning {
+        border-left: 4px solid $warning-color;
+    }
+}
+
+// Component: Buttons with variants
+.btn {
+    @include button-style($primary-color);
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    
+    // Size variants
+    &.btn-sm {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+    
+    &.btn-lg {
+        padding: 16px 32px;
+        font-size: 1.125rem;
+    }
+    
+    // Color variants
+    &.btn-primary {
+        @include button-style($primary-color);
+    }
+    
+    &.btn-secondary {
+        @include button-style($secondary-color);
+    }
+    
+    &.btn-danger {
+        @include button-style($danger-color);
+    }
+    
+    &.btn-warning {
+        @include button-style($warning-color);
+    }
+    
+    &.btn-info {
+        @include button-style($info-color);
+    }
+    
+    // Outline variants
+    &.btn-outline {
+        background-color: transparent;
+        color: $primary-color;
+        border: 2px solid $primary-color;
+        
+        &:hover {
+            background-color: $primary-color;
+            color: white;
+        }
+    }
+}
+
+// Component: Form elements
+.form {
+    .form-group {
+        margin-bottom: $spacing-lg;
+        
+        .form-label {
+            display: block;
+            margin-bottom: $spacing-sm;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: $border-radius;
+            font-size: $font-size-base;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            
+            &:focus {
+                outline: none;
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+            }
+            
+            &.error {
+                border-color: $danger-color;
+                
+                &:focus {
+                    box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
+                }
+            }
+            
+            &.success {
+                border-color: $secondary-color;
+                
+                &:focus {
+                    box-shadow: 0 0 0 3px rgba($secondary-color, 0.1);
+                }
+            }
+        }
+        
+        .form-help {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: $spacing-xs;
+        }
+        
+        .form-error {
+            font-size: 0.875rem;
+            color: $danger-color;
+            margin-top: $spacing-xs;
+        }
+    }
+}
+
+// Utility classes with SCSS loops
+$utilities: (
+    'margin': 'm',
+    'padding': 'p',
+    'margin-top': 'mt',
+    'margin-bottom': 'mb',
+    'padding-top': 'pt',
+    'padding-bottom': 'pb'
+);
+
+$spacing-values: (
+    0: 0,
+    1: $spacing-xs,
+    2: $spacing-sm,
+    3: $spacing-md,
+    4: $spacing-lg,
+    5: $spacing-xl
+);
+
+@each $property, $prefix in $utilities {
+    @each $key, $value in $spacing-values {
+        .#{$prefix}-#{$key} {
+            #{$property}: #{$value} !important;
+        }
+    }
+}
+
+// Responsive utilities
+@include media-breakpoint(md) {
+    .hide-md {
+        display: none !important;
+    }
+    
+    .text-center-md {
+        text-align: center !important;
+    }
+}
+
+@include media-breakpoint(sm) {
+    .hide-sm {
+        display: none !important;
+    }
+    
+    .full-width-sm {
+        width: 100% !important;
+    }
+}

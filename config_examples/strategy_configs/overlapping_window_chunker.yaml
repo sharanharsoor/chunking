@@ -1,0 +1,299 @@
+# Overlapping Window Chunker Configuration Examples
+#
+# This file contains various configuration profiles for the OverlappingWindowChunker,
+# optimized for different use cases and content types.
+
+# ==============================================================================
+# RAG (Retrieval-Augmented Generation) Configuration
+# ==============================================================================
+# Optimized for information retrieval and context preservation
+rag_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 150        # Words per window for good context
+    step_size: 75           # 50% overlap for context continuity
+    window_unit: "words"    # Word-based for semantic coherence
+    preserve_boundaries: true
+    min_window_size: 30     # Minimum viable context size
+    max_chunk_chars: 1000   # Reasonable size for embeddings
+  description: "Ideal for RAG systems requiring overlapping context"
+  use_cases:
+    - "Question answering systems"
+    - "Document search and retrieval"
+    - "Context-aware AI assistants"
+
+# ==============================================================================
+# Embedding Generation Configuration
+# ==============================================================================
+# Optimized for creating embeddings with contextual overlap
+embedding_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 200        # Larger context for rich embeddings
+    step_size: 100          # 50% overlap for semantic continuity
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 50
+    max_chunk_chars: 1500   # Good size for embedding models
+  description: "For generating overlapping embeddings with rich context"
+  use_cases:
+    - "Semantic search systems"
+    - "Document similarity analysis"
+    - "Content recommendation engines"
+
+# ==============================================================================
+# Summarization Pipeline Configuration
+# ==============================================================================
+# Configured for document summarization with overlapping analysis
+summarization_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 100        # Moderate size for analysis
+    step_size: 25           # Significant overlap for continuity
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 20
+    max_chunk_chars: 800
+  description: "For progressive summarization with context preservation"
+  use_cases:
+    - "Multi-pass document summarization"
+    - "Progressive content analysis"
+    - "Hierarchical text processing"
+
+# ==============================================================================
+# Sentiment Analysis Configuration
+# ==============================================================================
+# For sentiment analysis requiring contextual understanding
+sentiment_analysis_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 80         # Good balance of context and specificity
+    step_size: 40           # 50% overlap for context
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 15
+    max_chunk_chars: 600
+  description: "For sentiment analysis with contextual overlap"
+  use_cases:
+    - "Social media sentiment tracking"
+    - "Customer feedback analysis"
+    - "Opinion mining systems"
+
+# ==============================================================================
+# Character-Based Processing Configuration
+# ==============================================================================
+# For precise character-level control (useful for technical documents)
+character_based_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 800        # Characters per window
+    step_size: 400          # 50% character overlap
+    window_unit: "characters"
+    preserve_boundaries: false  # Strict character boundaries
+    min_window_size: 200
+    max_chunk_chars: 1000
+  description: "Character-level processing for precise control"
+  use_cases:
+    - "Technical documentation processing"
+    - "Code analysis and review"
+    - "Precise text formatting tasks"
+
+# ==============================================================================
+# Sentence-Based Analysis Configuration
+# ==============================================================================
+# For sentence-aware processing with semantic boundaries
+sentence_based_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 5          # Sentences per window
+    step_size: 2            # 2-3 sentence overlap
+    window_unit: "sentences"
+    preserve_boundaries: true
+    min_window_size: 1
+    max_chunk_chars: 2000   # Allow longer sentences
+    sentence_separators: [".", "!", "?", "。", "！", "？"]
+  description: "Sentence-aware processing with natural boundaries"
+  use_cases:
+    - "Literary analysis"
+    - "Educational content processing" 
+    - "Multi-language document analysis"
+
+# ==============================================================================
+# High-Precision Analysis Configuration
+# ==============================================================================
+# For detailed analysis requiring maximum overlap
+high_precision_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 50         # Smaller windows
+    step_size: 10           # 80% overlap for high precision
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 10
+    max_chunk_chars: 400
+  description: "High-precision analysis with maximum context overlap"
+  use_cases:
+    - "Legal document analysis"
+    - "Medical text processing"
+    - "Critical content review"
+
+# ==============================================================================
+# Batch Processing Configuration
+# ==============================================================================
+# Optimized for processing large volumes of documents efficiently
+batch_processing_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 120        # Balanced size for efficiency
+    step_size: 80           # Moderate overlap
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 25
+    max_chunk_chars: 900
+  description: "Efficient batch processing with reasonable overlap"
+  use_cases:
+    - "Large document collections"
+    - "Archive processing"
+    - "Bulk content analysis"
+
+# ==============================================================================
+# API Integration Configuration
+# ==============================================================================
+# For API calls with token/character limits
+api_integration_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 300        # Stay within API limits
+    step_size: 150          # 50% overlap
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 50
+    max_chunk_chars: 2000   # API-friendly size
+  description: "API-optimized chunks with overlap for context"
+  use_cases:
+    - "OpenAI API processing"
+    - "Translation services"
+    - "External AI service integration"
+
+# ==============================================================================
+# Multilingual Processing Configuration  
+# ==============================================================================
+# For processing multilingual content with appropriate separators
+multilingual_config:
+  chunker: "overlapping_window"
+  parameters:
+    window_size: 100
+    step_size: 50
+    window_unit: "sentences"
+    preserve_boundaries: true
+    min_window_size: 2
+    max_chunk_chars: 1200
+    sentence_separators: 
+      - "."   # English
+      - "!"   # English
+      - "?"   # English  
+      - "。"  # Chinese/Japanese
+      - "！"  # Chinese/Japanese
+      - "？"  # Chinese/Japanese
+      - "।"   # Hindi/Sanskrit
+      - "؟"   # Arabic
+      - "؍"   # Arabic
+  description: "Multilingual processing with international separators"
+  use_cases:
+    - "International document processing"
+    - "Cross-language content analysis"
+    - "Global content management systems"
+
+# ==============================================================================
+# Development and Testing Configuration
+# ==============================================================================
+# For development, testing, and debugging
+development_config:
+  chunker: "overlapping_window" 
+  parameters:
+    window_size: 20         # Small for easy testing
+    step_size: 10           # Clear overlap pattern
+    window_unit: "words"
+    preserve_boundaries: true
+    min_window_size: 5
+    max_chunk_chars: 200
+  description: "Development and testing configuration"
+  use_cases:
+    - "Algorithm testing and validation"
+    - "Performance benchmarking"
+    - "Educational examples"
+
+# ==============================================================================
+# Configuration Usage Examples
+# ==============================================================================
+# Example usage patterns for different scenarios:
+
+example_usage:
+  # Using in Python code:
+  python_example: |
+    from chunking_strategy.strategies.text.overlapping_window_chunker import OverlappingWindowChunker
+    import yaml
+    
+    # Load configuration
+    with open('config_examples/overlapping_window_chunker.yaml', 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Use RAG configuration
+    rag_params = config['rag_config']['parameters']
+    chunker = OverlappingWindowChunker(**rag_params)
+    result = chunker.chunk(document_text)
+  
+  # CLI usage example:
+  cli_example: |
+    # Process with RAG configuration
+    python -m chunking_strategy chunk --strategy overlapping_window \
+      --window-size 150 --step-size 75 --window-unit words \
+      --input document.txt --output chunks.json
+  
+  # Batch processing example:
+  batch_example: |
+    # Process multiple files with embedding configuration
+    for file in documents/*.txt; do
+      python -m chunking_strategy chunk --strategy overlapping_window \
+        --config-file config_examples/overlapping_window_chunker.yaml \
+        --config-profile embedding_config \
+        --input "$file" --output "processed/$(basename $file .txt)_chunks.json"
+    done
+
+# ==============================================================================
+# Performance Guidelines
+# ==============================================================================
+performance_guidelines:
+  memory_usage:
+    - "Smaller step sizes increase memory usage due to more chunks"
+    - "Character-based processing uses more memory than word-based"
+    - "Consider max_chunk_chars for memory-constrained environments"
+  
+  processing_speed:
+    - "Word-based processing is typically fastest"
+    - "Sentence-based requires additional parsing overhead"
+    - "Larger step sizes process faster but with less overlap"
+  
+  quality_considerations:
+    - "Smaller step sizes provide better context continuity"
+    - "preserve_boundaries=true improves semantic coherence"
+    - "Balance window_size and step_size for optimal overlap ratio"
+
+# ==============================================================================
+# Troubleshooting Common Issues
+# ==============================================================================
+troubleshooting:
+  no_chunks_generated:
+    - "Check if window_size is larger than document content"
+    - "Verify min_window_size is appropriate for content"
+    - "Ensure content is not empty or whitespace-only"
+  
+  excessive_memory_usage:
+    - "Increase step_size to reduce chunk overlap"
+    - "Decrease window_size for smaller chunks"
+    - "Set max_chunk_chars to limit individual chunk size"
+  
+  poor_overlap_quality:
+    - "Decrease step_size for more overlap"
+    - "Enable preserve_boundaries for better semantic breaks"
+    - "Consider switching to sentence-based processing"

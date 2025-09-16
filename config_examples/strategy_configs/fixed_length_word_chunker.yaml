@@ -1,0 +1,126 @@
+# Fixed-Length Word Chunker Configuration
+#
+# This configuration demonstrates various settings for the Fixed-Length Word Chunker
+# optimized for different use cases and scenarios.
+
+profile_name: "fixed_length_word_chunker"
+
+strategies:
+  primary: "fixed_length_word"
+  fallbacks: ["sentence_based", "paragraph_based", "fixed_size"]
+
+# Fixed-Length Word Chunker Configuration
+fixed_length_word:
+  # Core chunking parameters
+  words_per_chunk: 100            # Number of words per chunk
+  overlap_words: 10               # Words to overlap between chunks (helps with context)
+  max_chunk_size: 5000           # Maximum chunk size in characters (safety limit)
+
+  # Tokenization settings
+  word_tokenization: "simple"     # "simple", "whitespace", "regex"
+  preserve_punctuation: true      # Whether to keep punctuation with words
+
+  # Quality controls
+  min_chunk_words: 5              # Minimum words per chunk (for last chunk)
+
+# Alternative configurations for different scenarios
+configurations:
+
+  # Small chunks for detailed analysis
+  detailed_analysis:
+    fixed_length_word:
+      words_per_chunk: 50
+      overlap_words: 5
+      word_tokenization: "regex"
+      preserve_punctuation: true
+      min_chunk_words: 3
+
+  # Large chunks for document processing
+  document_processing:
+    fixed_length_word:
+      words_per_chunk: 200
+      overlap_words: 20
+      word_tokenization: "simple"
+      preserve_punctuation: true
+      min_chunk_words: 10
+      max_chunk_size: 8000
+
+  # Fast processing (no overlap)
+  fast_processing:
+    fixed_length_word:
+      words_per_chunk: 75
+      overlap_words: 0
+      word_tokenization: "whitespace"
+      preserve_punctuation: false
+      min_chunk_words: 5
+
+  # RAG optimized (with good overlap for context)
+  rag_optimized:
+    fixed_length_word:
+      words_per_chunk: 150
+      overlap_words: 25
+      word_tokenization: "simple"
+      preserve_punctuation: true
+      min_chunk_words: 10
+      max_chunk_size: 6000
+
+# Processing optimizations
+processing:
+  parallel: false                 # Word chunking is fast, parallel may add overhead
+  enable_validation: true         # Validate chunks after creation
+
+# Quality and performance settings
+quality:
+  min_content_ratio: 0.1          # Minimum content to whitespace ratio
+  enable_content_validation: true  # Check for reasonable content
+
+performance:
+  enable_caching: false           # Word chunking is fast enough without caching
+  batch_size: 100                 # Files to process in each batch
+
+# Output settings
+output:
+  include_metadata: true          # Include word counts and positions
+  include_word_indices: true      # Include start/end word positions
+  format_timestamps: true         # Add processing timestamps
+
+# Use case examples and recommendations
+use_cases:
+
+  # For RAG (Retrieval-Augmented Generation)
+  rag:
+    description: "Balanced chunks with overlap for good context retrieval"
+    words_per_chunk: 150
+    overlap_words: 25
+    preserve_punctuation: true
+
+  # For document indexing
+  indexing:
+    description: "Consistent chunk sizes for uniform indexing"
+    words_per_chunk: 100
+    overlap_words: 0
+    word_tokenization: "simple"
+
+  # For text analysis
+  analysis:
+    description: "Smaller chunks for detailed linguistic analysis"
+    words_per_chunk: 50
+    overlap_words: 10
+    word_tokenization: "regex"
+
+  # For batch processing
+  batch:
+    description: "Optimized for processing many files quickly"
+    words_per_chunk: 200
+    overlap_words: 10
+    word_tokenization: "whitespace"
+    preserve_punctuation: false
+
+# Best practices and recommendations
+recommendations:
+  - "Use overlap_words for tasks requiring context preservation"
+  - "Choose word_tokenization='regex' for complex punctuation handling"
+  - "Set preserve_punctuation=false for faster processing of simple text"
+  - "Adjust words_per_chunk based on your downstream processing needs"
+  - "Use min_chunk_words to avoid creating very small final chunks"
+  - "Monitor max_chunk_size to prevent memory issues with long words"

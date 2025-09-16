@@ -1,0 +1,76 @@
+{
+  "company": {
+    "name": "TechCorp",
+    "founded": 2010,
+    "headquarters": {
+      "address": {
+        "street": "123 Tech Street",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94102",
+        "coordinates": {
+          "lat": 37.7749,
+          "lng": -122.4194
+        }
+      },
+      "employees": 500
+    },
+    "departments": [
+      {
+        "name": "Engineering",
+        "head": "Alice Johnson",
+        "employees": [
+          {
+            "id": "E001",
+            "name": "John Doe",
+            "role": "Software Engineer",
+            "skills": ["Python", "JavaScript", "React"],
+            "projects": [
+              {
+                "name": "Project Alpha",
+                "status": "completed",
+                "technologies": ["React", "Node.js"]
+              },
+              {
+                "name": "Project Beta",
+                "status": "in_progress",
+                "technologies": ["Python", "PostgreSQL"]
+              }
+            ]
+          },
+          {
+            "id": "E002",
+            "name": "Jane Smith",
+            "role": "Senior Engineer",
+            "skills": ["Java", "Spring", "Kubernetes"],
+            "projects": [
+              {
+                "name": "Project Gamma",
+                "status": "planning",
+                "technologies": ["Java", "Spring Boot", "Docker"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Marketing",
+        "head": "Bob Wilson",
+        "employees": [
+          {
+            "id": "M001",
+            "name": "Sarah Davis",
+            "role": "Marketing Manager",
+            "campaigns": [
+              {
+                "name": "Summer Campaign",
+                "budget": 50000,
+                "status": "active"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

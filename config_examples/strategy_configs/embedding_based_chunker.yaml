@@ -1,0 +1,316 @@
+---
+# Embedding-Based Chunker Configuration Examples
+# 
+# The Embedding-Based Chunker uses vector embeddings and similarity metrics 
+# to identify semantic boundaries in text. It supports multiple embedding models,
+# similarity metrics, and clustering approaches for optimal chunking results.
+#
+# Key Features:
+# - Multiple embedding models (Sentence Transformers, TF-IDF, Word Averaging)
+# - Various similarity metrics (cosine, euclidean, dot product, manhattan)
+# - Clustering methods (threshold-based, k-means, hierarchical, DBSCAN)
+# - Embedding caching for performance optimization
+# - Dimension reduction for large embeddings
+# - Adaptive parameter tuning based on feedback
+# - Streaming support for large documents
+
+# =============================================================================
+# CONFIGURATION PROFILES
+# =============================================================================
+
+# High Quality Configuration - For maximum semantic accuracy
+high_quality_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Embedding model configuration
+    embedding_model: sentence_transformer           # Use advanced transformer model
+    model_name: "all-MiniLM-L6-v2"                 # High-quality sentence embeddings
+    
+    # Similarity and clustering
+    similarity_metric: cosine                       # Best for normalized embeddings
+    similarity_threshold: 0.8                      # High threshold for semantic coherence
+    clustering_method: hierarchical                 # Best boundary detection
+    
+    # Chunk size constraints
+    min_chunk_sentences: 3                         # Larger minimum for coherence
+    max_chunk_sentences: 12                        # Allow longer chunks
+    target_chunk_size: 1500                       # Target character count
+    max_chunk_size: 2500                          # Maximum character limit
+    chunk_overlap: 100                             # Overlap for continuity
+    
+    # Advanced features
+    enable_caching: true                           # Cache embeddings for performance
+    dimension_reduction: false                      # Keep full dimensions for quality
+    adaptive_threshold: true                       # Adjust thresholds dynamically
+    quality_threshold: 0.7                        # High quality requirements
+    
+    # Clustering parameters for hierarchical
+    clustering_params:
+      linkage: ward                                # Ward linkage for compact clusters
+      n_clusters: null                            # Auto-determine cluster count
+
+# Balanced Configuration - Good balance of quality and performance
+balanced_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Embedding model configuration  
+    embedding_model: tfidf                         # Fast and reliable
+    similarity_metric: cosine                      # Standard similarity measure
+    similarity_threshold: 0.7                     # Moderate threshold
+    clustering_method: threshold_based             # Efficient boundary detection
+    
+    # Chunk size constraints
+    min_chunk_sentences: 2                        # Reasonable minimum
+    max_chunk_sentences: 8                        # Standard maximum
+    target_chunk_size: 1000                      # Standard target size
+    max_chunk_size: 1800                         # Reasonable maximum
+    chunk_overlap: 50                             # Moderate overlap
+    
+    # Performance optimization
+    enable_caching: true                          # Enable caching
+    dimension_reduction: true                     # Reduce dimensions for speed
+    adaptive_threshold: true                      # Adaptive optimization
+    quality_threshold: 0.6                       # Balanced quality
+    
+    # Default clustering parameters
+    clustering_params:
+      random_state: 42                           # Reproducible results
+
+# Fast Performance Configuration - Optimized for speed
+fast_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Fast embedding model
+    embedding_model: word_average                  # Fastest embedding method
+    similarity_metric: dot_product                # Fast similarity computation
+    similarity_threshold: 0.6                    # Lower threshold for speed
+    clustering_method: kmeans                     # Fast clustering
+    
+    # Efficient chunk sizes
+    min_chunk_sentences: 2                       # Standard minimum
+    max_chunk_sentences: 6                       # Smaller for faster processing
+    target_chunk_size: 800                      # Smaller target
+    max_chunk_size: 1200                        # Smaller maximum
+    chunk_overlap: 25                            # Minimal overlap
+    
+    # Performance optimizations
+    enable_caching: true                         # Cache for repeated content
+    dimension_reduction: true                    # Reduce computation
+    adaptive_threshold: false                    # Skip adaptation for speed
+    quality_threshold: 0.5                      # Lower quality for speed
+    
+    # K-means parameters for speed
+    clustering_params:
+      n_clusters: 5                             # Fixed cluster count
+      max_iter: 50                              # Limit iterations
+      random_state: 42                          # Reproducible
+
+# Scientific/Academic Configuration - For research documents
+scientific_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # High-quality embedding model
+    embedding_model: sentence_transformer
+    model_name: "all-mpnet-base-v2"              # Best quality model
+    
+    # Precise similarity settings
+    similarity_metric: cosine                    # Standard for academic text
+    similarity_threshold: 0.75                  # Precise boundaries
+    clustering_method: hierarchical             # Best for structured documents
+    
+    # Academic document chunk sizes
+    min_chunk_sentences: 4                      # Larger for complex ideas
+    max_chunk_sentences: 15                     # Allow for full concepts
+    target_chunk_size: 2000                    # Larger for detailed content
+    max_chunk_size: 3000                       # Maximum for complete ideas
+    chunk_overlap: 150                          # Substantial overlap
+    
+    # Quality-focused settings
+    enable_caching: true
+    dimension_reduction: false                   # Preserve full semantic richness
+    adaptive_threshold: true
+    quality_threshold: 0.8                      # High quality requirement
+    
+    # Hierarchical clustering for structure
+    clustering_params:
+      linkage: complete                         # Complete linkage for clear boundaries
+      n_clusters: null                         # Auto-determine
+
+# Creative Writing Configuration - For narrative content
+creative_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Narrative-focused embedding
+    embedding_model: sentence_transformer
+    model_name: "all-MiniLM-L6-v2"
+    
+    # Flexible similarity for creative content
+    similarity_metric: cosine
+    similarity_threshold: 0.65                  # More flexible for creative flow
+    clustering_method: threshold_based          # Simple boundaries
+    
+    # Creative content chunk sizes
+    min_chunk_sentences: 3                      # Minimum for narrative flow
+    max_chunk_sentences: 10                     # Allow for scene development
+    target_chunk_size: 1200                    # Good for narrative chunks
+    max_chunk_size: 2000                       # Maximum for complete scenes
+    chunk_overlap: 75                           # Moderate overlap for flow
+    
+    # Adaptive settings for variety
+    enable_caching: true
+    dimension_reduction: false                   # Keep semantic richness
+    adaptive_threshold: true                     # Adapt to writing style
+    quality_threshold: 0.6                      # Flexible quality
+
+# Technical Documentation Configuration - For API docs, manuals
+technical_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Technical content embedding
+    embedding_model: tfidf                       # Good for technical terms
+    similarity_metric: cosine
+    similarity_threshold: 0.72                  # Moderate precision
+    clustering_method: kmeans                    # Structured clustering
+    
+    # Technical document chunk sizes
+    min_chunk_sentences: 2                      # Allow small technical chunks
+    max_chunk_sentences: 8                      # Standard for procedures
+    target_chunk_size: 1000                    # Standard technical size
+    max_chunk_size: 1500                       # Reasonable maximum
+    chunk_overlap: 50                           # Standard overlap
+    
+    # Performance settings for large docs
+    enable_caching: true
+    dimension_reduction: true                    # Optimize for large documents
+    adaptive_threshold: true
+    quality_threshold: 0.65
+    
+    # K-means for consistent structure
+    clustering_params:
+      n_clusters: 8                             # Good for technical sections
+      random_state: 42
+
+# Multi-language Configuration - For international content
+multilingual_embedding_based:
+  strategy: embedding_based
+  parameters:
+    # Multilingual embedding model
+    embedding_model: sentence_transformer
+    model_name: "paraphrase-multilingual-MiniLM-L12-v2"  # Multilingual support
+    
+    # Universal similarity settings
+    similarity_metric: cosine                    # Works across languages
+    similarity_threshold: 0.7                   # Standard threshold
+    clustering_method: hierarchical             # Good for varied content
+    
+    # Flexible chunk sizes for different languages
+    min_chunk_sentences: 2                      # Accommodate short sentences
+    max_chunk_sentences: 10                     # Allow for longer sentences
+    target_chunk_size: 1200                    # Flexible target
+    max_chunk_size: 2000                       # Generous maximum
+    chunk_overlap: 100                          # Good overlap for context
+    
+    # Quality settings
+    enable_caching: true
+    dimension_reduction: false                   # Preserve cross-lingual features
+    adaptive_threshold: true
+    quality_threshold: 0.65                     # Flexible for language variation
+
+# =============================================================================
+# ADVANCED CONFIGURATION OPTIONS
+# =============================================================================
+
+# Custom Clustering Configuration
+advanced_clustering_embedding:
+  strategy: embedding_based
+  parameters:
+    embedding_model: sentence_transformer
+    model_name: "all-MiniLM-L6-v2"
+    similarity_metric: cosine
+    similarity_threshold: 0.75
+    clustering_method: dbscan                    # Density-based clustering
+    
+    min_chunk_sentences: 3
+    max_chunk_sentences: 12
+    target_chunk_size: 1500
+    max_chunk_size: 2500
+    
+    enable_caching: true
+    dimension_reduction: true
+    adaptive_threshold: true
+    quality_threshold: 0.7
+    
+    # DBSCAN specific parameters
+    clustering_params:
+      eps: 0.3                                  # Neighborhood distance
+      min_samples: 3                            # Minimum cluster size
+      metric: cosine                            # Distance metric
+
+# Streaming Configuration - For large document processing
+streaming_embedding_based:
+  strategy: embedding_based
+  parameters:
+    embedding_model: tfidf                       # Memory efficient
+    similarity_metric: cosine
+    similarity_threshold: 0.68
+    clustering_method: threshold_based           # Efficient for streaming
+    
+    min_chunk_sentences: 2
+    max_chunk_sentences: 6                      # Smaller for streaming
+    target_chunk_size: 800
+    max_chunk_size: 1200
+    chunk_overlap: 25                           # Minimal overlap
+    
+    # Streaming optimizations
+    enable_caching: true                        # Cache for efficiency
+    dimension_reduction: true                   # Reduce memory usage
+    adaptive_threshold: false                   # Skip adaptation for streaming
+    quality_threshold: 0.6
+
+# =============================================================================
+# TESTING AND DEVELOPMENT CONFIGURATIONS
+# =============================================================================
+
+# Development Configuration - For testing and debugging
+dev_embedding_based:
+  strategy: embedding_based
+  parameters:
+    embedding_model: word_average                # Simple for debugging
+    similarity_metric: euclidean               # Different metric for testing
+    similarity_threshold: 0.5                  # Lower for more boundaries
+    clustering_method: threshold_based
+    
+    min_chunk_sentences: 1                     # Minimal for testing
+    max_chunk_sentences: 4                     # Small for debugging
+    target_chunk_size: 400
+    max_chunk_size: 600
+    chunk_overlap: 10
+    
+    enable_caching: false                      # Disable for consistent testing
+    dimension_reduction: false
+    adaptive_threshold: false                  # Consistent behavior
+    quality_threshold: 0.4
+
+# Benchmark Configuration - For performance testing
+benchmark_embedding_based:
+  strategy: embedding_based
+  parameters:
+    embedding_model: tfidf                     # Consistent performance
+    similarity_metric: cosine
+    similarity_threshold: 0.7
+    clustering_method: kmeans
+    
+    min_chunk_sentences: 2
+    max_chunk_sentences: 8
+    target_chunk_size: 1000
+    max_chunk_size: 1500
+    
+    enable_caching: true                       # Measure caching impact
+    dimension_reduction: true
+    adaptive_threshold: false                  # Consistent for benchmarks
+    quality_threshold: 0.6
+    
+    clustering_params:
+      n_clusters: 6
+      random_state: 42                        # Reproducible results
+      max_iter: 100

@@ -1,0 +1,86 @@
+# Simple File Extension Based Chunking Configuration
+# Routes different file extensions to appropriate chunking strategies
+# Uses only built-in algorithms to avoid path issues
+
+name: "file_extension_simple"
+description: "Simple file extension based routing using only built-in algorithms"
+
+# Main chunking configuration
+chunking:
+  # Default strategy when no extension match
+  default_strategy: "paragraph_based"
+  fallbacks: ["sentence_based", "fixed_size"]
+
+  # File extension routing rules
+  strategy_selection:
+    # Programming languages - use built-in specialized chunkers
+    ".py": "python_code"
+    ".js": "javascript_code"
+    ".java": "java_code"
+    ".cpp": "c_cpp_code"
+    ".go": "go_code"
+    ".css": "css_code"
+
+    # Documents - use built-in document processors
+    ".pdf": "pdf_chunker"
+    ".docx": "doc_chunker"
+    ".doc": "doc_chunker"
+    ".md": "markdown_chunker"
+
+    # Data formats - use built-in data processors
+    ".json": "json_chunker"
+    ".csv": "csv_chunker"
+    ".xml": "xml_html_chunker"
+    ".html": "xml_html_chunker"
+
+    # Multimedia - use built-in multimedia processors
+    ".mp3": "time_based_audio"
+    ".wav": "time_based_audio"
+    ".mp4": "time_based_video"
+    ".avi": "time_based_video"
+    ".jpg": "grid_based_image"
+    ".png": "grid_based_image"
+
+    # Text files - smart routing based on content
+    ".txt": "semantic"
+    ".log": "paragraph_based"
+
+# Algorithm-specific parameters
+parameters:
+  python_code:
+    chunk_by: "function"
+    max_lines_per_chunk: 100
+    include_imports: true
+    preserve_comments: true
+
+  javascript_code:
+    chunk_by: "function"
+    max_lines_per_chunk: 150
+    handle_jsx: true
+    preserve_comments: true
+
+  pdf_chunker:
+    pages_per_chunk: 2
+    extract_images: false
+    preserve_formatting: true
+
+  markdown_chunker:
+    chunk_by: "headers"
+    header_level: 2
+    preserve_code_blocks: true
+
+  json_chunker:
+    chunk_by: "objects"
+    objects_per_chunk: 100
+    preserve_structure: true
+
+  semantic:
+    similarity_threshold: 0.7
+    min_chunk_size: 200
+    max_chunk_size: 1500
+
+output:
+  format: "json"
+  include_metadata: true
+  include_file_extension: true
+  include_strategy_used: true

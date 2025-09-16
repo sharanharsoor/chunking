@@ -1,0 +1,39 @@
+# Simple Enhanced PDF Processing Configuration
+# Easy-to-use configuration for enhanced PDF processing
+
+profile_name: "enhanced_pdf_simple"
+
+strategies:
+  primary: "enhanced_pdf_chunker"
+  
+  configs:
+    enhanced_pdf_chunker:
+      # Basic settings - good defaults for most use cases
+      pages_per_chunk: 1
+      
+      # Enable key features
+      table_extraction_enabled: true
+      image_processing_enabled: true
+      layout_analysis_enabled: true
+      
+      # Use best available backends
+      table_backend: "pdfplumber"
+      preserve_table_structure: true
+      
+      # Enable basic OCR but not heavy ML models
+      ocr_enabled: true
+      image_captioning_enabled: false
+      
+      # Smart layout analysis
+      detect_columns: true
+      detect_headers_footers: true
+
+# Simple preprocessing
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+
+# Basic quality checks
+quality_evaluation:
+  enabled: true
+  threshold: 0.5

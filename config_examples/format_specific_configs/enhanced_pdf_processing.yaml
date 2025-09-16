@@ -1,0 +1,103 @@
+# Enhanced PDF Processing Configuration
+# World-class PDF and document processing with advanced features
+
+profile_name: "enhanced_pdf_processing"
+
+strategies:
+  primary: "enhanced_pdf_chunker"
+  fallbacks: ["pdf_chunker"]
+
+  configs:
+    enhanced_pdf_chunker:
+      # Core chunking parameters
+      pages_per_chunk: 1
+      min_chunk_size: 100
+      max_chunk_size: 4000
+
+      # Table extraction settings
+      table_extraction_enabled: true
+      table_backend: "pdfplumber"  # pdfplumber, pymupdf, hybrid
+      preserve_table_structure: true
+      table_confidence_threshold: 0.7
+
+      # Image processing settings
+      image_processing_enabled: true
+      ocr_enabled: true
+      image_captioning_enabled: false  # Requires ML models
+      ocr_language: "eng"
+
+      # Layout analysis settings
+      layout_analysis_enabled: true
+      detect_columns: true
+      detect_headers_footers: true
+      preserve_reading_order: true
+
+      # Performance settings
+      cache_enabled: true
+      memory_limit_mb: 512
+      parallel_processing: false
+
+    # Fallback configurations
+    pdf_chunker:
+      pages_per_chunk: 1
+      extract_images: true
+      extract_tables: true
+
+    universal_document:
+      chunk_size: 2000
+      preserve_structure: true
+
+# File type routing
+file_types:
+  ".pdf":
+    strategy: "enhanced_pdf_chunker"
+    fallback_strategies: ["pdf_chunker", "universal_document"]
+
+# Preprocessing options
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  remove_empty_chunks: true
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  merge_short_chunks: true
+  min_chunk_size: 100
+  quality_filter_enabled: true
+
+# Quality evaluation settings
+quality_evaluation:
+  enabled: true
+  threshold: 0.6
+  metrics:
+    - "coherence"
+    - "size_consistency"
+    - "boundary_quality"
+    - "content_coverage"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  detailed_extraction_logs: false
+  performance_metrics: true
+
+# Advanced features
+advanced:
+  # Table extraction enhancements
+  table_extraction:
+    merge_adjacent_tables: true
+    detect_table_headers: true
+    preserve_cell_formatting: true
+
+  # Image processing enhancements
+  image_processing:
+    extract_image_captions: true
+    ocr_confidence_threshold: 0.8
+    image_context_window: 100  # characters around images
+
+  # Layout analysis enhancements
+  layout_analysis:
+    reading_order_algorithm: "spatial"  # spatial, logical, hybrid
+    column_detection_sensitivity: 0.7
+    header_footer_detection: true

@@ -1,0 +1,392 @@
+---
+# Context-Enriched Chunker Configuration Examples
+#
+# The Context-Enriched Chunker provides sophisticated text analysis with:
+# - Named Entity Recognition (NER) and preservation
+# - Topic modeling and coherence analysis
+# - Multiple boundary detection methods (semantic, topic, entity, multi-modal)
+# - Context preservation and quality scoring
+# - Adaptive parameter tuning based on feedback
+# - Rich semantic metadata generation
+
+# =============================================================================
+# CONFIGURATION PROFILES
+# =============================================================================
+
+# High Quality Configuration - For maximum semantic accuracy
+high_quality_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Core chunking parameters
+    target_chunk_size: 1800           # Larger chunks for better context
+    min_chunk_size: 600              # Substantial minimum for coherence
+    max_chunk_size: 3000             # Allow larger chunks for complex topics
+    overlap_size: 150                # Generous overlap for context preservation
+
+    # Semantic analysis parameters
+    semantic_similarity_threshold: 0.8  # High threshold for clear boundaries
+    topic_coherence_threshold: 0.7     # Strict coherence requirements
+    entity_preservation_mode: "strict" # Never split entities
+    context_window_size: 4             # Wider context analysis
+
+    # NLP components (will use available models)
+    spacy_model: "en_core_web_lg"      # Large model if available
+    enable_ner: true                   # Enable entity recognition
+    enable_topic_modeling: true        # Enable topic analysis
+    enable_coreference: false          # Disabled for stability
+
+    # Boundary detection
+    boundary_detection_method: "multi_modal"  # Use all methods
+    min_topic_coherence: 0.6               # Higher coherence requirement
+    entity_boundary_weight: 0.35           # Emphasize entity preservation
+    topic_boundary_weight: 0.35            # Balance topic boundaries
+    semantic_boundary_weight: 0.3          # Semantic similarity weight
+
+    # Quality parameters
+    preserve_sentence_integrity: true      # Keep sentences intact
+    avoid_entity_splitting: true           # Strict entity preservation
+    maintain_topic_coherence: true         # Maintain topic consistency
+    context_preservation_priority: "quality"  # Prioritize quality over speed
+
+    # Advanced features
+    enable_cross_references: true         # Track inter-chunk relationships
+    generate_semantic_fingerprints: true  # Create semantic signatures
+    extract_key_phrases: true            # Extract important phrases
+    analyze_sentiment: false             # Keep simple for stability
+
+# Fast Processing Configuration - For rapid analysis with good quality
+fast_processing_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Smaller, faster chunks
+    target_chunk_size: 1000
+    min_chunk_size: 300
+    max_chunk_size: 1800
+    overlap_size: 80
+
+    # Relaxed thresholds for speed
+    semantic_similarity_threshold: 0.65
+    topic_coherence_threshold: 0.5
+    entity_preservation_mode: "moderate"
+    context_window_size: 2
+
+    # Minimal NLP for speed
+    spacy_model: "en_core_web_sm"
+    enable_ner: false                  # Disable for speed
+    enable_topic_modeling: true        # Keep topic analysis
+
+    # Focus on topic boundaries
+    boundary_detection_method: "topic"
+    min_topic_coherence: 0.4
+    topic_boundary_weight: 0.8         # Focus primarily on topics
+
+    # Speed-oriented quality settings
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: false      # Allow for speed
+    maintain_topic_coherence: true
+    context_preservation_priority: "speed"
+
+    # Minimal advanced features
+    enable_cross_references: false
+    generate_semantic_fingerprints: true
+    extract_key_phrases: false
+    analyze_sentiment: false
+
+# Balanced Configuration - Good trade-off between quality and performance
+balanced_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Moderate sizing
+    target_chunk_size: 1200
+    min_chunk_size: 400
+    max_chunk_size: 2200
+    overlap_size: 100
+
+    # Balanced thresholds
+    semantic_similarity_threshold: 0.7
+    topic_coherence_threshold: 0.6
+    entity_preservation_mode: "moderate"
+    context_window_size: 3
+
+    # Standard NLP setup
+    spacy_model: "en_core_web_sm"
+    enable_ner: true
+    enable_topic_modeling: true
+
+    # Multi-modal boundary detection
+    boundary_detection_method: "multi_modal"
+    min_topic_coherence: 0.5
+    entity_boundary_weight: 0.3
+    topic_boundary_weight: 0.4
+    semantic_boundary_weight: 0.3
+
+    # Balanced quality settings
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: true
+    context_preservation_priority: "balanced"
+
+    # Selective advanced features
+    enable_cross_references: true
+    generate_semantic_fingerprints: true
+    extract_key_phrases: true
+    analyze_sentiment: false
+
+# Entity-Focused Configuration - Optimized for entity-heavy documents
+entity_focused_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Entity-friendly sizing
+    target_chunk_size: 1500
+    min_chunk_size: 500
+    max_chunk_size: 2500
+    overlap_size: 120
+
+    # Entity-aware thresholds
+    semantic_similarity_threshold: 0.75
+    topic_coherence_threshold: 0.65
+    entity_preservation_mode: "strict"
+    context_window_size: 3
+
+    # Full NER capabilities
+    spacy_model: "en_core_web_lg"  # Better for entity recognition
+    enable_ner: true
+    enable_topic_modeling: true
+    enable_coreference: false  # May help with entity tracking
+
+    # Entity-focused boundaries
+    boundary_detection_method: "multi_modal"
+    min_topic_coherence: 0.55
+    entity_boundary_weight: 0.5     # Heavy emphasis on entities
+    topic_boundary_weight: 0.3
+    semantic_boundary_weight: 0.2
+
+    # Strong entity preservation
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: true
+    context_preservation_priority: "quality"
+
+    # Entity-relevant features
+    enable_cross_references: true
+    generate_semantic_fingerprints: true
+    extract_key_phrases: true
+    analyze_sentiment: false
+
+# Topic-Focused Configuration - Optimized for topic-coherent chunking
+topic_focused_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Topic-coherent sizing
+    target_chunk_size: 1400
+    min_chunk_size: 450
+    max_chunk_size: 2800  # Allow larger chunks for topic completeness
+    overlap_size: 90
+
+    # Topic-centric thresholds
+    semantic_similarity_threshold: 0.68
+    topic_coherence_threshold: 0.75  # High coherence requirement
+    entity_preservation_mode: "moderate"
+    context_window_size: 4
+
+    # Topic analysis focus
+    spacy_model: "en_core_web_sm"
+    enable_ner: false                # Focus resources on topics
+    enable_topic_modeling: true
+
+    # Topic boundary emphasis
+    boundary_detection_method: "topic"
+    min_topic_coherence: 0.7         # Very high coherence
+    topic_boundary_weight: 0.9       # Almost exclusively topic-based
+
+    # Topic-coherence priority
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: false    # Allow splitting for topic coherence
+    maintain_topic_coherence: true
+    context_preservation_priority: "quality"
+
+    # Topic-relevant features
+    enable_cross_references: false
+    generate_semantic_fingerprints: true
+    extract_key_phrases: true
+    analyze_sentiment: false
+
+# Academic Document Configuration - For research papers and technical documents
+academic_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Academic document sizing
+    target_chunk_size: 2000          # Larger for complete ideas
+    min_chunk_size: 800              # Substantial minimum
+    max_chunk_size: 4000             # Allow very large chunks
+    overlap_size: 200                # Generous overlap
+
+    # High-quality analysis
+    semantic_similarity_threshold: 0.8
+    topic_coherence_threshold: 0.75
+    entity_preservation_mode: "strict"
+    context_window_size: 5           # Wide context for complex ideas
+
+    # Full NLP capabilities
+    spacy_model: "en_core_web_lg"
+    enable_ner: true                 # Important for academic entities
+    enable_topic_modeling: true
+    enable_coreference: false
+
+    # Comprehensive boundary detection
+    boundary_detection_method: "multi_modal"
+    min_topic_coherence: 0.65
+    entity_boundary_weight: 0.4     # Preserve academic entities
+    topic_boundary_weight: 0.4      # Maintain topic flow
+    semantic_boundary_weight: 0.2
+
+    # Academic quality requirements
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: true
+    context_preservation_priority: "quality"
+
+    # Full feature set for analysis
+    enable_cross_references: true
+    generate_semantic_fingerprints: true
+    extract_key_phrases: true
+    analyze_sentiment: false
+
+# =============================================================================
+# ADAPTIVE CONFIGURATIONS
+# =============================================================================
+
+# Self-Tuning Configuration - Adapts parameters based on performance
+adaptive_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Starting parameters (will adapt)
+    target_chunk_size: 1200
+    min_chunk_size: 400
+    max_chunk_size: 2000
+    overlap_size: 100
+
+    # Initial thresholds
+    semantic_similarity_threshold: 0.7
+    topic_coherence_threshold: 0.6
+    entity_preservation_mode: "moderate"
+
+    # Enable adaptation
+    enable_adaptive_tuning: true     # Allow parameter adaptation
+
+    # Standard NLP setup
+    enable_ner: true
+    enable_topic_modeling: true
+    boundary_detection_method: "multi_modal"
+
+    # Quality-focused defaults
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: true
+    context_preservation_priority: "balanced"
+
+# =============================================================================
+# FALLBACK CONFIGURATIONS (for limited NLP resources)
+# =============================================================================
+
+# Minimal NLP Configuration - Works without advanced NLP models
+minimal_nlp_context_enriched:
+  strategy: context_enriched
+  parameters:
+    # Conservative sizing for basic processing
+    target_chunk_size: 1000
+    min_chunk_size: 300
+    max_chunk_size: 1500
+    overlap_size: 80
+
+    # Relaxed thresholds for basic NLP
+    semantic_similarity_threshold: 0.6
+    topic_coherence_threshold: 0.5
+    entity_preservation_mode: "loose"
+    context_window_size: 2
+
+    # Minimal NLP requirements
+    enable_ner: false                # No NER without advanced models
+    enable_topic_modeling: true      # TF-IDF still works
+    boundary_detection_method: "topic"  # Focus on what works
+
+    # Basic quality settings
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: false    # Can't detect entities anyway
+    maintain_topic_coherence: true
+    context_preservation_priority: "balanced"
+
+    # Minimal features
+    enable_cross_references: false
+    generate_semantic_fingerprints: true  # TF-IDF fingerprints
+    extract_key_phrases: false
+    analyze_sentiment: false
+
+# =============================================================================
+# SPECIALIZED USE CASES
+# =============================================================================
+
+# Legal Document Configuration
+legal_context_enriched:
+  strategy: context_enriched
+  parameters:
+    target_chunk_size: 1800
+    min_chunk_size: 600
+    max_chunk_size: 3500
+    overlap_size: 150
+
+    # Preserve legal entities and structure
+    semantic_similarity_threshold: 0.75
+    topic_coherence_threshold: 0.7
+    entity_preservation_mode: "strict"
+
+    enable_ner: true
+    enable_topic_modeling: true
+    boundary_detection_method: "multi_modal"
+
+    # Critical for legal accuracy
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: true
+    context_preservation_priority: "quality"
+
+# News Article Configuration
+news_context_enriched:
+  strategy: context_enriched
+  parameters:
+    target_chunk_size: 800
+    min_chunk_size: 250
+    max_chunk_size: 1200
+    overlap_size: 60
+
+    # News-appropriate thresholds
+    semantic_similarity_threshold: 0.65
+    topic_coherence_threshold: 0.55
+    entity_preservation_mode: "moderate"
+
+    enable_ner: true                 # Important for news entities
+    enable_topic_modeling: true
+    boundary_detection_method: "entity"  # News often entity-driven
+
+    preserve_sentence_integrity: true
+    avoid_entity_splitting: true
+    maintain_topic_coherence: false  # News can jump topics
+    context_preservation_priority: "speed"
+
+# =============================================================================
+# QUALITY VALIDATION SETTINGS
+# =============================================================================
+
+# Validation thresholds for chunk quality
+quality_thresholds:
+  min_coherence_score: 0.4          # Minimum acceptable coherence
+  min_context_preservation: 0.6     # Minimum context preservation
+  min_boundary_quality: 0.7         # Minimum boundary quality
+  max_processing_time: 30.0          # Maximum processing time (seconds)
+
+# Performance monitoring
+performance_monitoring:
+  track_processing_time: true       # Monitor performance
+  track_chunk_quality: true         # Monitor quality metrics
+  track_adaptation_history: true    # Track parameter changes
+  alert_on_quality_degradation: true # Alert on quality issues

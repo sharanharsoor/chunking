@@ -1,0 +1,283 @@
+# Boundary-Aware Chunker Configuration Examples
+# This file contains configuration profiles for the Boundary-Aware Chunking strategy
+
+# High-Quality Boundary-Aware Configuration
+# Optimized for maximum structure preservation and boundary accuracy
+high_quality_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "auto"  # auto, html, xml, markdown, plain_text
+  
+  # Boundary detection strategy
+  boundary_strategy: "strict"  # strict, adaptive, hybrid, content_aware
+  
+  # Size constraints
+  max_chunk_size: 1500      # Maximum characters per chunk
+  min_chunk_size: 150       # Minimum characters per chunk
+  target_chunk_size: 750    # Target characters per chunk
+  
+  # Structure preservation settings
+  preserve_structure: true
+  include_metadata: true
+  fallback_to_sentences: true
+  respect_code_blocks: true
+  respect_tables: true
+  adaptive_sizing: true
+  
+  # Boundary priorities (1 = highest priority)
+  header_split_priority: 1
+  paragraph_split_priority: 3
+  list_split_priority: 2
+  
+  # Quality settings
+  quality_threshold: 0.8
+  
+  # Preferred boundary types (in priority order)
+  preferred_boundaries:
+    - "header"
+    - "section"
+    - "code_block"
+    - "table"
+    - "paragraph"
+    - "list_item"
+
+# Balanced Boundary-Aware Configuration  
+# Good balance between quality and performance
+balanced_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "auto"
+  
+  # Boundary detection strategy  
+  boundary_strategy: "adaptive"
+  
+  # Size constraints
+  max_chunk_size: 2000
+  min_chunk_size: 200
+  target_chunk_size: 1000
+  
+  # Structure preservation settings
+  preserve_structure: true
+  include_metadata: true
+  fallback_to_sentences: true
+  respect_code_blocks: true
+  respect_tables: true
+  adaptive_sizing: true
+  
+  # Boundary priorities
+  header_split_priority: 1
+  paragraph_split_priority: 3
+  list_split_priority: 2
+  
+  # Quality settings
+  quality_threshold: 0.7
+  
+  # Preferred boundary types
+  preferred_boundaries:
+    - "header"
+    - "section"
+    - "paragraph"
+    - "list_item"
+
+# High-Performance Boundary-Aware Configuration
+# Optimized for speed with acceptable boundary detection
+high_performance_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "plain_text"  # Skip complex parsing for speed
+  
+  # Boundary detection strategy
+  boundary_strategy: "content_aware"
+  
+  # Size constraints
+  max_chunk_size: 2500
+  min_chunk_size: 250
+  target_chunk_size: 1200
+  
+  # Structure preservation settings
+  preserve_structure: false     # Skip for performance
+  include_metadata: false       # Minimal metadata
+  fallback_to_sentences: false  # Quick splitting
+  respect_code_blocks: false
+  respect_tables: false
+  adaptive_sizing: false
+  
+  # Boundary priorities (focus on simple boundaries)
+  header_split_priority: 1
+  paragraph_split_priority: 2
+  list_split_priority: 3
+  
+  # Quality settings
+  quality_threshold: 0.6
+  
+  # Preferred boundary types (minimal set)
+  preferred_boundaries:
+    - "paragraph"
+    - "line_break"
+
+# HTML-Specific Boundary-Aware Configuration
+# Optimized for HTML document processing
+html_optimized_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "html"
+  
+  # Boundary detection strategy
+  boundary_strategy: "hybrid"
+  
+  # Size constraints
+  max_chunk_size: 1800
+  min_chunk_size: 180
+  target_chunk_size: 900
+  
+  # Structure preservation settings
+  preserve_structure: true
+  include_metadata: true
+  fallback_to_sentences: true
+  respect_code_blocks: true
+  respect_tables: true
+  adaptive_sizing: true
+  
+  # HTML-specific boundary priorities
+  header_split_priority: 1      # h1, h2, h3, etc.
+  paragraph_split_priority: 3   # p tags
+  list_split_priority: 2        # ul, ol, li
+  
+  # Quality settings
+  quality_threshold: 0.75
+  
+  # HTML-optimized boundary preferences
+  preferred_boundaries:
+    - "header"      # HTML headers (h1-h6)
+    - "section"     # HTML sections
+    - "article"     # HTML articles  
+    - "div"         # HTML divisions
+    - "paragraph"   # HTML paragraphs
+    - "list_item"   # HTML list items
+    - "code_block"  # HTML code blocks
+    - "table"       # HTML tables
+    - "blockquote"  # HTML blockquotes
+
+# Markdown-Specific Boundary-Aware Configuration
+# Optimized for Markdown document processing  
+markdown_optimized_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "markdown"
+  
+  # Boundary detection strategy
+  boundary_strategy: "strict"
+  
+  # Size constraints
+  max_chunk_size: 1600
+  min_chunk_size: 160
+  target_chunk_size: 800
+  
+  # Structure preservation settings
+  preserve_structure: true
+  include_metadata: true
+  fallback_to_sentences: true
+  respect_code_blocks: true
+  respect_tables: true
+  adaptive_sizing: true
+  
+  # Markdown-specific boundary priorities
+  header_split_priority: 1      # # ## ### headers
+  paragraph_split_priority: 4   # Paragraphs
+  list_split_priority: 2        # - * + lists and 1. 2. 3. lists
+  
+  # Quality settings
+  quality_threshold: 0.8
+  
+  # Markdown-optimized boundary preferences
+  preferred_boundaries:
+    - "header"          # Markdown headers (# ## ###)
+    - "code_block"      # Fenced code blocks (```)
+    - "list_item"       # Markdown list items  
+    - "blockquote"      # Markdown blockquotes (>)
+    - "table"           # Markdown tables (|)
+    - "horizontal_rule" # Markdown horizontal rules (---)
+    - "paragraph"       # Markdown paragraphs
+
+# Large Document Boundary-Aware Configuration
+# Optimized for processing large documents with many boundaries
+large_document_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "auto"
+  
+  # Boundary detection strategy
+  boundary_strategy: "adaptive"
+  
+  # Size constraints for large documents
+  max_chunk_size: 3000      # Larger chunks for efficiency
+  min_chunk_size: 300
+  target_chunk_size: 1500
+  
+  # Structure preservation settings
+  preserve_structure: true
+  include_metadata: true
+  fallback_to_sentences: true
+  respect_code_blocks: true
+  respect_tables: true
+  adaptive_sizing: true
+  
+  # Boundary priorities (prioritize major structure)
+  header_split_priority: 1      # Major sections
+  paragraph_split_priority: 4   # Lower priority for large docs
+  list_split_priority: 3
+  
+  # Quality settings (slightly relaxed for performance)
+  quality_threshold: 0.65
+  
+  # Focus on major structural boundaries
+  preferred_boundaries:
+    - "header"
+    - "section"  
+    - "article"
+    - "code_block"
+    - "table"
+
+# Streaming Boundary-Aware Configuration
+# Optimized for streaming/real-time processing
+streaming_boundary_aware:
+  chunker_name: "boundary_aware"
+  
+  # Document format handling
+  document_format: "auto"
+  
+  # Boundary detection strategy
+  boundary_strategy: "content_aware"
+  
+  # Size constraints for streaming
+  max_chunk_size: 1000      # Smaller for real-time processing
+  min_chunk_size: 100
+  target_chunk_size: 500
+  
+  # Structure preservation settings (optimized for speed)
+  preserve_structure: true
+  include_metadata: false    # Minimal metadata for speed
+  fallback_to_sentences: true
+  respect_code_blocks: false # Skip complex parsing
+  respect_tables: false
+  adaptive_sizing: true
+  
+  # Boundary priorities (simple and fast)
+  header_split_priority: 1
+  paragraph_split_priority: 2
+  list_split_priority: 3
+  
+  # Quality settings (favor speed)
+  quality_threshold: 0.6
+  
+  # Simple boundary set for streaming
+  preferred_boundaries:
+    - "paragraph"
+    - "header"
+    - "line_break"

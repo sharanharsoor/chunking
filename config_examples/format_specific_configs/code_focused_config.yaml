@@ -1,0 +1,271 @@
+# Code-Focused Configuration
+# Optimized specifically for programming languages with robust fallback chains
+# Prioritizes semantic understanding of code structure over generic text processing
+
+profile_name: "code_focused"
+description: "Specialized configuration optimized for software development workflows"
+
+# Code-first strategy selection
+strategy_selection:
+  # Primary programming languages with specialized extractors
+  ".py":
+    primary: "python_code"
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".cpp":
+    primary: "c_cpp_code"
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".c":
+    primary: "c_cpp_code"
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".h":
+    primary: "c_cpp_code"
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".hpp":
+    primary: "c_cpp_code"
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based", "fixed_size"]
+
+  # Languages with universal code support
+  ".js":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".ts":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".java":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".go":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".rs":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".php":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".rb":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".swift":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".kt":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Web development files
+  ".html":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".css":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".scss":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".sass":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Configuration and data files relevant to development
+  ".json":
+    primary: "fixed_size"
+    fallbacks: ["paragraph_based", "sentence_based"]
+    
+  ".yaml":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+    
+  ".yml":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+    
+  ".toml":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+    
+  ".xml":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Development documentation
+  ".md":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+    
+  ".rst":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+    
+  ".txt":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Shell and automation scripts
+  ".sh":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".bash":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".zsh":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+    
+  ".ps1":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Database and SQL
+  ".sql":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Default for unknown files in development context
+  "unknown":
+    primary: "universal_code"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+# Strategy configurations optimized for code
+strategies:
+  primary: "universal_code"
+  fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  configs:
+    # Specialized code chunkers
+    python_code:
+      max_line_count: 60            # Allow larger functions
+      chunk_by: "logical_element"
+      preserve_imports: true
+      include_docstrings: true
+      respect_decorators: true
+      handle_syntax_errors: true    # Essential for development
+      extract_function_signatures: true
+      preserve_class_structure: true
+      
+    c_cpp_code:
+      max_line_count: 80            # C++ can have long functions
+      chunk_by: "logical_element"
+      preserve_includes: true
+      handle_preprocessor: true
+      respect_namespaces: true
+      handle_syntax_errors: true
+      extract_function_signatures: true
+      preserve_template_definitions: true
+      
+    universal_code:
+      max_line_count: 50
+      chunk_by: "logical_block"
+      preserve_comments: true
+      language_detection: true
+      handle_syntax_errors: true
+      preserve_indentation: true
+      extract_function_names: true
+
+    # Universal fallback strategies
+    paragraph_based:
+      max_paragraphs: 2             # Smaller chunks for code review
+      max_chunk_size: 2000
+      merge_short_paragraphs: false # Preserve code structure
+      
+    sentence_based:
+      max_sentences: 3              # Smaller for code comments
+      max_chunk_size: 1500
+      sentence_splitter: "simple"
+      max_text_buffer_size: 2097152
+      
+    fixed_size:
+      chunk_size: 800               # Smaller for code readability
+      overlap_size: 80
+      preserve_words: true
+
+# Development-optimized extraction
+extraction:
+  enabled: true
+  
+  code:
+    preserve_structure: true        # Critical for code
+    include_comments: true          # Important for documentation
+    encoding: "utf-8"
+    parse_docstrings: true
+    preserve_whitespace: true       # Critical for Python, YAML, etc.
+    extract_metadata: true
+    fallback_on_error: true
+    
+  text:
+    encoding: "utf-8"
+    normalize_unicode: true
+    preserve_markdown_structure: true
+
+# Development-focused preprocessing
+preprocessing:
+  enabled: true
+  normalize_whitespace: false       # Preserve code formatting
+  preserve_code_indentation: true   # Critical for code
+  extract_metadata: true
+  validate_syntax: false           # Don't break on syntax errors
+  preserve_line_numbers: true      # Useful for debugging
+
+# Code-optimized postprocessing
+postprocessing:
+  enabled: true
+  enhance_metadata: true
+  validate_chunks: false           # Don't break on partial code
+  remove_empty_chunks: true
+  merge_short_chunks: false        # Preserve semantic boundaries
+  preserve_code_boundaries: true   # Don't merge across functions/classes
+
+# Quality settings for code
+quality:
+  min_chunk_size: 30              # Allow small functions
+  max_chunk_size: 10000           # Allow large functions/classes
+  preserve_semantic_boundaries: true
+  coherence_threshold: 0.5        # Lower for code vs prose
+
+# Performance optimized for development
+performance:
+  streaming_threshold: 524288     # 512KB
+  parallel_processing: true
+  memory_limit: 2147483648       # 2GB for large codebases
+  timeout: 300                   # 5 minutes for complex parsing
+  ast_parsing_timeout: 120       # 2 minutes for AST parsing
+
+# Developer-friendly logging
+logging:
+  level: "INFO"
+  log_strategy_selection: true
+  log_extraction_details: false   # Reduce noise
+  log_parsing_errors: true        # Important for debugging
+  log_fallback_usage: true        # Track when fallbacks happen
+
+# Output optimized for development workflows
+output:
+  include_metadata: true
+  include_source_mapping: true     # Map back to source files
+  chunk_id_format: "code_{strategy}_{file}_{element}_{index:03d}"
+  preserve_source_structure: true
+  include_quality_scores: false   # Reduce output noise
+  
+# Usage for development:
+#   orchestrator = ChunkerOrchestrator(config_path="config_examples/code_focused_config.yaml")
+#   result = orchestrator.chunk_file("my_project.py")    # Uses python_code
+#   result = orchestrator.chunk_file("algorithm.cpp")   # Uses c_cpp_code  
+#   result = orchestrator.chunk_file("script.js")       # Uses universal_code
+#   result = orchestrator.chunk_file("readme.md")       # Uses paragraph_based

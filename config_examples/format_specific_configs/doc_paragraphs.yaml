@@ -1,0 +1,59 @@
+# DOC/DOCX/ODT/RTF paragraph-based chunking configuration
+# This config chunks documents by grouping paragraphs together
+
+chunking_strategy:
+  name: "doc_chunker"
+
+# Document-specific parameters
+strategies:
+  primary: "doc_chunker"
+  fallback: ["paragraph_based", "sentence_based"]
+
+  configs:
+    doc_chunker:
+      # Chunking strategy - how to group content
+      chunk_by: "paragraphs"  # Options: paragraphs, sections, headings, pages, content_size
+
+      # Paragraph grouping settings
+      paragraphs_per_chunk: 4  # Number of paragraphs to include per chunk
+
+      # Content processing options
+      preserve_formatting: true   # Keep formatting metadata
+      extract_tables: true       # Extract and process tables
+      extract_images: false      # Extract embedded images (future feature)
+
+      # Heading processing for hierarchical chunking
+      heading_levels: [1, 2, 3]  # Which heading levels to use for section splits
+
+      # Size constraints
+      min_chunk_size: 100         # Minimum chunk size in characters
+      max_chunk_size: 8000        # Maximum chunk size in characters
+      chunk_overlap: 100          # Overlap between chunks in characters
+
+      # Backend selection (will use best available)
+      backend: "auto"             # Options: auto, python-docx, mammoth, textract, odf, striprtf
+
+# Processing options
+processing:
+  # Hardware acceleration
+  use_gpu: false
+  max_workers: 4
+
+  # Memory management
+  chunk_memory_limit: "512MB"
+
+  # Quality settings
+  enable_validation: true
+  quality_threshold: 0.7
+
+# Output options
+output:
+  # Include metadata in results
+  include_metadata: true
+
+  # Chunk format options
+  preserve_structure: true
+  include_hierarchy: true
+
+# Example usage:
+# python -m chunking_strategy.cli chunk document.docx --config config_examples/doc_paragraphs.yaml

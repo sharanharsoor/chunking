@@ -1,0 +1,34 @@
+# JSON Depth-Limited Configuration
+# Limits nested depth for complex JSON structures
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  json_chunker:
+    chunk_by: "depth_level"       # Limit by depth
+    max_depth: 4                  # Maximum nesting depth
+    preserve_structure: true      # Maintain valid JSON structure
+    encoding: "utf-8"
+    handle_jsonl: true
+    compact_output: false
+
+strategy_selection:
+  ".json":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+# Useful for:
+# - Deeply nested API responses
+# - Complex configuration files
+# - Hierarchical data structures
+# - Preventing deeply nested embedding issues
+
+processing:
+  enable_parallel: true
+  max_workers: 4
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 200

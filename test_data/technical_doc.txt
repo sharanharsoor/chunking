@@ -1,0 +1,64 @@
+API Documentation: Text Processing Service
+
+Overview:
+The Text Processing Service provides endpoints for analyzing and manipulating text content.
+
+Authentication:
+All requests require an API key in the Authorization header.
+
+Endpoints:
+
+POST /analyze
+Analyzes text content and returns metrics.
+
+Parameters:
+- text (string, required): The text content to analyze
+- options (object, optional): Analysis configuration
+  - sentiment (boolean): Include sentiment analysis
+  - entities (boolean): Extract named entities
+  - keywords (boolean): Extract key phrases
+
+Response:
+{
+  "word_count": 150,
+  "sentiment": {
+    "score": 0.7,
+    "label": "positive"
+  },
+  "entities": [
+    {"text": "OpenAI", "type": "organization"},
+    {"text": "San Francisco", "type": "location"}
+  ]
+}
+
+POST /summarize
+Generates a summary of the provided text.
+
+Parameters:
+- text (string, required): Text to summarize
+- length (integer, optional): Target summary length in sentences
+
+Response:
+{
+  "summary": "Generated summary text...",
+  "compression_ratio": 0.3
+}
+
+Error Handling:
+The API returns standard HTTP status codes. Error responses include:
+
+400 Bad Request: Invalid parameters or malformed request
+401 Unauthorized: Missing or invalid API key
+429 Too Many Requests: Rate limit exceeded
+500 Internal Server Error: Unexpected server error
+
+Rate Limits:
+- 100 requests per minute for free tier
+- 1000 requests per minute for premium tier
+
+Examples:
+
+curl -X POST https://api.example.com/analyze \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Sample text for analysis"}'

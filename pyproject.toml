@@ -1,0 +1,239 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chunking-strategy"
+version = "0.1.0"
+description = "A comprehensive chunking library for text, documents, audio, video, and data streams"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Chunking Strategy Team", email = "sharanharsoor@gmail.com"}
+]
+maintainers = [
+    {name = "Chunking Strategy Team", email = "sharanharsoor@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Video",
+]
+keywords = [
+    "chunking", "text-processing", "document-processing",
+    "audio-processing", "video-processing", "data-streams",
+    "content-defined-chunking", "semantic-chunking", "RAG"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.0.0",
+]
+text = [
+    "spacy>=3.6.0",
+    "nltk>=3.8",
+    "sentence-transformers>=5.1.0",  # Fixed compatibility issues with HF Hub
+    "huggingface-hub>=0.20.0",      # Required for authentication
+    "tiktoken>=0.5.0",
+]
+document = [
+    "PyPDF2>=3.0.0",
+    "pdfminer.six>=20220524",
+    "PyMuPDF>=1.23.0",
+    "python-docx>=0.8.11",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "markdown>=3.5.0",
+]
+multimedia = [
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    "librosa>=0.10.0",
+    "pydub>=0.25.0",
+    "imageio>=2.31.0",
+    "moviepy>=1.0.3",
+]
+ml = [
+    "scikit-learn>=1.3.0",
+    "numpy>=1.24.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "bitsandbytes>=0.47.0",    # Fixed CPU compatibility issues
+    "fsspec>=2023.1.0,<2025.0.0",  # Avoid version conflicts
+]
+detection = [
+    "python-magic>=0.4.27",
+    "chardet>=5.2.0",
+    "langdetect>=1.0.9",
+]
+hardware = [
+    "psutil>=5.9.0",         # CPU/memory monitoring and detection
+    "GPUtil>=1.4.0",         # GPU detection and monitoring
+    "nvidia-ml-py3>=7.352.0", # NVIDIA GPU management
+]
+tika = [
+    "tika>=2.6.0",           # Apache Tika Python client
+    "python-magic>=0.4.27",  # Enhanced file type detection
+]
+vectordb = [
+    "qdrant-client>=1.6.0",
+    "weaviate-client>=3.24.0",
+    "pinecone-client>=2.2.0",
+]
+all = [
+    "chunking-strategy[dev,text,document,multimedia,ml,detection,hardware,tika,vectordb]"
+]
+
+[project.urls]
+Homepage = "https://github.com/chunking-strategy/chunking-strategy"
+Documentation = "https://chunking-strategy.readthedocs.io"
+Repository = "https://github.com/chunking-strategy/chunking-strategy"
+Issues = "https://github.com/chunking-strategy/chunking-strategy/issues"
+Changelog = "https://github.com/chunking-strategy/chunking-strategy/blob/main/CHANGELOG.md"
+
+[project.scripts]
+chunking-strategy = "chunking_strategy.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["chunking_strategy*"]
+
+[tool.setuptools.package-data]
+chunking_strategy = [
+    "config/default_profiles/*.yaml",
+    "config/schema/*.json",
+    "benchmarks/datasets/*",
+]
+
+# Development tools configuration
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["chunking_strategy"]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.mypy]
+python_version = "3.8"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "spacy.*",
+    "nltk.*",
+    "sentence_transformers.*",
+    "librosa.*",
+    "cv2.*",
+    "moviepy.*",
+    "pydub.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=chunking_strategy",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "requires_large_files: marks tests that require large files for validation (deselect with '-m \"not requires_large_files\"')",
+]
+
+[tool.coverage.run]
+source = ["chunking_strategy"]
+omit = [
+    "*/tests/*",
+    "*/benchmarks/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

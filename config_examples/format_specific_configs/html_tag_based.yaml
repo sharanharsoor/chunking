@@ -1,0 +1,63 @@
+# HTML Chunking Configuration - Tag-Based Strategy
+# Best for: Web scraping and content extraction
+# Use case: Extracting specific content types from web pages
+
+chunking:
+  # Main strategy configuration
+  strategies:
+    primary: xml_html_chunker
+
+    # Strategy-specific configurations
+    configs:
+      xml_html_chunker:
+        # Tag-based chunking for specific elements
+        chunk_by: tag_based
+
+        # Target tags for extraction
+        target_tags:
+          - article
+          - section
+          - div
+          - p
+          - h1
+          - h2
+          - h3
+          - blockquote
+          - table
+          - ul
+          - ol
+          - pre
+          - code
+
+        # Size constraints
+        min_chunk_size: 30
+        chunk_size: 2000
+        max_chunk_size: 5000
+        chunk_overlap: 200
+
+        # Content handling
+        preserve_structure: true
+        include_attributes: true
+
+        # Parser configuration - BeautifulSoup for HTML
+        parser: bs4
+        encoding: utf-8
+
+  # Content filtering
+  filtering:
+    exclude_empty: true
+    exclude_whitespace_only: true
+    min_words: 3
+
+  # Processing options
+  processing:
+    parallel: true
+    batch_size: 15
+    handle_malformed: true
+
+  # Output configuration
+  output:
+    format: json
+    include_metadata: true
+    preserve_html_structure: true
+    extract_links: true

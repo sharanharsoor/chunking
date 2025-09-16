@@ -1,0 +1,54 @@
+# DOC/DOCX content size-based chunking configuration
+# This config chunks documents by content size while respecting paragraph boundaries
+
+chunking_strategy:
+  name: "doc_chunker"
+
+# Document-specific parameters
+strategies:
+  primary: "doc_chunker"
+  fallback: ["fixed_size", "paragraph_based"]
+
+  configs:
+    doc_chunker:
+      # Chunking strategy - split by content size
+      chunk_by: "content_size"
+
+      # Size-based settings
+      min_chunk_size: 500         # Minimum chunk size in characters
+      max_chunk_size: 4000        # Target maximum chunk size
+      chunk_overlap: 200          # Overlap between adjacent chunks
+
+      # Content processing
+      preserve_formatting: false  # Skip formatting for size-based chunking
+      extract_tables: true       # Tables as separate chunks
+      extract_images: false      # Skip images
+
+      # Backend selection (any will work for content-size)
+      backend: "auto"
+
+# Processing options optimized for size-based chunking
+processing:
+  use_gpu: false
+  max_workers: 6  # Can parallelize size-based chunking well
+
+  # Memory settings
+  chunk_memory_limit: "256MB"
+
+  # Quality settings
+  enable_validation: true
+  quality_threshold: 0.6  # Lower threshold for size-based
+
+# Output options
+output:
+  include_metadata: true
+  preserve_structure: false  # Size-based doesn't preserve structure as much
+  include_hierarchy: false
+
+  # Size-specific options
+  include_chunk_statistics: true
+  optimize_for_retrieval: true
+
+# Use case: Large documents for embedding, search indexing, RAG applications
+# Example usage:
+# python -m chunking_strategy.cli chunk large_manual.docx --config config_examples/doc_content_size.yaml

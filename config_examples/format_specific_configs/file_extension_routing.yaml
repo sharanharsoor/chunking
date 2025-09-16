@@ -1,0 +1,166 @@
+# File Extension Based Chunking Configuration
+# Routes different file extensions to appropriate chunking strategies
+# Demonstrates mixing custom algorithms for new extensions with built-in for known extensions
+
+name: "file_extension_routing"
+description: "File extension based routing with custom + built-in algorithm integration"
+
+# Load custom algorithms for new file types
+custom_algorithms:
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+    algorithms: ["sentiment_based"]
+  - path: "../../examples/custom_algorithms/regex_pattern_chunker.py"
+    algorithms: ["regex_pattern_based"]
+
+# Main chunking configuration
+chunking:
+  # Default strategy when no extension match
+  default_strategy: "paragraph_based"
+  fallbacks: ["sentence_based", "fixed_size"]
+
+  # File extension routing rules
+  strategy_selection:
+    # Programming languages - use built-in specialized chunkers
+    ".py":
+      primary: "python_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".js":
+      primary: "javascript_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".java":
+      primary: "java_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".cpp":
+      primary: "c_cpp_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".go":
+      primary: "go_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".css":
+      primary: "css_code"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    # Documents - use built-in document processors
+    ".pdf":
+      primary: "pdf_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".docx":
+      primary: "doc_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".doc":
+      primary: "doc_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".md":
+      primary: "markdown_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    # Data formats - use built-in data processors
+    ".json":
+      primary: "json_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".csv":
+      primary: "csv_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".xml":
+      primary: "xml_html_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".html":
+      primary: "xml_html_chunker"
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    # Multimedia - use built-in multimedia processors
+    ".mp3": "time_based_audio"
+    ".wav": "time_based_audio"
+    ".mp4": "time_based_video"
+    ".avi": "time_based_video"
+    ".jpg": "grid_based_image"
+    ".png": "grid_based_image"
+
+    # Custom extensions - use custom algorithms for new file types
+    ".review":
+      primary: "sentiment_based"        # Custom algorithm for review files
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    ".template":
+      primary: "regex_pattern_based"    # Custom algorithm for template files
+      fallbacks: ["paragraph_based", "fixed_size"]
+
+    # Text files - smart routing based on content
+    ".txt":
+      primary: "semantic"               # Use semantic analysis for plain text
+      fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+# Algorithm-specific parameters
+parameters:
+  # Built-in algorithm parameters
+  python_code:
+    chunk_by: "function"
+    max_lines_per_chunk: 100
+    include_imports: true
+    preserve_comments: true
+
+  javascript_code:
+    chunk_by: "function"
+    max_lines_per_chunk: 150
+    handle_jsx: true
+    preserve_comments: true
+
+  pdf_chunker:
+    pages_per_chunk: 2
+    extract_images: false
+    preserve_formatting: true
+
+  markdown_chunker:
+    chunk_by: "headers"
+    header_level: 2
+    preserve_code_blocks: true
+
+  json_chunker:
+    chunk_by: "objects"
+    objects_per_chunk: 100
+    preserve_structure: true
+
+  semantic:
+    similarity_threshold: 0.7
+    min_chunk_size: 200
+    max_chunk_size: 1500
+
+  # Custom algorithm parameters
+  sentiment_based:
+    sentiment_threshold: 0.3
+    min_chunk_sentences: 2
+    max_chunk_sentences: 8
+
+  regex_pattern_based:
+    chunk_patterns:
+      - name: "template_vars"
+        pattern: '\\{\\{.*?\\}\\}'
+        split_mode: "preserve"
+      - name: "sections"
+        pattern: '^---+$'
+        split_mode: "on"
+        flags: "MULTILINE"
+
+# Validation and testing
+validation:
+  enabled: true
+  test_extensions: [".py", ".js", ".pdf", ".md", ".json", ".review", ".template", ".txt"]
+  verify_custom_for_new_extensions: true
+  verify_builtin_for_known_extensions: true
+
+output:
+  format: "json"
+  include_metadata: true
+  include_file_extension: true
+  include_strategy_used: true

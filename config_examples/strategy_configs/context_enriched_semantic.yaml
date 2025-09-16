@@ -1,0 +1,194 @@
+# Context-Enriched Chunker Configuration - Semantic Analysis Mode
+#
+# This configuration optimizes the Context-Enriched chunker for detailed
+# semantic analysis and meaning preservation. It emphasizes quality over speed
+# and enables all advanced NLP features for maximum context understanding.
+
+strategies:
+  primary: context_enriched
+  fallback:
+    - adaptive        # Smart fallback to adaptive chunker
+    - paragraph_based # Natural text structure fallback
+
+# Context-Enriched Chunker - Semantic Analysis Configuration
+context_enriched:
+  # Core chunking parameters
+  target_chunk_size: 3000          # Larger chunks for better context
+  min_chunk_size: 800              # Minimum viable context
+  max_chunk_size: 12000            # Allow large semantic units
+  overlap_size: 200                # Significant overlap for context preservation
+  
+  # Semantic analysis parameters
+  semantic_similarity_threshold: 0.75    # High threshold for quality boundaries
+  topic_coherence_threshold: 0.65       # Strong topic coherence requirement
+  entity_preservation_mode: "strict"    # Strict entity preservation
+  context_window_size: 5                # Large context window
+  
+  # NLP model parameters
+  spacy_model: "en_core_web_sm"         # Preferred SpaCy model
+  enable_ner: true                      # Enable Named Entity Recognition
+  enable_topic_modeling: true           # Enable topic modeling
+  enable_coreference: false             # Disable for performance
+  
+  # Boundary detection parameters
+  boundary_detection_method: "multi_modal"  # Use all boundary detection methods
+  min_topic_coherence: 0.6              # High topic coherence for boundaries
+  entity_boundary_weight: 0.4           # High weight for entity boundaries
+  topic_boundary_weight: 0.4            # High weight for topic boundaries
+  semantic_boundary_weight: 0.2         # Lower weight for raw semantic similarity
+  
+  # Quality parameters
+  preserve_sentence_integrity: true      # Always preserve complete sentences
+  avoid_entity_splitting: true          # Never split entities across chunks
+  maintain_topic_coherence: true        # Maintain topic coherence within chunks
+  context_preservation_priority: "quality"  # Prioritize quality over speed
+  
+  # Advanced features
+  enable_cross_references: true         # Enable cross-chunk references
+  generate_semantic_fingerprints: true  # Generate semantic embeddings
+  extract_key_phrases: true             # Extract key phrases from content
+  analyze_sentiment: false              # Disable sentiment analysis for speed
+
+# Processing optimized for semantic analysis
+processing:
+  parallel: false                       # Sequential processing for consistency
+  enable_detailed_logging: true         # Detailed semantic analysis logs
+  preserve_metadata: true               # Preserve all semantic metadata
+  
+  # Semantic processing
+  semantic_processing:
+    deep_analysis: true                 # Enable deep semantic analysis
+    context_tracking: true              # Track context across chunks
+    entity_linking: true                # Link related entities
+    topic_evolution: true               # Track topic evolution
+
+# Enhanced metadata for semantic analysis
+output:
+  include_metadata: true
+  preserve_semantic_info: true
+  
+  metadata_fields:
+    - entities                          # Named entities with context
+    - topics                           # Topic information and keywords
+    - coherence_score                  # Semantic coherence metrics
+    - context_preservation_score       # Context preservation quality
+    - boundary_quality_score           # Boundary detection quality
+    - semantic_fingerprint             # Semantic embedding vectors
+    - chunk_relationships              # Cross-chunk relationships
+    - processing_method                # Boundary detection method used
+    - nlp_analysis                    # NLP analysis results
+    
+  # Semantic-specific metadata
+  semantic_metadata:
+    entity_relationships: true         # Map entity relationships
+    topic_transitions: true            # Track topic transitions
+    coherence_analysis: true           # Detailed coherence analysis
+    boundary_reasoning: true           # Explain boundary decisions
+    context_flow: true                 # Track context flow between chunks
+    semantic_similarity_matrix: false  # Skip similarity matrix for performance
+
+# Quality assurance for semantic analysis
+quality:
+  enforce_semantic_coherence: true     # Enforce semantic coherence
+  coherence_threshold: 0.7            # High coherence requirement
+  boundary_quality_threshold: 0.6     # Quality threshold for boundaries
+  
+  # Semantic quality metrics
+  semantic_quality:
+    topic_consistency: true            # Check topic consistency
+    entity_completeness: true          # Ensure entity completeness
+    context_preservation: true         # Verify context preservation
+    meaning_preservation: true         # Assess meaning preservation
+
+# Performance tuning for semantic workloads
+performance:
+  memory_limit: "2GB"                 # Higher memory for semantic analysis
+  enable_caching: true                # Cache semantic analysis results
+  optimize_for_quality: true          # Optimize for quality over speed
+  
+  # Semantic optimization
+  semantic_optimization:
+    vectorization_batch_size: 100     # Batch size for vectorization
+    topic_model_iterations: 50        # Iterations for topic modeling
+    coherence_calculation_depth: 3    # Depth of coherence calculation
+    
+  # NLP optimization
+  nlp_optimization:
+    spacy_batch_size: 50              # SpaCy processing batch size
+    nltk_optimization: true           # Optimize NLTK operations
+    sklearn_n_jobs: 2                 # Parallel jobs for sklearn
+
+# Advanced semantic features
+advanced:
+  # Multi-level semantic analysis
+  hierarchical_semantics: true        # Analyze semantics at multiple levels
+  cross_chunk_analysis: true          # Analyze relationships across chunks
+  
+  # Semantic boundary strategies
+  boundary_strategies:
+    topic_shift_detection: true       # Detect topic shifts
+    entity_transition_analysis: true  # Analyze entity transitions
+    semantic_break_identification: true # Identify semantic breaks
+    
+  # Content understanding
+  content_understanding:
+    conceptual_coherence: true         # Assess conceptual coherence
+    argumentative_structure: true     # Understand argumentative flow
+    narrative_continuity: true        # Track narrative continuity
+    
+  # Semantic enhancement
+  semantic_enhancement:
+    context_enrichment: true           # Enrich chunks with context
+    entity_resolution: true           # Resolve entity references
+    topic_refinement: true            # Refine topic assignments
+
+# Error handling for semantic analysis
+error_handling:
+  fallback_on_nlp_errors: true        # Fallback when NLP fails
+  preserve_partial_analysis: true     # Keep partial semantic analysis
+  continue_on_semantic_errors: true   # Continue despite semantic errors
+  
+  # Semantic error recovery
+  semantic_recovery:
+    topic_model_fallback: true        # Fallback topic modeling
+    entity_extraction_fallback: true  # Fallback entity extraction
+    boundary_detection_fallback: true # Fallback boundary detection
+
+# File filtering for semantic analysis scenarios
+file_filters:
+  # Focus on text-rich content
+  extensions: [".txt", ".md", ".html", ".xml", ".json"]
+  
+  include_patterns:
+    - "**/*.txt"                      # Text documents
+    - "**/*.md"                       # Markdown documents  
+    - "**/*.html"                     # Web content
+    - "**/*.xml"                      # Structured documents
+    - "**/*.json"                     # Data with text content
+    
+  exclude_patterns:
+    - "*.log"                         # Log files
+    - "*.tmp"                         # Temporary files
+    - ".git/**"                       # Version control
+    - "__pycache__/**"                # Cache directories
+    - "node_modules/**"               # Dependencies
+
+# Monitoring and reporting for semantic analysis
+monitoring:
+  enable_semantic_monitoring: true    # Monitor semantic analysis quality
+  track_coherence_trends: true        # Track coherence over time
+  monitor_boundary_quality: true      # Monitor boundary detection quality
+  
+  # Semantic dashboards
+  semantic_dashboard:
+    topic_distribution: true          # Track topic distribution
+    entity_frequency: true            # Monitor entity frequency
+    coherence_evolution: true         # Track coherence evolution
+    boundary_effectiveness: true      # Monitor boundary effectiveness
+    
+  # Semantic alerts
+  semantic_alerts:
+    low_coherence: true               # Alert on low coherence
+    poor_boundaries: true             # Alert on poor boundary quality
+    entity_fragmentation: true       # Alert on entity fragmentation
+    topic_inconsistency: true        # Alert on topic inconsistencies

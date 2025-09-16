@@ -1,0 +1,33 @@
+# Benchmarking Configuration Example
+# This file shows how to configure the production benchmarking system
+#
+# NOTE: This is a BENCHMARKING configuration file, not a chunking strategy config.
+# Use this with the benchmarking system: chunking benchmark --config benchmark_config.yaml
+#
+# For chunking strategy examples, see the other YAML files in config_examples/
+
+# Output Configuration
+output_dir: "./my_benchmark_results"  # Directory to save results (default: current_dir/chunking_benchmarks)
+console_summary: true                 # Show summary in console (default: true)
+save_json: true                      # Save detailed JSON results (default: true)
+save_csv: true                       # Save CSV summary (default: true)
+save_report: true                    # Save human-readable report (default: true)
+
+# Benchmark Parameters
+runs_per_strategy: 3                 # Number of runs per strategy (default: 3)
+include_system_info: true           # Include system information (default: true)
+
+# Custom Algorithms (optional - paths to custom algorithm files)
+# Currently commented out to avoid dependencies on specific files
+# Uncomment and modify paths as needed for your custom algorithms
+#custom_algorithm_paths:              # List of custom algorithm files to include
+#  - "./my_custom_chunker.py"
+#  - "./examples/custom_algorithms/balanced_length_chunker.py"
+#  - "./examples/custom_algorithms/sentiment_based_chunker.py"
+
+# Environment Variables Alternative
+# You can also set these via environment variables:
+# CHUNKING_BENCHMARK_OUTPUT_DIR=/path/to/output
+# CHUNKING_BENCHMARK_RUNS=5
+# CHUNKING_BENCHMARK_CONSOLE=false
+# CHUNKING_BENCHMARK_JSON=true

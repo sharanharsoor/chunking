@@ -1,0 +1,70 @@
+# Gear-based CDC Chunker Configuration
+# Alternative content-defined chunking approach
+
+profile_name: "gear_cdc_default"
+description: "Gear-based content-defined chunking with gear shift operations"
+
+strategies:
+  primary: "gear_cdc"
+  fallbacks:
+    - "fastcdc"
+    - "fixed_size"
+
+  configs:
+    gear_cdc:
+      # Window size for gear analysis
+      window_size: 32
+
+      # Gear mask for boundary detection
+      gear_mask: 0x003FFFFF  # 22-bit mask
+
+      # Gear threshold (number of gear shifts required)
+      gear_threshold: 13
+
+      # Chunk size configuration
+      min_chunk_size: 2048      # 2KB minimum
+      max_chunk_size: 65536     # 64KB maximum
+      target_chunk_size: 8192   # 8KB target
+
+      # Statistical analysis
+      enable_statistics: true
+
+    fastcdc:
+      min_chunk_size: 2048
+      max_chunk_size: 65536
+      avg_chunk_size: 8192
+
+    fixed_size:
+      chunk_size: 8192
+      overlap_size: 200
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 500
+
+# Use cases
+use_cases:
+  - "Alternative to traditional hash-based CDC"
+  - "Systems requiring different boundary characteristics"
+  - "Performance-sensitive deduplication"
+  - "Research and comparison studies"
+
+# Performance characteristics
+performance:
+  throughput: "High - efficient gear operations"
+  memory_usage: "Low - minimal state tracking"
+  cpu_usage: "Medium - gear shift analysis"
+  boundary_quality: "Good - consistent boundaries"
+
+# Adaptation settings
+adaptation:
+  enabled: true
+  gear_threshold_range: [8, 20]
+  adaptation_sensitivity: "medium"

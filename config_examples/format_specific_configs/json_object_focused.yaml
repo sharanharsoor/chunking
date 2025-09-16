@@ -1,0 +1,44 @@
+# JSON Object-Focused Chunking Configuration
+# Optimized for processing JSON data with object-based strategies
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size", "paragraph_based"]
+
+# JSON-specific configuration
+chunking_parameters:
+  json_chunker:
+    chunk_by: "objects"          # Options: objects, array_elements, key_groups, size_limit, depth_level
+    objects_per_chunk: 50        # Number of objects per chunk
+    preserve_structure: true     # Maintain valid JSON structure
+    encoding: "utf-8"            # File encoding
+    handle_jsonl: true           # Handle JSON Lines format
+    compact_output: false        # Use pretty formatting
+
+# Strategy selection rules for different file types
+strategy_selection:
+  ".json":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+  ".jsonl":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+  ".ndjson":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+# Processing configuration
+processing:
+  enable_parallel: true
+  max_workers: 4
+  chunk_size_limit: 25  # MB per chunk
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 50      # Minimum characters per chunk
+  max_chunk_size: 500000  # Maximum characters per chunk
+
+# Output configuration
+output:
+  include_metadata: true
+  preserve_source_info: true

@@ -1,0 +1,49 @@
+# XML Chunking Configuration - Hierarchical Strategy
+# Best for: Complex XML documents with nested structures
+# Use case: Configuration files, data catalogs, API responses
+
+chunking:
+  # Main strategy configuration
+  strategies:
+    primary: xml_html_chunker
+
+    # Strategy-specific configurations
+    configs:
+      xml_html_chunker:
+        # Hierarchical chunking respecting XML structure
+        chunk_by: hierarchy
+
+        # Hierarchy constraints
+        max_depth: 4  # Limit nesting depth
+
+        # Size constraints
+        min_chunk_size: 20
+        chunk_size: 1000
+        max_chunk_size: 3000
+        chunk_overlap: 100
+
+        # Structure preservation
+        preserve_structure: true
+        include_attributes: true
+
+        # Parser configuration - prefer lxml for XML
+        parser: lxml
+        encoding: utf-8
+
+  # Processing options
+  processing:
+    parallel: true
+    batch_size: 5
+    validate_structure: true
+
+  # Quality settings
+  quality:
+    min_content_ratio: 0.1
+    max_empty_elements: 5
+
+  # Output configuration
+  output:
+    format: json
+    include_metadata: true
+    hierarchy_info: true
+    preserve_namespaces: true

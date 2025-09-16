@@ -1,0 +1,267 @@
+# RAG System Configuration
+# Optimized for Retrieval-Augmented Generation workflows
+# Balances chunk coherence, retrieval quality, and generation context
+
+profile_name: "rag_system"
+description: "Optimized for Retrieval-Augmented Generation workflows with balanced coherence and quality"
+
+# Legacy strategies section for test compatibility
+strategies:
+  default: "sentence_based"
+
+# Extraction configuration for RAG optimization
+extraction:
+  enabled: true
+  preserve_structure: true
+  include_metadata: true
+
+chunking:
+  # RAG-optimized strategy selection
+  default_strategy: "sentence_based"
+  
+  strategy_selection:
+    # Documents - preserve logical structure for better retrieval
+    ".pdf": "pdf_chunker"
+    ".docx": "universal_document"
+    ".txt": "sentence_based"
+    ".md": "sentence_based"
+    
+    # Web content
+    ".html": "paragraph_based"
+    ".xml": "paragraph_based"
+    
+    # Code - use structure-aware chunking
+    ".py": "python_code"
+    ".js": "paragraph_based"
+    ".cpp": "c_cpp_code"
+    ".c": "c_cpp_code"
+
+# Embedding configuration for RAG
+embedding:
+  # High-quality model for better retrieval
+  default_model: "all-mpnet-base-v2"
+  
+  # Alternative models for different scenarios
+  model_selection:
+    # Fast retrieval for real-time applications
+    fast_retrieval: "all-MiniLM-L6-v2"
+    
+    # High quality for critical applications
+    high_quality: "all-mpnet-base-v2"
+    
+    # Multilingual RAG systems
+    multilingual: "paraphrase-multilingual-MiniLM-L12-v2"
+  
+  # Full metadata for context-aware generation
+  output_format: "full_metadata"
+  
+  # Optimized for retrieval accuracy
+  batch_size: 16  # Smaller batches for stable embeddings
+  normalize_embeddings: true
+  max_length: 384  # Optimal for most models
+
+# RAG-specific chunking parameters
+strategy_params:
+  sentence_based:
+    max_sentences: 2  # Focused chunks for precise retrieval
+    overlap_sentences: 1  # Context continuity
+    min_chunk_size: 100  # Enough content for generation
+    
+  paragraph_based:
+    max_paragraphs: 1  # Single concept per chunk
+    min_chunk_size: 150
+    
+  pdf_chunker:
+    chunk_by: "semantic"  # Logical sections
+    include_tables: true
+    include_images: false  # Text-only for now
+    preserve_formatting: true
+
+# Preprocessing for RAG optimization
+preprocessing:
+  # Clean text for better embeddings
+  remove_excessive_whitespace: true
+  normalize_unicode: true
+  
+  # Preserve important structure
+  preserve_line_breaks: true  # Important for code and lists
+  preserve_bullet_points: true
+  
+  # Content validation
+  min_chunk_length: 50  # Sufficient content for questions
+  max_chunk_length: 1024  # Not too long for generation context
+
+# Postprocessing for RAG quality
+postprocessing:
+  # Remove redundancy for better retrieval
+  remove_duplicate_chunks: true
+  remove_near_duplicate_chunks: true
+  similarity_threshold: 0.92  # Slightly lower for RAG
+  
+  # Content quality
+  remove_chunks_without_meaningful_content: true
+  remove_table_of_contents: true  # Usually not useful for RAG
+  
+  # Enhance metadata for better retrieval
+  add_content_type_detection: true
+  add_topic_hints: true
+  add_complexity_score: true
+
+# Vector database configuration for RAG
+vector_database:
+  # Stable IDs for consistent retrieval
+  id_strategy: "content_hash"
+  
+  # Rich metadata for retrieval filtering
+  include_source_info: true
+  include_chunk_position: true
+  include_document_context: true  # Section, chapter, etc.
+  
+  # Payload optimization
+  include_generation_context: true  # Surrounding text for better generation
+  context_window: 200  # Characters before/after chunk
+  
+  # Export for popular vector DBs
+  export_format: "json"
+  include_retrieval_metadata: true
+
+# RAG-specific quality metrics
+quality:
+  # Retrieval quality
+  check_chunk_coherence: true
+  check_topic_consistency: true
+  check_factual_completeness: true
+  
+  # Generation readiness
+  check_context_sufficiency: true  # Enough info for questions
+  check_reference_clarity: true  # Clear subject references
+  
+  # Embedding quality for retrieval
+  check_embedding_distribution: true
+  min_embedding_norm: 0.1  # Avoid degenerate embeddings
+
+# Retrieval optimization
+retrieval:
+  # Similarity search parameters
+  default_top_k: 5  # Number of chunks to retrieve
+  similarity_threshold: 0.7  # Minimum relevance score
+  
+  # Re-ranking options
+  enable_reranking: false  # Can be added later
+  rerank_top_k: 10  # Re-rank top 10, return top 5
+  
+  # Context assembly
+  max_context_length: 2048  # Total context for generation
+  context_overlap_handling: "merge"  # How to handle overlapping chunks
+  
+  # Metadata filtering
+  enable_metadata_filtering: true
+  filter_by_source: true
+  filter_by_date: true
+  filter_by_content_type: true
+
+# Generation context preparation
+generation:
+  # Context formatting
+  add_chunk_separators: true
+  chunk_separator: "\n---\n"
+  
+  # Source attribution
+  include_source_references: true
+  reference_format: "[Source: {source}, Section: {section}]"
+  
+  # Context assembly
+  prioritize_by_relevance: true
+  maintain_document_order: false  # Relevance over order
+  
+  # Content preparation
+  clean_context_for_generation: true
+  remove_markdown_artifacts: true
+  normalize_formatting: true
+
+# Performance for real-time RAG
+performance:
+  # Fast retrieval
+  enable_parallel_embedding: true
+  embedding_cache_size: 1000  # Cache frequent embeddings
+  
+  # Memory optimization
+  lazy_load_embeddings: true
+  embedding_precision: "float32"  # Balance accuracy/speed
+  
+  # GPU utilization
+  prefer_gpu: true
+  gpu_memory_limit: 0.7
+
+# Monitoring and evaluation
+monitoring:
+  # Track retrieval quality
+  log_retrieval_scores: true
+  log_context_assembly: true
+  
+  # Performance metrics
+  track_embedding_time: true
+  track_retrieval_time: true
+  
+  # Quality alerts
+  alert_on_low_similarity: true
+  alert_on_empty_retrieval: true
+
+# RAG system integration
+integration:
+  # LLM compatibility
+  context_format: "plain_text"  # or "structured"
+  max_tokens_per_chunk: 256  # For token-based LLMs
+  
+  # Vector database integration
+  vector_db_type: null  # "qdrant", "weaviate", "pinecone", etc.
+  connection_settings: {}
+  
+  # Caching strategy
+  enable_embedding_cache: true
+  cache_ttl: 3600  # 1 hour
+  
+  # Batch processing
+  batch_upsert_size: 100
+  concurrent_requests: 4
+
+# Error handling for production RAG
+error_handling:
+  # Graceful degradation
+  fallback_on_embedding_error: true
+  fallback_strategy: "fixed_size"
+  
+  # Retry logic
+  max_retries: 3
+  retry_delay: 0.5
+  exponential_backoff: true
+  
+  # Quality fallbacks
+  min_chunks_for_generation: 1
+  fallback_to_full_document: false
+
+# RAG use case templates
+use_cases:
+  customer_support:
+    description: "Customer support knowledge base"
+    chunk_strategy: "sentence_based"
+    max_sentences: 3
+    include_context: true
+    
+  technical_documentation:
+    description: "Technical documentation search"
+    chunk_strategy: "paragraph_based"
+    preserve_code_blocks: true
+    include_examples: true
+    
+  research_papers:
+    description: "Academic paper search"
+    chunk_strategy: "sentence_based"
+    max_sentences: 2
+    preserve_citations: true
+    
+  legal_documents:
+    description: "Legal document analysis"
+    chunk_strategy: "paragraph_based"
+    preserve_structure: true
+    include_section_context: true

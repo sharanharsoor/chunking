@@ -1,0 +1,36 @@
+# JSON Array Processing Configuration
+# Optimized for chunking large JSON arrays by elements
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  json_chunker:
+    chunk_by: "array_elements"    # Chunk arrays by elements
+    elements_per_chunk: 1000      # Number of array elements per chunk
+    preserve_structure: true      # Maintain valid JSON structure
+    encoding: "utf-8"
+    handle_jsonl: true
+    compact_output: false
+
+strategy_selection:
+  ".json":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+# Ideal for:
+# - Large datasets with arrays
+# - Time-series data
+# - Sensor readings
+# - Log entries
+# - API response arrays
+
+processing:
+  enable_parallel: true
+  max_workers: 6
+  enable_streaming: true
+
+quality_control:
+  enable_validation: true
+  max_chunk_size: 10000000  # 10MB max chunk size

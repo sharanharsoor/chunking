@@ -1,0 +1,86 @@
+# Time-Based Audio Chunking Configuration
+# Optimized for processing audio files into fixed-duration segments
+# Ideal for podcast processing, speech transcription, and audio analysis
+
+profile_name: "time_based_audio"
+description: "Fixed-duration audio segmentation with configurable overlap for context preservation"
+
+# Strategy selection - map audio formats to time-based chunker
+chunking:
+  default_strategy: "time_based_audio"
+
+  strategy_selection:
+    # Audio formats
+    ".mp3": "time_based_audio"
+    ".wav": "time_based_audio"
+    ".ogg": "time_based_audio"
+    ".flac": "time_based_audio"
+    ".m4a": "time_based_audio"
+    ".aac": "time_based_audio"
+    ".wma": "time_based_audio"
+
+    # Fallback for text files (if mixed content)
+    ".txt": "sentence_based"
+    ".md": "sentence_based"
+
+# Time-based audio chunking parameters
+strategy_params:
+  time_based_audio:
+    # Core timing parameters
+    segment_duration: 30.0        # Duration of each segment in seconds
+    overlap_duration: 2.0         # Overlap between segments in seconds
+    min_segment_duration: 5.0     # Minimum duration for the last segment
+
+    # Audio processing options
+    preserve_format: true         # Keep original audio format
+    sample_rate: null             # Target sample rate (null = preserve original)
+    channels: null                # Target channels (null = preserve original)
+
+# Alternative configurations for different use cases
+alternative_configs:
+
+  # Podcast processing - longer segments with minimal overlap
+  podcast:
+    segment_duration: 60.0        # 1-minute segments
+    overlap_duration: 5.0         # 5-second overlap
+    min_segment_duration: 30.0    # Don't create short end segments
+    preserve_format: true
+
+  # Music analysis - short segments without overlap
+  music_analysis:
+    segment_duration: 10.0        # 10-second segments
+    overlap_duration: 0.0         # No overlap needed
+    min_segment_duration: 5.0
+    preserve_format: false        # Convert to WAV for consistency
+    sample_rate: 44100           # Standard sample rate
+    channels: 2                  # Stereo
+
+  # Speech transcription - medium segments with speech-aware overlap
+  speech_transcription:
+    segment_duration: 30.0        # 30-second segments
+    overlap_duration: 3.0         # 3-second overlap for context
+    min_segment_duration: 10.0
+    preserve_format: false        # Convert for transcription tools
+    sample_rate: 16000           # Optimal for speech recognition
+    channels: 1                  # Mono for speech
+
+  # Audio streaming - small segments for real-time processing
+  streaming:
+    segment_duration: 5.0         # 5-second segments
+    overlap_duration: 0.5         # Small overlap
+    min_segment_duration: 2.0
+    preserve_format: true
+
+# Usage examples:
+#
+# Basic usage:
+#   chunking-strategy chunk audio_file.mp3 --config time_based_audio.yaml
+#
+# Podcast processing:
+#   chunking-strategy chunk podcast.mp3 --strategy time_based_audio --segment-duration 60.0 --overlap-duration 5.0
+#
+# Batch processing:
+#   chunking-strategy batch audio_folder/ --config time_based_audio.yaml --pattern "*.mp3"
+#
+# Speech transcription setup:
+#   chunking-strategy chunk speech.wav --strategy time_based_audio --segment-duration 30.0 --overlap-duration 3.0

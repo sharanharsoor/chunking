@@ -1,0 +1,116 @@
+# Summarization-Optimized Chunking Configuration
+# Optimized for document summarization workflows
+
+profile_name: "summarization"
+description: "Configuration optimized for text summarization with larger, coherent chunks"
+
+# Strategy selection and fallbacks
+strategies:
+  primary: "paragraph_based"
+  fallbacks:
+    - "section_based"
+    - "sentence_based"
+    - "fixed_size"
+
+  # Strategy-specific configurations
+  configs:
+    paragraph_based:
+      max_paragraphs: 6
+      min_paragraphs: 2
+      max_chunk_size: 3000
+      preserve_structure: true
+      include_headers: true
+
+    section_based:
+      max_sections: 3
+      preserve_hierarchy: true
+      include_section_headers: true
+      max_chunk_size: 4000
+
+    sentence_based:
+      max_sentences: 12
+      min_sentences: 5
+      max_chunk_size: 2500
+      overlap_sentences: 2
+      preserve_paragraph_breaks: true
+
+    fixed_size:
+      chunk_size: 2048
+      overlap_size: 200
+      unit: "character"
+      preserve_boundaries: true
+
+# Strategy selection rules by content type
+strategy_selection:
+  academic_paper:
+    primary: "section_based"
+    fallbacks: ["paragraph_based", "sentence_based"]
+
+  news_article:
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  book_chapter:
+    primary: "section_based"
+    fallbacks: ["paragraph_based", "sentence_based"]
+
+  blog_post:
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+
+# Preprocessing configuration
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  remove_headers_footers: true
+  clean_markup: true
+  normalize_unicode: true
+
+  # Summarization-specific preprocessing
+  preserve_formatting: true
+  extract_key_phrases: false
+
+  custom_steps:
+    - remove_citations
+    - normalize_headings
+    - preserve_lists
+
+# Postprocessing configuration
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: false  # Keep original structure for summarization
+  min_chunk_size: 500
+  deduplicate: true
+  similarity_threshold: 0.8
+
+  # Summarization-specific postprocessing
+  preserve_document_structure: true
+  add_section_context: true
+  include_position_markers: true
+
+  # Quality enhancement
+  enhance_metadata: true
+  normalize_content: false  # Preserve original style
+
+# Quality thresholds (more lenient for larger chunks)
+quality_thresholds:
+  min_coherence: 0.5
+  min_coverage: 0.9
+  max_overlap_ratio: 0.05
+  min_information_density: 0.4
+
+# Performance settings
+performance:
+  streaming_threshold: 52428800  # 50MB - higher threshold for summarization
+  parallel_processing: true
+  memory_limit: 2147483648  # 2GB - more memory for larger chunks
+  timeout: 600  # 10 minutes
+
+# Output preferences
+output:
+  include_metadata: true
+  include_quality_scores: false
+  chunk_id_format: "sum_{source}_{section}_{index:03d}"
+  preserve_source_structure: true
+  include_section_hierarchy: true

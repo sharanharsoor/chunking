@@ -1,0 +1,24 @@
+{
+  "data": [
+    {"timestamp": "2023-01-01T00:00:00Z", "value": 100, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:01:00Z", "value": 101, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:02:00Z", "value": 99, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:03:00Z", "value": 102, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:04:00Z", "value": 98, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:05:00Z", "value": 103, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:06:00Z", "value": 97, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:07:00Z", "value": 104, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:08:00Z", "value": 96, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:09:00Z", "value": 105, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:10:00Z", "value": 95, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:11:00Z", "value": 106, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:12:00Z", "value": 94, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:13:00Z", "value": 107, "sensor": "temp1"},
+    {"timestamp": "2023-01-01T00:14:00Z", "value": 93, "sensor": "temp1"}
+  ],
+  "metadata": {
+    "sensor_type": "temperature",
+    "unit": "celsius",
+    "location": "lab_1"
+  }
+}

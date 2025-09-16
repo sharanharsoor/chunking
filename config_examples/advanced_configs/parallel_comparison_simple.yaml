@@ -1,0 +1,126 @@
+# Simple Parallel Algorithm Comparison Configuration
+# Compares multiple built-in algorithms without custom ones to avoid path issues
+
+name: "parallel_comparison_simple"
+description: "Parallel comparison of built-in algorithms for performance and quality testing"
+
+# Use multiple built-in strategies for comparison
+strategies:
+  primary: "semantic"
+  fallbacks:
+    - "paragraph_based"
+    - "sentence_based"
+    - "fixed_size"
+
+# Multi-strategy configuration for comparison
+multi_strategy:
+  enabled: true
+  mode: "comparison"
+
+  # Compare multiple built-in algorithms
+  strategies:
+    - name: "semantic"
+      weight: 1.0
+      category: "advanced"
+      description: "Semantic similarity-based chunking"
+
+    - name: "paragraph_based"
+      weight: 1.0
+      category: "structural"
+      description: "Paragraph boundary-based chunking"
+
+    - name: "sentence_based"
+      weight: 1.0
+      category: "linguistic"
+      description: "Sentence boundary-based chunking"
+
+    - name: "fixed_size"
+      weight: 1.0
+      category: "mechanical"
+      description: "Fixed character count chunking"
+
+  # Generate comparison data
+  combination_method: "all_parallel"
+  generate_individual_results: true
+  generate_comparison_report: true
+
+# Fair comparison parameters
+parameters:
+  semantic:
+    similarity_threshold: 0.7
+    min_chunk_size: 200
+    max_chunk_size: 1200
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+    preserve_formatting: false
+
+  sentence_based:
+    min_sentence_length: 20
+    max_sentences_per_chunk: 6
+    preserve_sentence_boundaries: true
+
+  fixed_size:
+    chunk_size: 600
+    overlap_size: 50
+    unit: "character"
+    preserve_boundaries: true
+
+# Comparison and validation settings
+comparison:
+  enabled: true
+
+  # Metrics to compare
+  metrics:
+    - "chunk_count"
+    - "avg_chunk_size"
+    - "chunk_size_variance"
+    - "processing_time"
+    - "boundary_preservation"
+    - "content_coherence"
+
+  # Pairwise comparisons
+  pairwise_comparisons:
+    - ["semantic", "paragraph_based"]
+    - ["sentence_based", "fixed_size"]
+    - ["semantic", "fixed_size"]
+
+# Performance benchmarking
+benchmarking:
+  enabled: true
+  iterations: 3
+  warmup_iterations: 1
+
+  test_datasets:
+    - name: "small_text"
+      size: "1KB"
+      type: "text"
+    - name: "medium_text"
+      size: "10KB"
+      type: "text"
+
+# Quality assessment
+quality:
+  enabled: true
+
+  # Quality metrics
+  metrics:
+    chunk_coherence: true
+    boundary_accuracy: true
+    size_consistency: true
+    content_preservation: true
+
+# Detailed reporting
+reporting:
+  enabled: true
+  generate_comparison_report: true
+  generate_performance_report: true
+  output_formats: ["json", "yaml"]
+
+output:
+  format: "json"
+  include_metadata: true
+  include_all_results: true
+  include_comparison_summary: true
+  detailed_performance_metrics: true

@@ -1,0 +1,21 @@
+# Auto-selection configuration for testing dedicated chunkers
+strategies:
+  primary: auto  # Enable auto-selection based on file type
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# General settings
+processing:
+  parallel: true
+  max_workers: 4
+
+# Output settings
+output:
+  include_metadata: true
+  format: json
+
+# Quality settings
+quality:
+  min_chunk_size: 10
+  max_chunk_size: 8000

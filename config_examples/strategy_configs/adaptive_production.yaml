@@ -1,0 +1,212 @@
+# Adaptive Dynamic Chunker Configuration - Production Mode
+#
+# This configuration optimizes the Adaptive chunker for production environments
+# where stability, reliability, and predictable performance are prioritized
+# over aggressive learning and experimentation.
+
+strategies:
+  primary: adaptive
+  fallback:
+    - fastcdc       # Reliable content-defined chunking
+    - fixed_size    # Most predictable fallback
+
+# Adaptive Dynamic Chunker - Production Configuration
+adaptive:
+  # Strategy selection - conservative approach
+  available_strategies:
+    - "fastcdc"           # Proven content-defined chunking
+    - "paragraph_based"   # Reliable for text documents
+    - "sentence_based"    # Stable text chunking
+    - "fixed_size"        # Predictable fallback
+
+  default_strategy: "fastcdc"     # Stable default
+  strategy_selection_mode: "performance"  # Prioritize proven performance
+
+  # Conservative adaptation parameters
+  adaptation_threshold: 0.25     # Higher threshold (25%) for stability
+  learning_rate: 0.05            # Conservative learning rate
+  exploration_rate: 0.02         # Minimal exploration in production
+  adaptation_interval: 20        # Adapt less frequently (every 20 files)
+
+  # Stable performance tracking
+  history_size: 200              # Shorter history for stability
+  performance_window: 100        # Larger window for stable averages
+  min_samples: 10                # More samples before adaptation
+
+  # Production-focused features
+  enable_content_profiling: true    # Still analyze content
+  enable_performance_learning: true # Learn conservatively
+  enable_strategy_comparison: false # Disable comparisons for stability
+
+  # Production persistence
+  persistence_file: "adaptive_production_history.json"
+  auto_save_interval: 100        # Save less frequently
+
+# Processing optimized for production reliability
+processing:
+  parallel: true
+  max_workers: 8                 # More workers for throughput
+  verify_integrity: true         # Verify results in production
+  error_tolerance: low           # Low error tolerance
+
+  # Production reliability
+  reliability:
+    timeout_seconds: 30          # Reasonable timeout
+    retry_attempts: 2            # Limited retries
+    circuit_breaker: true        # Circuit breaker for failures
+    graceful_degradation: true   # Degrade gracefully on issues
+
+# Metadata optimized for production monitoring
+output:
+  include_metadata: true
+  preserve_source_info: true
+
+  metadata_fields:
+    - adaptive_strategy           # Which strategy was used
+    - performance_metrics         # Performance data
+    - operation_count            # Operation tracking
+    - strategy_confidence        # Confidence level
+    - processing_time            # Timing information
+    - error_count               # Error tracking
+
+  # Production monitoring metadata
+  production_metadata:
+    uptime_tracking: true        # Track system uptime
+    throughput_metrics: true     # Monitor throughput
+    error_rates: true            # Track error rates
+    strategy_stability: true     # Monitor strategy stability
+    resource_usage: true         # Track resource consumption
+
+# Production quality assurance
+quality:
+  enforce_quality_thresholds: true # Enforce quality standards
+  quality_threshold: 0.8          # High quality threshold
+  stability_requirement: true      # Require stable performance
+
+  # Production quality metrics
+  production_quality:
+    consistency_check: true       # Check consistency across runs
+    regression_detection: true    # Detect performance regressions
+    quality_trend_analysis: true  # Analyze quality trends
+    benchmark_comparison: true    # Compare against benchmarks
+
+# Performance tuning for production workloads
+performance:
+  memory_limit: "2GB"            # Production memory limit
+  cpu_optimization: true         # Optimize CPU usage
+  io_optimization: true          # Optimize I/O operations
+
+  # Production performance
+  production_performance:
+    latency_optimization: true    # Optimize for low latency
+    throughput_maximization: true # Maximize throughput
+    resource_efficiency: true     # Efficient resource usage
+
+  # Caching for production
+  caching:
+    strategy_cache: true         # Cache strategy instances
+    parameter_cache: true        # Cache optimized parameters
+    result_cache: false          # No result caching (memory concern)
+    metadata_cache: true         # Cache metadata for efficiency
+
+# Production monitoring and alerting
+monitoring:
+  enable_production_monitoring: true
+  real_time_metrics: true
+  performance_alerting: true
+
+  # Production dashboards
+  production_dashboard:
+    throughput_monitoring: true   # Monitor processing throughput
+    latency_tracking: true       # Track response latency
+    error_monitoring: true       # Monitor error rates
+    strategy_usage: true         # Track strategy utilization
+    resource_monitoring: true    # Monitor system resources
+
+  # Production alerts
+  production_alerts:
+    high_latency: true           # Alert on high latency
+    error_spikes: true           # Alert on error spikes
+    performance_degradation: true # Alert on performance issues
+    resource_exhaustion: true    # Alert on resource issues
+    strategy_failures: true      # Alert on strategy failures
+
+  # Alert thresholds
+  alert_thresholds:
+    max_latency_ms: 5000        # 5 second max latency
+    max_error_rate: 0.01        # 1% max error rate
+    min_throughput_mb_s: 10     # 10 MB/s minimum throughput
+    max_memory_usage_gb: 1.8    # 1.8GB max memory usage
+    min_quality_score: 0.75     # 75% minimum quality
+
+# Advanced production features
+advanced:
+  # Production stability
+  production_stability:
+    gradual_adaptation: true     # Gradual parameter changes
+    rollback_capability: true    # Ability to rollback changes
+    canary_deployment: false     # No canary in single instance
+
+  # Reliability features
+  reliability_features:
+    health_checks: true          # Regular health checks
+    graceful_shutdown: true      # Graceful shutdown handling
+    state_persistence: true      # Persist state for recovery
+
+  # Security features
+  security_features:
+    input_validation: true       # Validate all inputs
+    output_sanitization: true    # Sanitize outputs
+    audit_logging: true          # Log all operations
+    access_control: false        # No access control needed
+
+# Production error handling
+error_handling:
+  strict_error_handling: true    # Strict error handling
+  immediate_fallback: true       # Quick fallback on errors
+  error_escalation: true         # Escalate persistent errors
+
+  # Production error recovery
+  production_recovery:
+    automatic_recovery: true     # Automatic recovery from errors
+    state_restoration: true      # Restore state after failures
+    progressive_fallback: true   # Progressive fallback strategies
+
+  # Error reporting
+  error_reporting:
+    detailed_error_logs: true    # Detailed error logging
+    error_metrics: true          # Track error metrics
+    error_classification: true   # Classify error types
+    trend_analysis: true         # Analyze error trends
+
+# File handling for production
+file_filters:
+  # Production file patterns
+  extensions: [".txt", ".json", ".xml", ".html", ".md", ".csv"]
+
+  include_patterns:
+    - "**/documents/**"          # Document processing
+    - "**/data/**"              # Data processing
+    - "**/content/**"           # Content processing
+
+  exclude_patterns:
+    - "*.tmp"                   # Temporary files
+    - "*.log"                   # Log files
+    - "*.cache"                 # Cache files
+    - ".git/**"                 # Version control
+    - "__pycache__/**"          # Python cache
+    - "node_modules/**"         # Node dependencies
+    - ".DS_Store"               # macOS files
+    - "Thumbs.db"               # Windows thumbnails
+
+# Backup and recovery
+backup:
+  enable_backup: true            # Enable backup
+  backup_interval: 3600          # Backup every hour
+  backup_retention: 168          # Keep backups for 7 days
+
+  backup_components:
+    adaptation_history: true     # Backup adaptation history
+    performance_data: true       # Backup performance data
+    configuration: true          # Backup configuration
+    strategy_cache: true         # Backup strategy cache

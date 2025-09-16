@@ -1,0 +1,225 @@
+# Semantic Chunker Configuration Examples
+#
+# The Semantic Chunker uses meaning-based text analysis to detect topic boundaries
+# and create semantically coherent chunks. This configuration file provides various
+# profiles for different use cases and requirements.
+
+# Profile 1: Fast Processing (Development/Testing)
+# Optimized for speed using TF-IDF with moderate sensitivity
+fast_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "tfidf"
+    similarity_threshold: 0.6
+    min_chunk_sentences: 2
+    max_chunk_sentences: 10
+    boundary_detection: "similarity_threshold"
+    context_window_size: 2
+    max_chunk_chars: 3000
+    coherence_weight: 0.2
+  use_cases: ["development", "testing", "rapid_prototyping"]
+  performance_notes: "Fastest option using statistical methods"
+
+# Profile 2: High Quality Analysis (Production)
+# Best accuracy for important content analysis
+high_quality_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-mpnet-base-v2"
+    similarity_threshold: 0.8
+    min_chunk_sentences: 3
+    max_chunk_sentences: 8
+    boundary_detection: "coherence_based"
+    context_window_size: 4
+    max_chunk_chars: 4000
+    coherence_weight: 0.4
+  use_cases: ["academic_analysis", "content_curation", "knowledge_extraction"]
+  performance_notes: "Best quality but slower processing"
+
+# Profile 3: Balanced Performance
+# Good balance of speed and accuracy for general use
+balanced_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-MiniLM-L6-v2"
+    similarity_threshold: 0.7
+    min_chunk_sentences: 2
+    max_chunk_sentences: 12
+    boundary_detection: "dynamic_threshold"
+    context_window_size: 3
+    max_chunk_chars: 4000
+    coherence_weight: 0.3
+  use_cases: ["general_purpose", "document_processing", "content_analysis"]
+  performance_notes: "Optimal balance for most applications"
+
+# Profile 4: Academic Paper Analysis
+# Specialized for academic and research content
+academic_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-mpnet-base-v2"
+    similarity_threshold: 0.75
+    min_chunk_sentences: 4
+    max_chunk_sentences: 15
+    boundary_detection: "coherence_based"
+    context_window_size: 5
+    max_chunk_chars: 6000
+    coherence_weight: 0.5
+  use_cases: ["academic_papers", "research_documents", "scientific_literature"]
+  performance_notes: "Optimized for complex academic content"
+
+# Profile 5: News Article Processing
+# Configured for news and journalistic content
+news_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-MiniLM-L6-v2"
+    similarity_threshold: 0.65
+    min_chunk_sentences: 2
+    max_chunk_sentences: 8
+    boundary_detection: "sliding_window"
+    context_window_size: 3
+    max_chunk_chars: 3500
+    coherence_weight: 0.25
+  use_cases: ["news_processing", "article_analysis", "media_monitoring"]
+  performance_notes: "Tuned for narrative and news content"
+
+# Profile 6: Technical Documentation
+# Optimized for technical and procedural content
+technical_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-distilroberta-v1"
+    similarity_threshold: 0.72
+    min_chunk_sentences: 3
+    max_chunk_sentences: 10
+    boundary_detection: "coherence_based"
+    context_window_size: 4
+    max_chunk_chars: 5000
+    coherence_weight: 0.35
+  use_cases: ["technical_docs", "api_documentation", "user_manuals"]
+  performance_notes: "Good for structured technical content"
+
+# Profile 7: Conversational Text
+# Designed for chat logs, transcripts, and dialogues
+conversational_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "tfidf"
+    similarity_threshold: 0.55
+    min_chunk_sentences: 3
+    max_chunk_sentences: 12
+    boundary_detection: "sliding_window"
+    context_window_size: 2
+    max_chunk_chars: 2500
+    coherence_weight: 0.2
+  use_cases: ["chat_logs", "transcripts", "interview_analysis"]
+  performance_notes: "Adapted for conversational patterns"
+
+# Profile 8: Large Document Processing
+# Efficient processing for very large documents
+large_document_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "tfidf"
+    similarity_threshold: 0.68
+    min_chunk_sentences: 4
+    max_chunk_sentences: 20
+    boundary_detection: "similarity_threshold"
+    context_window_size: 2
+    max_chunk_chars: 8000
+    coherence_weight: 0.15
+  use_cases: ["large_documents", "book_processing", "report_analysis"]
+  performance_notes: "Optimized for processing speed with large texts"
+
+# Profile 9: Fine-Grained Analysis
+# Maximum sensitivity for detailed topic detection
+fine_grained_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "all-mpnet-base-v2"
+    similarity_threshold: 0.85
+    min_chunk_sentences: 1
+    max_chunk_sentences: 5
+    boundary_detection: "coherence_based"
+    context_window_size: 6
+    max_chunk_chars: 2000
+    coherence_weight: 0.6
+  use_cases: ["detailed_analysis", "topic_modeling", "content_categorization"]
+  performance_notes: "Maximum granularity but slower processing"
+
+# Profile 10: Multi-language Support
+# Configuration for multilingual content
+multilingual_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "sentence_transformer"
+    embedding_model: "paraphrase-multilingual-MiniLM-L12-v2"
+    similarity_threshold: 0.7
+    min_chunk_sentences: 3
+    max_chunk_sentences: 10
+    boundary_detection: "dynamic_threshold"
+    context_window_size: 3
+    max_chunk_chars: 4000
+    coherence_weight: 0.3
+  use_cases: ["multilingual_documents", "international_content", "translation_analysis"]
+  performance_notes: "Supports multiple languages with good performance"
+
+# Profile 11: Streaming Optimized
+# Configured for real-time streaming scenarios
+streaming_semantic:
+  chunker_type: "semantic"
+  parameters:
+    semantic_model: "tfidf"
+    similarity_threshold: 0.65
+    min_chunk_sentences: 2
+    max_chunk_sentences: 8
+    boundary_detection: "similarity_threshold"
+    context_window_size: 2
+    max_chunk_chars: 3000
+    coherence_weight: 0.2
+  use_cases: ["real_time_processing", "streaming_data", "live_analysis"]
+  performance_notes: "Optimized for low-latency streaming scenarios"
+
+# Common Configuration Guidelines:
+#
+# Similarity Threshold:
+# - 0.5-0.6: Very sensitive, many boundaries
+# - 0.7-0.8: Balanced sensitivity
+# - 0.8-0.9: Conservative, fewer boundaries
+#
+# Boundary Detection Methods:
+# - similarity_threshold: Simple, fast
+# - sliding_window: Good for narrative content
+# - dynamic_threshold: Adaptive, balanced
+# - coherence_based: Best quality, slower
+#
+# Semantic Models:
+# - tfidf: Fastest, good for simple cases
+# - sentence_transformer: Best quality, requires model download
+# - spacy: Balanced, good for NLP pipelines
+#
+# Context Window Size:
+# - 1-2: Fast processing
+# - 3-4: Balanced context awareness
+# - 5-6: Maximum context, slower
+
+# Usage Examples:
+#
+# 1. Command line usage:
+#    chunking-strategy chunk document.txt --config config_examples/semantic_chunker.yaml --profile balanced_semantic
+#
+# 2. Python API usage:
+#    from chunking_strategy import create_chunker
+#    chunker = create_chunker("semantic", config_file="semantic_chunker.yaml", profile="balanced_semantic")
+#    result = chunker.chunk("your_text_here")
+#
+# 3. Adaptive usage:
+#    chunker.adapt_parameters(0.3, "quality")  # Adapt based on quality feedback
+#    chunker.adapt_parameters(0.8, "performance")  # Adapt based on performance feedback

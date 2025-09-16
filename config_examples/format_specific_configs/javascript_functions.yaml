@@ -1,0 +1,61 @@
+# JavaScript Function-based Chunking Configuration
+#
+# This configuration chunks JavaScript/TypeScript code by function boundaries,
+# preserving function declarations, expressions, and arrow functions separately.
+
+strategies:
+  primary: javascript_code
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# JavaScript chunker specific settings
+javascript_code:
+  chunk_by: function              # Chunk by individual functions
+  max_lines_per_chunk: 150        # Maximum lines per chunk
+  include_imports: true           # Include import statements
+  include_exports: true           # Include export statements
+  handle_jsx: true               # Process JSX components
+  handle_typescript: true        # Handle TypeScript syntax
+  preserve_comments: true        # Keep comments in chunks
+
+  # Advanced settings
+  min_chunk_size: 20             # Minimum characters per chunk
+  max_chunk_size: 8000           # Maximum characters per chunk
+
+# Processing settings
+processing:
+  parallel: true
+  max_workers: 4
+  chunk_overlap: 0               # No overlap for code chunks
+
+# Output settings
+output:
+  include_metadata: true
+  metadata_fields:
+    - element_type              # function_declaration, arrow_function, etc.
+    - element_name              # Function name
+    - params                    # Function parameters
+    - is_async                  # Whether function is async
+    - is_jsx_component          # Whether it's a JSX component
+    - language                  # javascript or typescript
+
+# File filtering
+file_filters:
+  extensions:
+    - .js
+    - .jsx
+    - .ts
+    - .tsx
+    - .mjs
+    - .cjs
+  exclude_patterns:
+    - "*.min.js"               # Skip minified files
+    - "*.bundle.js"            # Skip bundled files
+    - node_modules/            # Skip dependencies
+
+# Quality settings
+quality:
+  min_function_lines: 3          # Skip very small functions
+  preserve_structure: true       # Maintain code structure
+  include_empty_functions: false # Skip empty function bodies

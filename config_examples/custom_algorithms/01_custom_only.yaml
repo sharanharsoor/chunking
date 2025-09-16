@@ -1,0 +1,50 @@
+# Configuration 1: Custom Algorithms Only
+# This config uses only custom algorithms, no built-in ones
+
+name: "custom_only_config"
+description: "Example using only custom chunking algorithms"
+
+# Load custom algorithms
+custom_algorithms:
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+    algorithms: ["sentiment_based"]
+  - path: "../../examples/custom_algorithms/regex_pattern_chunker.py"
+    algorithms: ["regex_pattern_based"]
+
+# Use only custom algorithms in strategies
+strategies:
+  primary: "sentiment_based"
+  fallbacks: ["regex_pattern_based"]
+
+# Parameters for custom algorithms
+parameters:
+  sentiment_based:
+    sentiment_threshold: 0.3
+    min_chunk_sentences: 2
+    max_chunk_sentences: 10
+    sentiment_smoothing: true
+
+  regex_pattern_based:
+    chunk_patterns:
+      - name: "paragraph"
+        pattern: '\n\s*\n'
+        flags: ""
+        split_mode: "on"
+      - name: "section"
+        pattern: '^#+\s+'
+        flags: "MULTILINE"
+        split_mode: "before"
+    min_chunk_length: 100
+    max_chunk_length: 2000
+
+# Output configuration
+output:
+  format: "json"
+  include_metadata: true
+  include_quality_scores: true
+
+# Quality thresholds
+quality:
+  minimum_chunk_quality: 0.5
+  require_content_validation: true
+  max_empty_chunks_ratio: 0.1

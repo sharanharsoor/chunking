@@ -1,0 +1,39 @@
+# Audio Time-Based Chunking Configuration
+# Simple configuration for time-based audio chunking
+
+profile_name: "audio_time_based"
+description: "Time-based audio chunking with configurable segment duration and overlap"
+
+chunking:
+  # Use time_based_audio as default for all files
+  default_strategy: "time_based_audio"
+
+  # Map specific audio file extensions to time_based_audio strategy
+  strategy_selection:
+    ".mp3": "time_based_audio"
+    ".wav": "time_based_audio"
+    ".ogg": "time_based_audio"
+    ".flac": "time_based_audio"
+    ".m4a": "time_based_audio"
+    ".aac": "time_based_audio"
+
+  # Configure time_based_audio chunker parameters
+  strategy_params:
+    time_based_audio:
+      segment_duration: 30.0        # 30-second segments
+      overlap_duration: 2.0         # 2-second overlap for context
+      min_segment_duration: 5.0     # Don't create segments shorter than 5 seconds
+      preserve_format: true         # Keep original audio format
+      sample_rate: null             # Keep original sample rate
+      channels: null                # Keep original channel count
+
+# Usage examples:
+#
+# Basic usage:
+#   python -m chunking_strategy.cli chunk audio.mp3 --config config_examples/audio_time_based.yaml
+#
+# With custom segment duration:
+#   python -m chunking_strategy.cli chunk audio.wav --strategy time_based_audio --segment-duration 45.0
+#
+# Batch processing:
+#   python -m chunking_strategy.cli batch audio_folder/ --config config_examples/audio_time_based.yaml

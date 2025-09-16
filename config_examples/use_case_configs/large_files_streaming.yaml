@@ -1,0 +1,168 @@
+# Large Files with Streaming Configuration
+# Optimized for processing very large files (100MB+) using intelligent streaming
+
+profile_name: "large_files_streaming"
+description: "Configuration optimized for processing very large files with streaming and Tika integration"
+
+# Primary strategy configuration - optimized for large file streaming
+strategies:
+  primary: "fixed_size"  # Most reliable for large files with streaming
+  fallbacks:
+    - "sentence_based"   # Fallback with robust dictionary data handling
+    - "paragraph_based"  # Additional fallback option
+
+  # Strategy-specific configurations
+  configs:
+    fixed_size:
+      chunk_size: 2048
+      overlap_size: 256
+      unit: "character"
+      preserve_boundaries: false  # Optimized for streaming
+
+    sentence_based:
+      max_sentences: 5
+      min_sentences: 1
+      max_chunk_size: 2048
+      overlap_sentences: 1
+      sentence_splitter: "simple"
+      max_text_buffer_size: 2097152  # 2MB buffer limit for streaming protection
+
+    paragraph_based:
+      max_paragraphs: 3
+      min_chunk_size: 200
+      max_chunk_size: 3072
+      overlap_paragraphs: 1
+
+# Strategy selection for different file types (advanced configuration)
+strategy_selection:
+  ".txt":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".log":
+    primary: "fixed_size"
+    fallbacks: ["sentence_based"]
+
+  ".csv":
+    primary: "fixed_size"
+    fallbacks: []
+
+  ".pdf":
+    primary: "sentence_based"  # Will use Tika integration
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".doc":
+    primary: "sentence_based"  # Will use Tika for extraction
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".docx":
+    primary: "sentence_based"  # Will use Tika for extraction
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".html":
+    primary: "paragraph_based"  # Will use Tika for extraction
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".xml":
+    primary: "paragraph_based"  # Will use Tika for extraction
+    fallbacks: ["sentence_based", "fixed_size"]
+
+# Streaming configuration for large files
+streaming:
+  enabled: true
+  # Files larger than 100MB will automatically use streaming
+  min_file_size: 104857600  # 100MB in bytes
+  # Block size for reading large files (64MB blocks)
+  block_size: 67108864     # 64MB in bytes
+  # Overlap between blocks to prevent chunk boundary issues (1MB)
+  overlap_size: 1048576    # 1MB in bytes
+  # Progress logging every N chunks
+  progress_log_interval: 1000
+
+
+# Smart parallelization settings
+parallelization:
+  # Enable smart parallelization (recommended)
+  smart_parallelization: true
+  # Hardware optimization thresholds
+  min_file_size_for_hw_optimization: 51200      # 50KB
+  min_total_size_for_threading: 104857600       # 100MB
+  min_files_for_batch: 10
+  min_strategies_for_parallel: 3
+  # Override streaming thresholds if needed
+  # min_file_size_for_streaming: 104857600       # 100MB
+  # streaming_block_size: 67108864               # 64MB
+  # streaming_overlap_size: 1048576              # 1MB
+
+# Hardware optimization
+hardware_optimization:
+  enabled: true
+  # Allow system to determine optimal worker count
+  auto_detect_workers: true
+  # Maximum workers for parallel processing
+  max_workers: null  # Auto-detected
+  # Memory usage limits
+  max_memory_usage: "80%"  # Use up to 80% of available RAM
+
+# Content extraction options
+extraction:
+  enabled: true
+  preserve_structure: true
+  include_metadata: true
+  # Tika integration for enhanced document processing
+  tika_enabled: true
+  auto_tika_formats: [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".odt", ".rtf", ".epub", ".html", ".xml"]
+  fallback_on_failure: true
+  extract_metadata: true
+
+# Processing pipeline
+preprocessing:
+  enabled: true
+  steps:
+    - type: "normalize_whitespace"
+    - type: "remove_empty_lines"
+    - type: "trim_lines"
+
+postprocessing:
+  enabled: true
+  steps:
+    - type: "merge_short_chunks"
+      min_chunk_size: 100
+    - type: "split_long_chunks"
+      max_chunk_size: 8192
+    - type: "validate_chunks"
+
+# Logging and monitoring
+logging:
+  level: "INFO"
+  # Enable detailed streaming progress logs
+  streaming_progress: true
+  # Enable Tika operation logs
+  tika_operations: true
+  # Performance monitoring
+  performance_metrics: true
+
+# Output configuration
+output:
+  # Include streaming metadata in results
+  include_streaming_metadata: true
+  # Include Tika metadata in results
+  include_tika_metadata: true
+  # Include performance metrics
+  include_performance_metrics: true
+
+# Error handling
+error_handling:
+  # Continue processing other files if one fails
+  continue_on_error: true
+  # Maximum retries for failed chunks
+  max_retries: 2
+  # Fallback strategies for failures
+  enable_fallbacks: true
+  # Memory recovery strategies
+  memory_recovery:
+    enabled: true
+    # Force garbage collection after large files
+    gc_after_large_files: true
+    # Clear caches periodically
+    clear_caches: true

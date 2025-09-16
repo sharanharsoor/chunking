@@ -1,0 +1,38 @@
+# Markdown Header-Focused Configuration
+# Optimized for documents with clear header hierarchy
+
+chunking_strategy:
+  name: markdown_chunker
+  config:
+    chunk_by: headers
+    header_level: 2  # Split on H1 and H2 headers
+    preserve_code_blocks: true
+    preserve_tables: true
+    preserve_lists: true
+    include_frontmatter: true
+    min_chunk_size: 100
+    max_chunk_size: 4000
+
+strategies:
+  primary: markdown_chunker
+  fallbacks:
+    - paragraph_based
+    - sentence_based
+  configs:
+    markdown_chunker:
+      chunk_by: headers
+      header_level: 2
+      preserve_code_blocks: true
+      preserve_tables: true
+      preserve_lists: true
+      include_frontmatter: true
+      min_chunk_size: 100
+      max_chunk_size: 4000
+
+preprocessing:
+  enabled: false
+
+postprocessing:
+  enabled: true
+  merge_short_chunks: true
+  min_chunk_size: 50

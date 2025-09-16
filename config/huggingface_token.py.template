@@ -1,0 +1,17 @@
+# HuggingFace Token Configuration Template
+# 
+# SETUP INSTRUCTIONS:
+# 1. Copy this file to: config/huggingface_token.py
+# 2. Replace YOUR_TOKEN_HERE with your actual HuggingFace token
+# 3. Get a token from: https://huggingface.co/settings/tokens
+# 
+# SECURITY NOTE:
+# - This file should be in .gitignore to avoid committing tokens
+# - Never commit your actual token to version control
+# - Use environment variable HF_TOKEN as alternative
+
+HUGGINGFACE_TOKEN = "YOUR_TOKEN_HERE"
+
+# Alternative: Use environment variable
+# import os
+# HUGGINGFACE_TOKEN = os.getenv("HF_TOKEN", "your-fallback-token-here")

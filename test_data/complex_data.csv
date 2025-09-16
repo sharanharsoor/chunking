@@ -1,0 +1,11 @@
+employee_id,first_name,last_name,email,department,salary,start_date,active,notes
+E001,"John","Doe","john.doe@company.com","Engineering",75000,"2020-01-15",TRUE,"Excellent performance, team lead"
+E002,"Jane","Smith","jane.smith@company.com","Marketing",65000,"2019-03-22",TRUE,"Creative and innovative"
+E003,"Bob","Johnson","bob.johnson@company.com","Sales",58000,"2021-06-10",FALSE,"Relocated to different city"
+E004,"Alice","Williams","alice.williams@company.com","HR",52000,"2018-11-30",TRUE,"Great communication skills"
+E005,"Charlie","Brown","charlie.brown@company.com","Engineering",82000,"2017-09-05",TRUE,"Senior developer, mentor"
+E006,"Eva","Davis","eva.davis@company.com","Finance",68000,"2020-07-18",TRUE,"Detail-oriented, reliable"
+E007,"Mike","Wilson","mike.wilson@company.com","Operations",55000,"2022-02-14",TRUE,"Process improvement expert"
+E008,"Sarah","Taylor","sarah.taylor@company.com","Marketing",61000,"2019-12-03",TRUE,"Social media specialist"
+E009,"David","Anderson","david.anderson@company.com","Sales",72000,"2018-05-20",TRUE,"Top performer, client relations"
+E010,"Lisa","Thomas","lisa.thomas@company.com","Engineering",78000,"2021-10-12",TRUE,"Full-stack developer"

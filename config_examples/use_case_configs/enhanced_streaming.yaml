@@ -1,0 +1,310 @@
+# Enhanced Streaming Configuration
+# Demonstrates all advanced streaming capabilities: progress reporting, checkpointing, and distributed processing
+# Optimized for massive files (20GB+) with enterprise-grade reliability features
+
+profile_name: "enhanced_streaming"
+description: "Enterprise-grade streaming with progress reporting, checkpointing, resume capabilities, and distributed processing"
+
+# Core strategy configuration optimized for massive file streaming
+strategies:
+  primary: "sentence_based"  # Good balance of semantic awareness and streaming compatibility
+  fallbacks:
+    - "paragraph_based"     # Fallback with good boundary preservation
+    - "fixed_size"          # Most reliable fallback for streaming
+
+  # Strategy-specific configurations optimized for streaming
+  configs:
+    sentence_based:
+      max_sentences: 8
+      min_sentences: 2
+      max_chunk_size: 4096
+      overlap_sentences: 1
+      sentence_splitter: "simple"
+      max_text_buffer_size: 4194304  # 4MB buffer for large file streaming
+      preserve_boundaries: true
+
+    paragraph_based:
+      max_paragraphs: 4
+      min_chunk_size: 512
+      max_chunk_size: 6144
+      overlap_paragraphs: 1
+      preserve_boundaries: true
+
+    fixed_size:
+      chunk_size: 4096
+      overlap_size: 512
+      unit: "character"
+      preserve_boundaries: false
+
+# File type specific strategies for optimal processing
+strategy_selection:
+  ".txt":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".log":
+    primary: "fixed_size"  # Logs often have inconsistent structure
+    fallbacks: ["sentence_based"]
+
+  ".json":
+    primary: "fixed_size"  # JSON structure can be complex
+    fallbacks: ["sentence_based"]
+
+  ".csv":
+    primary: "fixed_size"  # Structured data works well with fixed sizes
+    fallbacks: []
+
+# ============================================================================
+# ENHANCED STREAMING CONFIGURATION (NEW FEATURES)
+# ============================================================================
+
+# Advanced streaming configuration with all new features
+enhanced_streaming:
+  # Basic streaming settings
+  enabled: true
+  min_file_size: 52428800  # 50MB - lower threshold for demo purposes
+  block_size: 33554432     # 32MB blocks for optimal memory usage
+  overlap_size: 2097152    # 2MB overlap for boundary preservation
+
+  # PROGRESS REPORTING (NEW)
+  progress_reporting:
+    enabled: true
+    # Update interval for progress callbacks (every N chunks)
+    update_interval: 50
+    # Show throughput metrics (MB/s)
+    show_throughput: true
+    # Show ETA estimation
+    show_eta: true
+    # Show memory usage
+    show_memory: true
+    # Log progress to console
+    console_logging: true
+    # Log level for progress messages
+    log_level: "INFO"
+
+  # CHECKPOINTING & RESUME (NEW)
+  checkpointing:
+    enabled: true
+    # Directory to store checkpoint files (relative to working directory)
+    checkpoint_dir: "checkpoints"
+    # Create checkpoint every N chunks processed
+    checkpoint_interval: 100
+    # Enable automatic resume on restart
+    auto_resume: true
+    # Keep checkpoint files after successful completion (for debugging)
+    keep_completed_checkpoints: false
+    # Validate checkpoint file integrity
+    validate_integrity: true
+    # Compress checkpoint files
+    compress_checkpoints: true
+
+  # DISTRIBUTED PROCESSING (NEW)
+  distributed_processing:
+    enabled: true
+    # Default processing mode: "sequential", "thread", "process"
+    default_mode: "thread"
+    # Maximum worker threads/processes
+    max_workers: 4
+    # Enable automatic mode selection based on file characteristics
+    auto_mode_selection: true
+    # File size thresholds for mode selection
+    mode_selection_thresholds:
+      sequential_max_size: 104857600    # 100MB - use sequential for smaller files
+      thread_preferred_size: 1073741824 # 1GB - prefer threads for medium files
+      process_min_size: 5368709120      # 5GB - use processes for very large files
+
+    # Per-mode configuration
+    thread_config:
+      max_workers: 4
+      thread_safety_checks: true
+
+    process_config:
+      max_workers: 2  # Fewer processes due to memory overhead
+      memory_per_process: "2GB"
+
+    # Progress aggregation for distributed processing
+    aggregate_progress: true
+    # Error handling for distributed processing
+    fail_fast: false  # Continue processing other files even if one fails
+
+# Smart parallelization with enhanced streaming integration
+parallelization:
+  smart_parallelization: true
+  # Hardware optimization
+  enable_hardware_optimization: true
+  # Memory management for streaming
+  memory_management:
+    max_memory_usage: "75%"
+    gc_threshold: "85%"    # Force garbage collection at 85% memory usage
+    streaming_memory_limit: "2GB"  # Limit memory usage per streaming operation
+
+  # CPU optimization
+  cpu_optimization:
+    auto_detect_cores: true
+    max_cpu_usage: "80%"
+    # Streaming-specific CPU settings
+    streaming_cpu_limit: "60%"  # Leave headroom for other operations
+
+# Enhanced error handling and recovery
+error_handling:
+  continue_on_error: true
+  max_retries: 3
+  retry_delays: [1, 5, 15]  # Exponential backoff in seconds
+
+  # Streaming-specific error handling
+  streaming_errors:
+    # Resume from last checkpoint on streaming errors
+    auto_resume_on_error: true
+    # Save partial results before failing
+    save_partial_results: true
+    # Memory error recovery
+    memory_error_recovery:
+      enabled: true
+      reduce_block_size: true  # Reduce block size if memory errors
+      force_gc: true          # Force garbage collection
+
+  # Distributed processing error handling
+  distributed_errors:
+    # Individual file failures don't stop batch processing
+    isolate_failures: true
+    # Retry failed files with different modes
+    retry_with_fallback_mode: true
+
+# Comprehensive logging for debugging and monitoring
+logging:
+  level: "INFO"
+
+  # Enhanced streaming logs
+  enhanced_streaming_logs:
+    progress_updates: true
+    checkpoint_operations: true
+    resume_operations: true
+    distributed_coordination: true
+    memory_usage: true
+    throughput_metrics: true
+
+  # Log file configuration
+  log_files:
+    # Main application log
+    main_log: "logs/enhanced_streaming.log"
+    # Progress-specific log
+    progress_log: "logs/streaming_progress.log"
+    # Error log
+    error_log: "logs/streaming_errors.log"
+
+  # Log rotation
+  log_rotation:
+    enabled: true
+    max_size: "50MB"
+    backup_count: 5
+
+# Output configuration with enhanced metadata
+output:
+  # Include all streaming metadata
+  include_streaming_metadata: true
+  include_progress_metadata: true
+  include_checkpoint_metadata: true
+  include_distributed_metadata: true
+
+  # Performance metrics
+  include_performance_metrics: true
+  detailed_timing: true
+  memory_usage_stats: true
+
+  # Enhanced chunk metadata
+  chunk_metadata:
+    include_source_position: true
+    include_processing_time: true
+    include_worker_id: true  # For distributed processing
+    include_checkpoint_info: true
+
+# Integration settings
+integration:
+  # Tika integration for document processing
+  tika:
+    enabled: true
+    streaming_compatible: true  # Use streaming-friendly Tika operations
+    auto_formats: [".pdf", ".doc", ".docx", ".html", ".xml"]
+
+  # CLI integration
+  cli:
+    # Enable enhanced streaming features via CLI
+    enhanced_features: true
+    # Default CLI streaming mode
+    default_streaming_mode: "auto"
+    # Progress display in CLI
+    cli_progress_display: true
+
+# Validation and testing
+validation:
+  # Validate streaming configuration on startup
+  validate_config: true
+  # Test streaming capabilities on startup
+  test_streaming: false  # Set to true for comprehensive testing
+  # Benchmark streaming performance
+  benchmark_streaming: false
+
+# Security and reliability
+security:
+  # Validate checkpoint file integrity
+  checkpoint_validation: true
+  # Secure temporary file handling
+  secure_temp_files: true
+  # Safe file permissions for checkpoints
+  checkpoint_permissions: "600"  # Owner read/write only
+
+# Performance tuning
+performance:
+  # Buffer sizes for different operations
+  buffers:
+    file_read_buffer: 65536      # 64KB
+    chunk_processing_buffer: 131072  # 128KB
+    progress_update_buffer: 8192     # 8KB
+
+  # Optimization flags
+  optimizations:
+    # Use memory mapping for large files
+    memory_mapping: true
+    # Enable streaming I/O optimizations
+    streaming_io_optimizations: true
+    # Optimize for sequential access patterns
+    sequential_access_optimization: true
+
+# Monitoring and metrics
+monitoring:
+  enabled: true
+
+  # Metrics collection
+  metrics:
+    # Collect throughput metrics
+    throughput_metrics: true
+    # Collect memory usage metrics
+    memory_metrics: true
+    # Collect error rate metrics
+    error_metrics: true
+    # Collect checkpoint metrics
+    checkpoint_metrics: true
+
+  # Alerting (for production environments)
+  alerting:
+    enabled: false  # Disabled by default
+    # Alert on high memory usage
+    memory_threshold: "90%"
+    # Alert on processing slowdown
+    throughput_threshold: "1MB/s"
+
+# Development and debugging
+debug:
+  # Enable debug mode (more verbose logging)
+  enabled: false
+
+  # Debug specific components
+  components:
+    streaming_engine: false
+    progress_tracker: false
+    checkpoint_manager: false
+    distributed_coordinator: false
+
+  # Save debug information
+  save_debug_info: false
+  debug_output_dir: "debug/"

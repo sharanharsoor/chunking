@@ -1,0 +1,58 @@
+[
+  {
+    "id": "P001",
+    "name": "iPhone 15",
+    "category": "electronics",
+    "price": 999.99,
+    "in_stock": true
+  },
+  {
+    "id": "P002",
+    "name": "MacBook Pro",
+    "category": "electronics",
+    "price": 2499.99,
+    "in_stock": false
+  },
+  {
+    "id": "P003",
+    "name": "Running Shoes",
+    "category": "sports",
+    "price": 129.99,
+    "in_stock": true
+  },
+  {
+    "id": "P004",
+    "name": "Basketball",
+    "category": "sports",
+    "price": 29.99,
+    "in_stock": true
+  },
+  {
+    "id": "P005",
+    "name": "Coffee Maker",
+    "category": "home",
+    "price": 79.99,
+    "in_stock": true
+  },
+  {
+    "id": "P006",
+    "name": "Vacuum Cleaner",
+    "category": "home",
+    "price": 199.99,
+    "in_stock": false
+  },
+  {
+    "id": "P007",
+    "name": "Wireless Headphones",
+    "category": "electronics",
+    "price": 149.99,
+    "in_stock": true
+  },
+  {
+    "id": "P008",
+    "name": "Tennis Racket",
+    "category": "sports",
+    "price": 89.99,
+    "in_stock": true
+  }
+]

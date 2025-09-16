@@ -1,0 +1,104 @@
+# FastCDC Configuration for Data Deduplication
+#
+# This configuration optimizes FastCDC for data deduplication scenarios
+# where finding duplicate content blocks is the primary goal.
+
+strategies:
+  primary: fastcdc
+  fallback:
+    - fixed_size
+    - paragraph_based
+
+# FastCDC optimized for deduplication
+fastcdc:
+  # Larger chunks for better deduplication ratios
+  min_chunk_size: 4096         # 4KB minimum
+  max_chunk_size: 131072       # 128KB maximum
+  avg_chunk_size: 16384        # 16KB average target
+
+  # Hash algorithm selection
+  hash_algorithm: gear         # Fast and effective for most content
+
+  # FastCDC normalization for consistent boundaries
+  normalization: true          # Enable for better boundary quality
+  window_size: 48              # Standard window size
+  mask_bits: 12                # Adjusted for 16KB average (2^12 = 4096)
+
+# Processing optimized for deduplication workloads
+processing:
+  parallel: true
+  max_workers: 8               # Use more workers for large datasets
+  chunk_overlap: 0             # No overlap for deduplication
+
+# Enhanced metadata for deduplication tracking
+output:
+  include_metadata: true
+  metadata_fields:
+    - content_fingerprint       # Short hash for quick comparison
+    - md5_hash                 # Full MD5 for verification
+    - sha256_hash              # SHA256 for cryptographic security
+    - chunk_size               # Size information
+    - entropy                  # Content randomness
+    - compressibility          # Compression potential
+    - boundary_type            # Content-defined vs forced
+    - algorithm               # Hash algorithm used
+
+  # Deduplication-specific metadata
+  deduplication:
+    extract_fingerprints: true  # Multiple hash types
+    track_duplicates: true      # Enable duplicate tracking
+    similarity_threshold: 0.95  # Threshold for near-duplicates
+
+# File filtering for deduplication scenarios
+file_filters:
+  # Include all file types - FastCDC is universal
+  extensions: []               # Empty means all files
+
+  # Deduplication patterns
+  include_patterns:
+    - "**/*"                   # Process all files
+
+  exclude_patterns:
+    - "*.tmp"                  # Skip temporary files
+    - "*.log"                  # Skip log files (unless needed)
+    - ".git/**"               # Skip version control
+    - "__pycache__/**"        # Skip Python cache
+    - "node_modules/**"       # Skip Node.js dependencies
+    - ".DS_Store"             # Skip macOS system files
+
+# Quality settings for deduplication
+quality:
+  enforce_min_size: true       # Strict minimum size enforcement
+  adaptive_thresholds: true    # Adapt to content characteristics
+  boundary_quality_check: true # Verify boundary quality
+
+  # Deduplication quality metrics
+  deduplication_metrics:
+    calculate_ratio: true      # Calculate dedup ratio
+    track_unique_blocks: true  # Track unique vs duplicate blocks
+    compression_analysis: true # Analyze compression potential
+
+# Performance tuning for large datasets
+performance:
+  memory_limit: "4GB"          # Memory limit for large datasets
+  streaming_mode: true         # Use streaming for very large files
+  batch_size: 1000            # Process files in batches
+  cache_fingerprints: true    # Cache fingerprints for comparison
+
+  # I/O optimization
+  buffer_size: 1048576        # 1MB read buffer
+  write_buffer_size: 524288   # 512KB write buffer
+
+# Advanced deduplication features
+advanced:
+  # Multi-level deduplication
+  enable_hierarchical: false   # Disable for simple deduplication
+  cross_file_dedup: true      # Enable cross-file deduplication
+
+  # Content analysis
+  content_classification: true # Classify content types
+  pattern_detection: true     # Detect common patterns
+
+  # Optimization hints
+  optimize_for_storage: true  # Optimize for storage efficiency
+  prioritize_speed: false     # Prioritize quality over speed

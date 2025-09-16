@@ -1,0 +1,170 @@
+# FastCDC Configuration for Backup and Archival
+#
+# This configuration optimizes FastCDC for backup systems and archival
+# scenarios where efficiency, reliability, and incremental updates are key.
+
+strategies:
+  primary: fastcdc
+  fallback:
+    - fixed_size           # Reliable fallback
+    - paragraph_based      # Text-aware fallback
+
+# FastCDC optimized for backup scenarios
+fastcdc:
+  # Balanced chunk sizes for backup efficiency
+  min_chunk_size: 2048     # 2KB minimum for small files
+  max_chunk_size: 65536    # 64KB maximum for reasonable I/O
+  avg_chunk_size: 8192     # 8KB average - good balance
+
+  # Rabin fingerprinting for cryptographic strength
+  hash_algorithm: rabin    # More secure than gear hash
+
+  # Enhanced normalization for consistent backups
+  normalization: true      # Critical for backup consistency
+  window_size: 64          # Larger window for better boundaries
+  mask_bits: 13            # Adjusted for 8KB average (2^13 = 8192)
+
+# Backup-specific processing
+processing:
+  parallel: true
+  max_workers: 4           # Conservative for backup systems
+  verify_integrity: true   # Always verify in backup scenarios
+
+  # Incremental backup support
+  incremental:
+    enabled: true          # Enable incremental processing
+    track_changes: true    # Track file modifications
+    delta_detection: true  # Detect content deltas
+
+# Comprehensive metadata for backup tracking
+output:
+  include_metadata: true
+  preserve_timestamps: true  # Critical for backup restoration
+
+  metadata_fields:
+    - content_fingerprint    # For duplicate detection
+    - sha256_hash           # Cryptographic verification
+    - md5_hash              # Legacy compatibility
+    - chunk_size            # Size tracking
+    - file_path             # Source file tracking
+    - modification_time     # Change tracking
+    - creation_time         # Original creation
+    - file_permissions      # Preserve permissions
+    - entropy               # Content analysis
+    - compressibility       # Compression estimates
+
+  # Backup-specific tracking
+  backup_metadata:
+    backup_timestamp: true   # When backup was created
+    source_checksum: true    # Original file checksum
+    chunk_sequence: true     # Maintain chunk order
+    compression_ratio: true  # Track compression efficiency
+
+# File handling for backup scenarios
+file_filters:
+  # Comprehensive file inclusion for backups
+  extensions: []             # Include all file types
+
+  include_patterns:
+    - "**/*"                # Back up everything by default
+
+  exclude_patterns:
+    # Standard exclusions for backup systems
+    - "*.tmp"               # Temporary files
+    - "*.swp"               # Vim swap files
+    - "*.DS_Store"          # macOS metadata
+    - "Thumbs.db"           # Windows thumbnails
+    - ".git/objects/**"     # Git objects (can be regenerated)
+    - "__pycache__/**"      # Python bytecode cache
+    - "node_modules/**"     # Node.js dependencies
+    - ".cache/**"           # Various cache directories
+    - "*.log"               # Log files (optional exclusion)
+
+# Quality and reliability for backups
+quality:
+  enforce_min_size: true     # Ensure minimum chunk sizes
+  verify_boundaries: true    # Verify chunk boundaries
+  error_tolerance: low       # Low tolerance for backup errors
+
+  # Backup integrity checks
+  integrity_checks:
+    chunk_verification: true   # Verify each chunk
+    cross_reference: true      # Cross-reference chunks
+    redundancy_check: true     # Check for data redundancy
+
+  # Quality metrics
+  backup_quality:
+    completeness_check: true   # Ensure complete backup
+    consistency_check: true    # Check backup consistency
+    recoverability_test: false # Optional recovery testing
+
+# Performance tuned for backup workloads
+performance:
+  memory_limit: "2GB"        # Conservative memory usage
+  streaming_mode: true       # Handle large files efficiently
+
+  # I/O optimization for backup storage
+  buffer_size: 524288        # 512KB buffer for network storage
+  write_buffer_size: 262144  # 256KB write buffer
+  compression_level: 6       # Moderate compression
+
+  # Network and storage optimization
+  network_optimization:
+    enable_compression: true  # Compress data transfer
+    retry_count: 3           # Retry failed operations
+    timeout: 300             # 5-minute timeout
+
+  storage_optimization:
+    delayed_writes: true     # Batch writes for efficiency
+    verification_reads: true # Read-back verification
+    sync_frequency: 1000     # Sync every 1000 chunks
+
+# Advanced backup features
+advanced:
+  # Incremental and differential backups
+  backup_types:
+    full_backup: true        # Support full backups
+    incremental_backup: true # Support incremental
+    differential_backup: true # Support differential
+
+  # Deduplication across backup sets
+  cross_backup_dedup: true   # Deduplicate across backups
+  temporal_dedup: true       # Deduplicate across time
+
+  # Recovery optimization
+  recovery_optimization:
+    fast_restore_index: true # Create fast restore indexes
+    chunk_locality: true     # Keep related chunks together
+    redundant_metadata: true # Store metadata redundantly
+
+  # Compliance and auditing
+  compliance:
+    audit_trail: true        # Maintain audit logs
+    retention_policy: true   # Enforce retention policies
+    encryption_support: true # Support encrypted backups
+
+# Error handling and recovery
+error_handling:
+  retry_failed_chunks: true  # Retry failed chunk operations
+  skip_corrupted_files: false # Don't skip corrupted files in backup
+  detailed_logging: true     # Comprehensive logging
+
+  # Backup-specific error handling
+  backup_errors:
+    partial_file_policy: "warn"  # Warn about partial files
+    permission_errors: "log"     # Log permission issues
+    network_errors: "retry"      # Retry network failures
+    storage_errors: "fail"       # Fail on storage errors
+
+# Monitoring and reporting
+monitoring:
+  progress_reporting: true    # Report backup progress
+  statistics_collection: true # Collect backup statistics
+
+  # Backup metrics
+  metrics:
+    backup_speed: true        # Track backup speed
+    compression_ratio: true   # Monitor compression
+    deduplication_ratio: true # Track deduplication
+    error_rate: true          # Monitor error rates
+    storage_efficiency: true  # Track storage usage

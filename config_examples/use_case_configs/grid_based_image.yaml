@@ -1,0 +1,170 @@
+# Grid-based Image Chunking Configuration
+#
+# This configuration file demonstrates how to use the grid_based_image chunker
+# to divide images into fixed-size grid tiles for processing.
+#
+# The grid_based_image chunker divides images into regular grid patterns,
+# making it ideal for:
+# - Processing large images in smaller tiles
+# - Creating uniform image patches for analysis
+# - Preparing images for parallel processing
+# - Geographic/satellite image processing
+# - Computer vision preprocessing
+
+profile_name: "Grid-based Image Processing"
+
+chunking:
+  default_strategy: "grid_based_image"
+
+  # Strategy selection based on file type
+  strategy_selection:
+    # Image formats supported by grid-based chunker
+    image_formats:
+      - extension: ".jpg"
+        strategy: "grid_based_image"
+      - extension: ".jpeg"
+        strategy: "grid_based_image"
+      - extension: ".png"
+        strategy: "grid_based_image"
+      - extension: ".gif"
+        strategy: "grid_based_image"
+      - extension: ".bmp"
+        strategy: "grid_based_image"
+      - extension: ".tiff"
+        strategy: "grid_based_image"
+      - extension: ".tif"
+        strategy: "grid_based_image"
+      - extension: ".webp"
+        strategy: "grid_based_image"
+      - extension: ".ico"
+        strategy: "grid_based_image"
+      - extension: ".svg"
+        strategy: "grid_based_image"
+
+  # Parameters for grid_based_image strategy
+  strategy_params:
+    grid_based_image:
+      # Tile dimensions in pixels
+      tile_width: 256              # Width of each tile (default: 256)
+      tile_height: 256             # Height of each tile (default: 256)
+
+      # Overlap settings
+      overlap_pixels: 0            # Overlap between adjacent tiles (default: 0)
+
+      # Tile handling options
+      pad_incomplete_tiles: true   # Whether to pad incomplete edge tiles (default: true)
+      preserve_aspect_ratio: false # Whether to preserve aspect ratio when resizing (default: false)
+
+      # Output format options
+      output_format: "PNG"         # Output image format: PNG, JPEG, BMP, TIFF, WEBP (default: PNG)
+
+  # Fallback strategies if primary chunker fails
+  fallback_strategies:
+    - "fixed_size"
+    - "sentence_based"
+
+# Alternative configurations for different use cases
+alternative_configs:
+
+  # Small tiles for detailed analysis
+  detailed_analysis:
+    profile_name: "Detailed Image Analysis"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 128
+          tile_height: 128
+          overlap_pixels: 16       # 16px overlap for continuity
+          pad_incomplete_tiles: true
+          output_format: "PNG"
+
+  # Large tiles for overview processing
+  overview_processing:
+    profile_name: "Overview Image Processing"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 512
+          tile_height: 512
+          overlap_pixels: 0
+          pad_incomplete_tiles: false # Don't pad for overview
+          output_format: "JPEG"    # JPEG for smaller file sizes
+
+  # High-resolution satellite imagery
+  satellite_imagery:
+    profile_name: "Satellite Image Processing"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 1024
+          tile_height: 1024
+          overlap_pixels: 64       # Significant overlap for geo-processing
+          pad_incomplete_tiles: true
+          preserve_aspect_ratio: true
+          output_format: "TIFF"    # TIFF preserves quality
+
+  # Web image thumbnails
+  web_thumbnails:
+    profile_name: "Web Thumbnail Generation"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 64
+          tile_height: 64
+          overlap_pixels: 0
+          pad_incomplete_tiles: false
+          preserve_aspect_ratio: false
+          output_format: "WEBP"    # Modern web format
+
+  # Computer vision preprocessing
+  cv_preprocessing:
+    profile_name: "Computer Vision Preprocessing"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 224         # Common CNN input size
+          tile_height: 224
+          overlap_pixels: 32      # Overlap for sliding window
+          pad_incomplete_tiles: true
+          preserve_aspect_ratio: false
+          output_format: "PNG"
+
+  # Mobile image processing
+  mobile_processing:
+    profile_name: "Mobile Image Processing"
+    chunking:
+      default_strategy: "grid_based_image"
+      strategy_params:
+        grid_based_image:
+          tile_width: 512
+          tile_height: 384        # 4:3 aspect ratio for mobile
+          overlap_pixels: 0
+          pad_incomplete_tiles: true
+          preserve_aspect_ratio: true
+          output_format: "JPEG"
+
+# Processing settings
+processing:
+  max_workers: 4              # Number of parallel workers for processing
+  chunk_size_limit: "50MB"    # Maximum size for individual tiles
+
+  # Memory management
+  memory_limit: "2GB"         # Memory limit for processing
+  cache_tiles: false          # Whether to cache processed tiles
+
+# Output settings
+output:
+  preserve_metadata: true     # Preserve original image metadata
+  include_source_info: true   # Include source image information
+  tile_naming_pattern: "tile_{index}_{x}x{y}"  # Pattern for tile naming
+
+# Quality settings
+quality:
+  jpeg_quality: 95           # JPEG compression quality (1-100)
+  png_compression: 6         # PNG compression level (0-9)
+  webp_quality: 90           # WebP quality (1-100)

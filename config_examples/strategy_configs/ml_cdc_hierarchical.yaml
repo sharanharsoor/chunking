@@ -1,0 +1,99 @@
+# ML-CDC (Multi-Level Content-Defined Chunking) Configuration
+# Hierarchical chunking with multiple levels
+
+profile_name: "ml_cdc_hierarchical"
+description: "Multi-level content-defined chunking for hierarchical processing"
+
+strategies:
+  primary: "ml_cdc"
+  fallbacks:
+    - "fastcdc"
+    - "fixed_size"
+
+  configs:
+    ml_cdc:
+      # Overall window size
+      window_size: 48
+
+      # Multi-level configuration
+      levels:
+        - level: "micro"
+          min_size: 256         # 256B
+          max_size: 1024        # 1KB
+          target_size: 512      # 512B
+          boundary_mask: 0x1FF  # 9-bit mask
+
+        - level: "small"
+          min_size: 1024        # 1KB
+          max_size: 4096        # 4KB
+          target_size: 2048     # 2KB
+          boundary_mask: 0x7FF  # 11-bit mask
+
+        - level: "medium"
+          min_size: 4096        # 4KB
+          max_size: 16384       # 16KB
+          target_size: 8192     # 8KB
+          boundary_mask: 0x1FFF # 13-bit mask
+
+        - level: "large"
+          min_size: 16384       # 16KB
+          max_size: 65536       # 64KB
+          target_size: 32768    # 32KB
+          boundary_mask: 0x7FFF # 15-bit mask
+
+        - level: "super"
+          min_size: 65536       # 64KB
+          max_size: 262144      # 256KB
+          target_size: 131072   # 128KB
+          boundary_mask: 0x1FFFF # 17-bit mask
+
+      # Statistical analysis
+      enable_statistics: true
+
+      # Hierarchical features
+      enable_hierarchical_fingerprints: true
+
+    fastcdc:
+      min_chunk_size: 4096
+      max_chunk_size: 65536
+      avg_chunk_size: 16384
+
+    fixed_size:
+      chunk_size: 16384
+      overlap_size: 512
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 256
+
+# Use cases
+use_cases:
+  - "Large-scale data processing"
+  - "Multi-granularity analysis"
+  - "Hierarchical storage systems"
+  - "Adaptive content management"
+
+# Performance characteristics
+performance:
+  throughput: "Medium - multi-level processing overhead"
+  memory_usage: "Medium - multiple hash states"
+  cpu_usage: "High - hierarchical boundary detection"
+  scalability: "Excellent - adaptive to content size"
+
+# Level selection strategy
+level_selection:
+  strategy: "content_size_based"
+  auto_adaptation: true
+  size_thresholds:
+    micro: [0, 4096]        # < 4KB
+    small: [4096, 32768]    # 4KB - 32KB
+    medium: [32768, 262144] # 32KB - 256KB
+    large: [262144, 2097152] # 256KB - 2MB
+    super: [2097152, null]  # > 2MB

@@ -1,0 +1,92 @@
+# TTTD (Two-Threshold Two-Divisor) Chunker Configuration
+# Balanced configuration for controlled chunk size distribution
+
+profile_name: "tttd_balanced"
+description: "Two-threshold two-divisor chunking for better size distribution control"
+
+strategies:
+  primary: "tttd"
+  fallbacks:
+    - "rabin_fingerprinting"
+    - "fixed_size"
+
+  configs:
+    tttd:
+      # Rolling hash window size
+      window_size: 48
+
+      # Primary divisor and threshold
+      primary_divisor: 1024       # Primary boundary check
+      primary_threshold: 0        # Hash % divisor == threshold
+
+      # Secondary divisor and threshold
+      secondary_divisor: 4096     # Secondary boundary check
+      secondary_threshold: 0      # Hash % divisor == threshold
+
+      # Chunk size configuration
+      min_chunk_size: 2048        # 2KB minimum
+      max_chunk_size: 65536       # 64KB maximum
+      target_chunk_size: 8192     # 8KB target
+
+      # TTTD features
+      enable_adaptive_thresholds: true
+      threshold_adaptation_rate: 0.1
+
+      # Statistical analysis
+      enable_statistics: true
+
+    rabin_fingerprinting:
+      window_size: 48
+      min_chunk_size: 2048
+      max_chunk_size: 65536
+      target_chunk_size: 8192
+
+    fixed_size:
+      chunk_size: 8192
+      overlap_size: 200
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 500
+
+# Threshold behavior
+threshold_behavior:
+  primary_priority: "high"      # Primary boundaries preferred
+  secondary_fallback: true      # Use secondary if primary fails
+  size_enforcement: "strict"    # Enforce min/max sizes
+
+# Use cases
+use_cases:
+  - "Precise chunk size control"
+  - "Balanced deduplication systems"
+  - "Quality-sensitive applications"
+  - "Research and optimization"
+
+# Performance characteristics
+performance:
+  throughput: "Medium - dual threshold checking"
+  memory_usage: "Low - simple hash state"
+  cpu_usage: "Medium - modulo operations"
+  boundary_quality: "Excellent - dual threshold control"
+  size_distribution: "Very Good - controlled variance"
+
+# Quality optimization
+quality_settings:
+  boundary_consistency: "high"
+  size_variance_tolerance: "low"
+  deduplication_efficiency: "high"
+
+# Adaptation parameters
+adaptation:
+  enabled: true
+  divisor_adaptation: true
+  threshold_adaptation: true
+  feedback_sensitivity: "medium"
+  adaptation_history_size: 100

@@ -1,0 +1,74 @@
+# BuzHash Chunker Configuration
+# High-performance content-defined chunking
+
+profile_name: "buzhash_performance"
+description: "Fast BuzHash algorithm optimized for high throughput"
+
+strategies:
+  primary: "buzhash"
+  fallbacks:
+    - "rolling_hash"
+    - "fixed_size"
+
+  configs:
+    buzhash:
+      # Hash table seed for reproducible results
+      hash_table_seed: 42
+
+      # Window size for rolling hash
+      window_size: 64
+
+      # Boundary detection mask
+      boundary_mask: 0x1FFF  # 13-bit mask
+
+      # Chunk size configuration
+      min_chunk_size: 4096      # 4KB minimum
+      max_chunk_size: 131072    # 128KB maximum
+      target_chunk_size: 16384  # 16KB target
+
+      # Normalization factor
+      normalization: 2
+
+      # Performance optimizations
+      enable_statistics: true
+      enable_adaptive_thresholds: false  # Disable for max performance
+
+    rolling_hash:
+      window_size: 48
+      min_chunk_size: 4096
+      max_chunk_size: 131072
+      target_chunk_size: 16384
+
+    fixed_size:
+      chunk_size: 16384
+      overlap_size: 512
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 1024
+
+# Performance tuning
+performance:
+  throughput: "Very High - optimized bit operations"
+  memory_usage: "Low - simple hash table"
+  cpu_usage: "Low - efficient rotation operations"
+
+# Use cases
+use_cases:
+  - "High-throughput data processing"
+  - "Real-time content analysis"
+  - "Large file processing"
+  - "Network packet chunking"
+
+# Quality vs Performance trade-offs
+quality_settings:
+  boundary_consistency: "Good"
+  deduplication_ratio: "Good"
+  performance_priority: "High"

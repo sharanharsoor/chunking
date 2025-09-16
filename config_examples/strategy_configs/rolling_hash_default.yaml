@@ -1,0 +1,68 @@
+# Rolling Hash Chunker Configuration
+# This configuration demonstrates the Rolling Hash chunking algorithm
+
+profile_name: "rolling_hash_default"
+description: "Content-defined chunking using rolling hash with polynomial hash function"
+
+strategies:
+  primary: "rolling_hash"
+  fallbacks:
+    - "sentence_based"
+    - "fixed_size"
+
+  configs:
+    rolling_hash:
+      # Hash function type: polynomial, rabin, buzhash
+      hash_function: "polynomial"
+
+      # Rolling hash window size in bytes
+      window_size: 48
+
+      # Chunk size limits
+      min_chunk_size: 1024      # 1KB minimum
+      max_chunk_size: 32768     # 32KB maximum
+      target_chunk_size: 4096   # 4KB target average
+
+      # Statistical analysis
+      enable_statistics: true
+
+      # Quality settings
+      normalization: 2
+
+    sentence_based:
+      max_sentences: 3
+      max_chunk_size: 2048
+
+    fixed_size:
+      chunk_size: 2048
+      overlap_size: 100
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 100
+
+# Use cases
+use_cases:
+  - "General purpose content-defined chunking"
+  - "Deduplication systems"
+  - "Incremental backup systems"
+  - "Content synchronization"
+
+# Performance characteristics
+performance:
+  throughput: "High - optimized rolling hash computation"
+  memory_usage: "Low - constant memory for hash window"
+  cpu_usage: "Medium - depends on hash function complexity"
+
+# Adaptation settings
+adaptation:
+  enabled: true
+  feedback_types: ["quality", "performance"]
+  adaptation_threshold: 0.5

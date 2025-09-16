@@ -1,0 +1,90 @@
+# Go Function-based Chunking Configuration
+#
+# This configuration chunks Go code by function boundaries,
+# preserving both regular functions and receiver methods.
+
+strategies:
+  primary: go_code
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# Go chunker specific settings
+go_code:
+  chunk_by: function             # Chunk by individual functions and methods
+  max_lines_per_chunk: 150       # Maximum lines per chunk
+  include_package: true          # Include package declaration
+  include_imports: true          # Include import statements
+  include_types: true            # Include type definitions
+  group_methods: true            # Group methods with receiver structs
+  preserve_comments: true        # Keep comments in chunks
+
+  # Advanced settings
+  min_chunk_size: 20             # Minimum characters per chunk
+  max_chunk_size: 8000           # Maximum characters per chunk
+
+# Processing settings optimized for Go
+processing:
+  parallel: true
+  max_workers: 4
+  chunk_overlap: 0               # No overlap for code chunks
+
+  # Go-specific preprocessing
+  normalize_receivers: true      # Standardize receiver format
+  group_interfaces: true         # Keep interface methods together
+
+# Enhanced metadata for Go development
+output:
+  include_metadata: true
+  metadata_fields:
+    - element_type              # function, struct, interface, etc.
+    - element_name              # Function/type name
+    - receiver                  # Method receiver information
+    - params                    # Function parameters
+    - returns                   # Return types
+    - package_name              # Go package
+    - imports                   # Import statements
+
+  # Go-specific metadata
+  go_metadata:
+    extract_receivers: true      # Method receiver details
+    extract_interfaces: true    # Interface method signatures
+    extract_struct_fields: true # Struct field information
+    detect_goroutines: true     # Goroutine usage patterns
+
+# File filtering for Go projects
+file_filters:
+  extensions:
+    - .go                       # Go source files
+
+  # Go-specific patterns
+  include_patterns:
+    - cmd/                      # Main applications
+    - pkg/                      # Library packages
+    - internal/                 # Internal packages
+    - api/                      # API definitions
+
+  exclude_patterns:
+    - "*_test.go"              # Skip test files
+    - "*.pb.go"                # Skip protobuf generated
+    - vendor/                  # Skip vendor directory
+    - .git/                    # Skip git
+
+# Quality settings for Go code
+quality:
+  min_function_lines: 3          # Skip very small functions
+  preserve_go_structure: true    # Maintain Go idioms
+  include_empty_functions: false # Skip empty function bodies
+  detect_method_patterns: true   # Identify Go method patterns
+
+  # Go best practices
+  group_receiver_methods: true   # Keep receiver methods together
+  detect_interfaces: true        # Interface method detection
+  validate_go_syntax: true       # Basic Go syntax validation
+
+# Development helpers
+development:
+  generate_package_tree: true    # Map package relationships
+  extract_type_definitions: true # Type alias and struct info
+  identify_concurrency: true     # Goroutine and channel usage
+  suggest_optimizations: false   # Disabled by default

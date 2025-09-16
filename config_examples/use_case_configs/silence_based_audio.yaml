@@ -1,0 +1,125 @@
+# Silence-Based Audio Chunking Configuration
+# Optimized for processing audio files using silence detection for natural boundaries
+# Ideal for speech, podcasts, interviews, and recordings with natural pauses
+
+profile_name: "silence_based_audio"
+description: "Natural audio segmentation based on silence detection for speech and podcast processing"
+
+# Strategy selection - map audio formats to silence-based chunker
+chunking:
+  default_strategy: "silence_based_audio"
+
+  strategy_selection:
+    # Audio formats - silence detection works best with speech content
+    ".mp3": "silence_based_audio"
+    ".wav": "silence_based_audio"
+    ".ogg": "silence_based_audio"
+    ".flac": "silence_based_audio"
+    ".m4a": "silence_based_audio"
+    ".aac": "silence_based_audio"
+    ".wma": "silence_based_audio"
+    ".opus": "silence_based_audio"
+
+    # Fallback for text files (if mixed content)
+    ".txt": "sentence_based"
+    ".md": "sentence_based"
+
+# Silence-based audio chunking parameters
+strategy_params:
+  silence_based_audio:
+    # Silence detection parameters
+    silence_threshold_db: -40.0      # dB level below which audio is considered silent
+    min_silence_duration: 0.5        # Minimum duration of silence to consider as boundary (seconds)
+    padding_duration: 0.1            # Padding to add around silence boundaries (seconds)
+
+    # Segment duration constraints
+    min_segment_duration: 5.0        # Minimum duration for a segment (seconds)
+    max_segment_duration: 120.0      # Maximum duration for a segment (seconds)
+
+    # Audio processing options
+    preserve_format: true            # Keep original audio format
+    sample_rate: null                # Target sample rate (null = preserve original)
+    channels: null                   # Target channels (null = preserve original)
+
+# Alternative configurations for different use cases
+alternative_configs:
+
+  # Podcast processing - sensitive to natural speech pauses
+  podcast:
+    silence_threshold_db: -35.0      # More sensitive to detect speech pauses
+    min_silence_duration: 0.3        # Shorter pauses for natural speech flow
+    min_segment_duration: 10.0       # Longer minimum for meaningful content
+    max_segment_duration: 180.0      # Allow longer segments for complete topics
+    padding_duration: 0.2            # Slightly more padding for context
+    preserve_format: true
+
+  # Interview processing - optimized for conversation patterns
+  interview:
+    silence_threshold_db: -45.0      # More lenient for varied recording quality
+    min_silence_duration: 0.8        # Longer pauses between speakers
+    min_segment_duration: 8.0        # Moderate segments for Q&A pairs
+    max_segment_duration: 90.0       # Shorter max for question-answer structure
+    padding_duration: 0.15
+    preserve_format: false           # Convert for transcription tools
+    sample_rate: 16000              # Optimal for speech recognition
+    channels: 1                     # Mono for speech processing
+
+  # Audiobook processing - chapter-aware segmentation
+  audiobook:
+    silence_threshold_db: -50.0      # Very sensitive for narrator pauses
+    min_silence_duration: 1.0        # Longer pauses for sentence/paragraph breaks
+    min_segment_duration: 30.0       # Longer segments for coherent passages
+    max_segment_duration: 300.0      # Very long segments for chapter sections
+    padding_duration: 0.05           # Minimal padding for clean cuts
+    preserve_format: true
+
+  # Music with vocals - detect breaks between songs/verses
+  music_vocal:
+    silence_threshold_db: -60.0      # Very sensitive for music gaps
+    min_silence_duration: 2.0        # Longer silence for track breaks
+    min_segment_duration: 15.0       # Shorter for individual songs/movements
+    max_segment_duration: 600.0      # Very long for complete pieces
+    padding_duration: 0.0            # No padding for precise cuts
+    preserve_format: true
+    sample_rate: 44100              # High quality for music
+    channels: 2                     # Stereo preservation
+
+  # Conference/lecture processing - optimized for academic content
+  lecture:
+    silence_threshold_db: -38.0      # Balanced for lecture hall acoustics
+    min_silence_duration: 1.2        # Longer pauses for slide transitions
+    min_segment_duration: 20.0       # Longer for complete concepts
+    max_segment_duration: 240.0      # 4-minute segments for topics
+    padding_duration: 0.25           # More context around transitions
+    preserve_format: false
+    sample_rate: 22050              # Balanced quality/size for storage
+    channels: 1
+
+  # Real-time processing - optimized for live streaming
+  realtime:
+    silence_threshold_db: -42.0      # Robust for live audio quality
+    min_silence_duration: 0.4        # Quick response to pauses
+    min_segment_duration: 3.0        # Short segments for responsiveness
+    max_segment_duration: 30.0       # Quick processing chunks
+    padding_duration: 0.05           # Minimal delay
+    preserve_format: true
+
+# Performance and fallback settings
+fallback_strategy: "time_based_audio"  # Fallback if silence detection fails
+processing:
+  timeout_seconds: 300               # Maximum processing time per file
+  max_file_size_mb: 500             # Maximum file size to process
+
+# Usage examples:
+#
+# Basic usage:
+#   chunking-strategy chunk podcast.mp3 --config silence_based_audio.yaml
+#
+# Interview processing:
+#   chunking-strategy chunk interview.wav --strategy silence_based_audio --silence-threshold-db -45.0 --min-silence-duration 0.8
+#
+# Batch processing:
+#   chunking-strategy batch audio_folder/ --config silence_based_audio.yaml --pattern "*.mp3"
+#
+# Audiobook segmentation:
+#   chunking-strategy chunk audiobook.m4a --strategy silence_based_audio --min-segment-duration 30.0 --max-segment-duration 300.0

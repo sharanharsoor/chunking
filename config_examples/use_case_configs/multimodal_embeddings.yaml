@@ -1,0 +1,308 @@
+# Multimodal Embedding Configuration
+# Optimized for text + image search using CLIP and similar models
+# Enables cross-modal retrieval and semantic understanding
+
+profile_name: "multimodal_embeddings"
+description: "Optimized for text + image search using CLIP and similar models with cross-modal capabilities"
+
+# Legacy strategies section for test compatibility
+strategies:
+  default: "sentence_based"
+
+# Extraction configuration for multimodal optimization
+extraction:
+  enabled: true
+  preserve_structure: true
+  include_metadata: true
+  preserve_images: true
+
+chunking:
+  # Strategy selection for multimodal content
+  default_strategy: "sentence_based"
+  
+  strategy_selection:
+    # Documents with images
+    ".pdf": "pdf_chunker"  # Handles text + image extraction
+    ".docx": "universal_document"
+    
+    # Web content (often multimodal)
+    ".html": "paragraph_based"
+    ".xml": "paragraph_based"
+    
+    # Text content
+    ".txt": "sentence_based"
+    ".md": "sentence_based"
+    
+    # Image-heavy formats
+    ".ppt": "universal_document"
+    ".pptx": "universal_document"
+
+# Multimodal embedding configuration
+embedding:
+  # CLIP model for text-image compatibility
+  default_model: "clip-vit-b-32"
+  
+  # Model selection by modality focus
+  model_selection:
+    # Balanced text-image performance
+    balanced: "clip-vit-b-32"
+    
+    # Higher quality for critical applications
+    high_quality: "clip-vit-b-16"
+    
+    # Best quality (larger model)
+    best_quality: "clip-vit-l-14"
+    
+    # Text-only fallback
+    text_only: "all-MiniLM-L6-v2"
+  
+  # Full metadata crucial for multimodal
+  output_format: "full_metadata"
+  
+  # CLIP-optimized settings
+  batch_size: 16  # Smaller batches for CLIP models
+  normalize_embeddings: true
+  max_length: 77  # CLIP text encoder limit
+
+# Multimodal chunking parameters
+strategy_params:
+  sentence_based:
+    max_sentences: 2  # Short text for image pairing
+    overlap_sentences: 0  # Avoid duplication in multimodal
+    min_chunk_size: 30  # Image captions can be short
+    
+  pdf_chunker:
+    backend: "pymupdf"  # Best for image extraction
+    include_images: true  # Essential for multimodal
+    include_tables: true
+    chunk_by: "page"  # Keep text-image associations
+    extract_image_text: true  # OCR if needed
+    
+  universal_document:
+    preserve_images: true
+    extract_image_metadata: true
+    maintain_layout_context: true
+
+# Preprocessing for multimodal content
+preprocessing:
+  # Text preprocessing
+  normalize_unicode: true
+  remove_excessive_whitespace: true
+  
+  # Image-related preprocessing
+  extract_image_captions: true
+  extract_alt_text: true
+  preserve_image_context: true
+  
+  # Content validation
+  min_chunk_length: 10  # Allow short image descriptions
+  max_chunk_length: 512  # CLIP context limit
+
+# Postprocessing for multimodal optimization
+postprocessing:
+  # Cross-modal deduplication
+  remove_duplicate_chunks: true
+  remove_near_duplicate_images: true
+  image_similarity_threshold: 0.95
+  
+  # Content enrichment
+  add_modality_tags: true  # "text", "image", "text+image"
+  add_content_type_hints: true
+  generate_image_descriptions: false  # Can be expensive
+  
+  # Quality filtering
+  remove_corrupted_images: true
+  validate_image_formats: true
+
+# Vector database for multimodal search
+vector_database:
+  # Content-based IDs for cross-modal consistency
+  id_strategy: "content_hash"
+  
+  # Rich multimodal metadata
+  include_source_info: true
+  include_modality_info: true
+  include_image_metadata: true  # Size, format, etc.
+  include_spatial_context: true  # Position on page/document
+  
+  # Cross-modal payload structure
+  separate_modalities: false  # Keep text+image together
+  include_cross_references: true  # Link related content
+  
+  # Export optimization
+  export_format: "json"
+  compress_large_payloads: true
+
+# Image processing configuration
+image_processing:
+  # Image extraction
+  extract_images: true
+  image_formats: ["jpg", "jpeg", "png", "gif", "bmp", "tiff"]
+  
+  # Image preprocessing
+  resize_images: true
+  max_image_size: [512, 512]  # CLIP input size
+  maintain_aspect_ratio: true
+  
+  # Image metadata
+  extract_exif: true
+  calculate_image_hash: true
+  detect_image_content: false  # Expensive, use sparingly
+  
+  # Storage optimization
+  compress_images: true
+  image_quality: 85  # JPEG quality
+
+# Cross-modal search optimization
+cross_modal:
+  # Text-to-image search
+  enable_text_to_image: true
+  text_query_enhancement: true  # Expand queries for better matching
+  
+  # Image-to-text search
+  enable_image_to_text: true
+  image_description_generation: false  # Expensive
+  
+  # Similarity thresholds
+  text_image_similarity_threshold: 0.6
+  cross_modal_boost: 1.1  # Slight boost for cross-modal matches
+  
+  # Search result mixing
+  blend_modalities: true
+  text_weight: 0.6  # Preference for text matches
+  image_weight: 0.4
+
+# Performance for multimodal processing
+performance:
+  # GPU optimization (important for CLIP)
+  prefer_gpu: true
+  gpu_memory_fraction: 0.8
+  
+  # Parallel processing
+  parallel_text_processing: true
+  parallel_image_processing: true
+  max_workers: null  # Auto-detect
+  
+  # Memory management
+  image_batch_size: 8  # Smaller for memory efficiency
+  clear_image_cache: true  # Prevent memory leaks
+  lazy_load_images: true
+
+# Quality control for multimodal embeddings
+quality:
+  # Text quality
+  check_text_coherence: true
+  min_text_length: 5
+  max_text_length: 512
+  
+  # Image quality
+  check_image_integrity: true
+  min_image_size: [32, 32]
+  max_image_size: [2048, 2048]
+  
+  # Cross-modal consistency
+  check_text_image_alignment: true
+  validate_modality_tags: true
+  
+  # Embedding quality
+  check_embedding_distribution: true
+  detect_mode_collapse: true  # All embeddings too similar
+
+# Multimodal use cases
+use_cases:
+  visual_search:
+    description: "Search images using text descriptions"
+    primary_modality: "image"
+    text_enhancement: true
+    enable_text_to_image: true
+    
+  content_discovery:
+    description: "Discover related text and images"
+    balanced_modalities: true
+    cross_modal_suggestions: true
+    similarity_threshold: 0.7
+    
+  educational_content:
+    description: "Educational materials with diagrams"
+    preserve_text_image_context: true
+    extract_figure_captions: true
+    maintain_document_structure: true
+    
+  e_commerce:
+    description: "Product search with images and descriptions"
+    product_focused: true
+    extract_product_attributes: true
+    enable_visual_similarity: true
+
+# Integration with multimodal systems
+integration:
+  # CLIP model management
+  model_cache_path: null  # Auto-determined
+  download_models_on_demand: true
+  
+  # Vector database compatibility
+  multimodal_vector_db: true
+  separate_text_image_collections: false
+  
+  # API compatibility
+  rest_api_format: "base64"  # For image transmission
+  support_image_urls: true
+  
+  # Caching strategy
+  cache_image_embeddings: true
+  cache_text_embeddings: true
+  cache_ttl: 7200  # 2 hours
+
+# Error handling for multimodal
+error_handling:
+  # Image processing errors
+  skip_corrupted_images: true
+  fallback_to_text_only: true
+  
+  # Model loading errors
+  fallback_to_text_model: true
+  text_fallback_model: "all-MiniLM-L6-v2"
+  
+  # Memory errors
+  reduce_batch_size_on_oom: true
+  min_batch_size: 1
+  
+  # Quality fallbacks
+  min_successful_embeddings: 0.8  # 80% success rate required
+
+# Monitoring multimodal performance
+monitoring:
+  # Processing metrics
+  track_text_processing_time: true
+  track_image_processing_time: true
+  track_cross_modal_operations: true
+  
+  # Quality metrics
+  monitor_embedding_quality: true
+  track_modality_distribution: true
+  alert_on_quality_degradation: true
+  
+  # Resource usage
+  monitor_gpu_memory: true
+  monitor_disk_usage: true  # Image storage
+  track_model_loading_time: true
+
+# Advanced multimodal features
+advanced:
+  # Content understanding
+  semantic_image_analysis: false  # Very expensive
+  scene_understanding: false
+  object_detection: false
+  
+  # Content generation
+  generate_image_captions: false
+  enhance_text_descriptions: false
+  
+  # Cross-modal learning
+  fine_tune_on_domain: false
+  domain_adaptation: false
+  
+  # Future features
+  video_frame_extraction: false
+  audio_text_alignment: false
+  3d_content_processing: false

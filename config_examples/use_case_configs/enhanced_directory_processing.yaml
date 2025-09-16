@@ -1,0 +1,276 @@
+# Enhanced Directory Processing Configuration
+# This configuration demonstrates comprehensive directory processing capabilities
+# with optimized settings for different file types and processing modes.
+
+profile_name: "enhanced_directory_processing"
+description: "Comprehensive directory processing with file-type specific strategies and optimizations"
+
+# Strategy selection and configuration
+strategies:
+  primary: "auto"  # Auto-select strategy based on file type
+  fallbacks: ["sentence_based", "paragraph_based", "fixed_size"]
+
+  # Detailed configuration for each strategy
+  configs:
+    # Text processing strategies
+    sentence_based:
+      max_sentences: 4
+      overlap: 1
+      splitter: "simple"
+      min_sentence_length: 10
+      preserve_structure: true
+
+    paragraph_based:
+      max_paragraphs: 2
+      overlap: 0
+      preserve_structure: true
+      min_paragraph_length: 50
+      split_on_headers: true
+
+    fixed_size:
+      chunk_size: 1000
+      overlap_size: 150
+      preserve_word_boundaries: true
+      min_chunk_size: 100
+
+    # Code processing strategies
+    python_code:
+      preserve_functions: true
+      preserve_classes: true
+      preserve_imports: true
+      include_docstrings: true
+      max_function_size: 2000
+      combine_small_functions: true
+      preserve_decorators: true
+
+    javascript_code:
+      preserve_functions: true
+      preserve_classes: true
+      preserve_imports: true
+      include_comments: true
+      preserve_async_functions: true
+      combine_related_code: true
+      max_function_lines: 100
+
+    css_code:
+      preserve_selectors: true
+      preserve_rules: true
+      preserve_media_queries: true
+      group_related_rules: true
+      preserve_comments: true
+      max_rule_group_size: 500
+
+    # Document processing strategies
+    markdown_chunker:
+      preserve_headers: true
+      preserve_structure: true
+      split_on_headers: true
+      include_header_context: true
+      max_section_size: 1500
+      preserve_code_blocks: true
+      preserve_tables: true
+
+    # Data format strategies
+    json_chunker:
+      preserve_structure: true
+      max_depth: 4
+      preserve_arrays: true
+      split_large_objects: true
+      max_object_size: 2000
+      preserve_nested_structure: true
+
+    csv_chunker:
+      header_chunks: true
+      max_rows_per_chunk: 25
+      preserve_headers: true
+      group_by_columns: []
+      maintain_data_integrity: true
+      include_summary_stats: false
+
+# File type to strategy mapping
+strategy_selection:
+  # Text documents
+  ".txt": "sentence_based"
+  ".text": "sentence_based"
+  ".rtf": "sentence_based"
+
+  # Markdown and documentation
+  ".md": "markdown_chunker"
+  ".markdown": "markdown_chunker"
+  ".rst": "markdown_chunker"
+
+  # Programming languages
+  ".py": "python_code"
+  ".pyx": "python_code"
+  ".python": "python_code"
+  ".js": "javascript_code"
+  ".jsx": "javascript_code"
+  ".ts": "javascript_code"
+  ".tsx": "javascript_code"
+  ".mjs": "javascript_code"
+  ".css": "css_code"
+  ".scss": "css_code"
+  ".sass": "css_code"
+  ".less": "css_code"
+
+  # Data formats
+  ".json": "json_chunker"
+  ".jsonl": "json_chunker"
+  ".csv": "csv_chunker"
+  ".tsv": "csv_chunker"
+
+  # Fallback for unknown types
+  "default": "fixed_size"
+
+# Preprocessing configuration
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  remove_empty_lines: false
+  strip_leading_trailing: true
+  convert_encoding: true
+  target_encoding: "utf-8"
+
+  # File type specific preprocessing
+  text_preprocessing:
+    normalize_quotes: true
+    fix_line_endings: true
+    remove_control_chars: true
+
+  code_preprocessing:
+    preserve_formatting: true
+    normalize_indentation: false
+    remove_commented_code: false
+
+# Postprocessing configuration
+postprocessing:
+  enabled: true
+  merge_short_chunks: true
+  min_chunk_size: 75
+  remove_empty_chunks: true
+  deduplicate_chunks: false
+
+  # Content enhancement
+  add_metadata: true
+  calculate_statistics: true
+  validate_chunks: true
+
+  # Quality filters
+  min_word_count: 5
+  min_meaningful_content_ratio: 0.3
+  remove_boilerplate: false
+
+# Parallel processing configuration
+parallelization:
+  enabled: true
+  mode: "auto"  # auto, sequential, thread, process
+  max_workers: null  # null for auto-detection
+  batch_size: null   # null for auto-calculation
+
+  # Performance tuning
+  chunk_batch_size: 10
+  memory_limit_mb: 1000
+  timeout_seconds: 300
+
+  # Hardware optimization
+  use_gpu_acceleration: false
+  optimize_for_memory: true
+  optimize_for_speed: false
+
+# Directory processing specific options
+directory_processing:
+  # File discovery
+  recursive: true
+  follow_symlinks: false
+  include_hidden_files: false
+  max_file_size_mb: 100
+  skip_binary_files: true
+
+  # File filtering
+  include_patterns: ["*"]
+  exclude_patterns: [
+    "*.log", "*.tmp", "*.cache", "*.pyc", "*.pyo", "*.pyd",
+    "__pycache__/*", ".git/*", ".svn/*", "node_modules/*",
+    "*.min.js", "*.min.css", "*.bundle.*"
+  ]
+
+  # Extension handling
+  case_sensitive_extensions: false
+  treat_extensionless_as_text: true
+
+  # Progress and logging
+  show_progress: true
+  log_file_processing: true
+  log_level: "INFO"
+  report_statistics: true
+
+# Output configuration
+output:
+  # Format options
+  default_format: "json"
+  include_metadata: true
+  include_source_info: true
+  include_processing_stats: true
+
+  # File naming
+  naming_strategy: "descriptive"  # simple, descriptive, timestamp
+  include_strategy_in_name: true
+  include_timestamp: false
+
+  # Content options
+  preserve_original_structure: true
+  include_chunk_relationships: false
+  add_chunk_summaries: false
+
+# Quality and validation
+quality_control:
+  enabled: true
+  min_chunk_quality_score: 0.5
+  validate_syntax_for_code: true
+  check_encoding_consistency: true
+  detect_language: true
+
+  # Content validation
+  check_meaningful_content: true
+  validate_data_formats: true
+  ensure_completeness: true
+
+# Advanced features
+advanced:
+  # Experimental features
+  use_semantic_chunking: false
+  apply_content_deduplication: false
+  generate_embeddings: false
+
+  # Custom processing
+  custom_processors: []
+  plugin_directories: []
+
+  # Caching
+  enable_caching: true
+  cache_directory: ".chunking_cache"
+  cache_expiry_hours: 24
+
+# Error handling and recovery
+error_handling:
+  continue_on_errors: true
+  max_errors_per_directory: 10
+  retry_failed_files: 1
+  log_errors: true
+
+  # Recovery strategies
+  fallback_to_simple_chunking: true
+  skip_problematic_files: true
+  partial_processing_allowed: true
+
+# Performance monitoring
+monitoring:
+  track_performance: true
+  collect_metrics: true
+  log_processing_time: true
+  measure_memory_usage: false
+
+  # Reporting
+  generate_reports: false
+  report_format: "json"
+  include_file_statistics: true

@@ -1,0 +1,30 @@
+{
+  "user": {
+    "id": 12345,
+    "username": "johndoe",
+    "email": "john@example.com",
+    "profile": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "age": 30,
+      "preferences": {
+        "theme": "dark",
+        "language": "en",
+        "notifications": {
+          "email": true,
+          "push": false,
+          "sms": true
+        }
+      }
+    },
+    "activity": {
+      "lastLogin": "2023-12-01T10:30:00Z",
+      "loginCount": 142,
+      "recentActions": [
+        "profile_update",
+        "password_change",
+        "settings_modified"
+      ]
+    }
+  }
+}

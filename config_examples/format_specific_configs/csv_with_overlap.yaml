@@ -1,0 +1,30 @@
+# CSV with Row Overlap Configuration
+# Provides overlap between chunks for continuity
+
+strategies:
+  primary: "csv_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  csv_chunker:
+    chunk_by: "rows"              # Row-based chunking
+    rows_per_chunk: 500           # 500 rows per chunk
+    chunk_overlap_rows: 50        # 50 rows overlap between chunks
+    preserve_headers: true        # Include headers in each chunk
+    encoding: "utf-8"
+    dialect: "auto"
+    skip_empty_lines: true
+
+strategy_selection:
+  ".csv":
+    primary: "csv_chunker"
+    fallbacks: ["fixed_size"]
+
+# Good for time-series data or when context is important
+processing:
+  enable_parallel: true
+  max_workers: 4
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 100

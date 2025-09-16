@@ -1,0 +1,220 @@
+# Parallel Algorithm Testing Configuration
+# Enables users to test custom algorithms in parallel with built-in ones
+# Provides comprehensive comparison and validation capabilities
+
+name: "parallel_algorithm_testing"
+description: "Parallel testing of custom vs built-in algorithms for comparison and validation"
+
+# Load custom algorithms for comparison
+custom_algorithms:
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+    algorithms: ["sentiment_based"]
+  - path: "../../examples/custom_algorithms/regex_pattern_chunker.py"
+    algorithms: ["regex_pattern_based"]
+  - path: "../../examples/custom_algorithms/balanced_length_chunker.py"
+    algorithms: ["balanced_length"]
+
+# Primary strategies for orchestrator compatibility
+strategies:
+  primary: "semantic"
+  fallback:
+    - "paragraph_based"
+    - "sentence_based"
+    - "fixed_size"
+
+# Multi-strategy configuration for parallel execution
+multi_strategy:
+  enabled: true
+  mode: "parallel_comparison"
+
+  # Test both custom and built-in algorithms simultaneously
+  strategies:
+    # Custom algorithms under test
+    - name: "sentiment_based"
+      weight: 1.0
+      category: "custom"
+      description: "Custom sentiment-based chunking"
+
+    - name: "regex_pattern_based"
+      weight: 1.0
+      category: "custom"
+      description: "Custom regex pattern chunking"
+
+    - name: "balanced_length"
+      weight: 1.0
+      category: "custom"
+      description: "Custom balanced length chunking"
+
+    # Comparable built-in algorithms
+    - name: "semantic"
+      weight: 1.0
+      category: "builtin"
+      description: "Built-in semantic chunking"
+
+    - name: "paragraph_based"
+      weight: 1.0
+      category: "builtin"
+      description: "Built-in paragraph-based chunking"
+
+    - name: "sentence_based"
+      weight: 1.0
+      category: "builtin"
+      description: "Built-in sentence-based chunking"
+
+    - name: "fixed_size"
+      weight: 1.0
+      category: "builtin"
+      description: "Built-in fixed-size chunking"
+
+  # Combination method for parallel testing
+  combination_method: "all_parallel"
+  generate_individual_results: true
+  generate_comparison_report: true
+
+# Parameters optimized for fair comparison
+parameters:
+  # Custom algorithm parameters
+  sentiment_based:
+    sentiment_threshold: 0.3
+    min_chunk_sentences: 2
+    max_chunk_sentences: 6
+    sentiment_smoothing: true
+
+  regex_pattern_based:
+    chunk_patterns:
+      - name: "paragraph"
+        pattern: '\n\s*\n'
+        split_mode: "on"
+    min_chunk_length: 100
+    max_chunk_length: 1000
+
+  balanced_length:
+    target_length: 600
+    length_tolerance: 0.25
+    boundary_preference: "sentence"
+
+  # Built-in algorithm parameters (matched for fair comparison)
+  semantic:
+    similarity_threshold: 0.7
+    min_chunk_size: 100
+    max_chunk_size: 1000
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+
+  sentence_based:
+    min_sentence_length: 20
+    max_sentences_per_chunk: 6
+
+  fixed_size:
+    chunk_size: 600
+    overlap_size: 50
+    unit: "character"
+
+# Comprehensive comparison and validation
+comparison:
+  enabled: true
+
+  # Metrics to compare
+  metrics:
+    - "chunk_count"
+    - "avg_chunk_size"
+    - "chunk_size_variance"
+    - "processing_time"
+    - "memory_usage"
+    - "boundary_preservation"
+    - "content_coherence"
+
+  # Statistical analysis
+  statistical_tests:
+    - "t_test"
+    - "wilcoxon"
+    - "anova"
+
+  # Cross-validation
+  cross_validation:
+    enabled: true
+    folds: 5
+    stratified: true
+
+  # Pairwise comparisons
+  pairwise_comparisons:
+    - ["sentiment_based", "semantic"]
+    - ["regex_pattern_based", "paragraph_based"]
+    - ["balanced_length", "fixed_size"]
+
+# Performance benchmarking
+benchmarking:
+  enabled: true
+  iterations: 5
+  warmup_iterations: 2
+
+  test_datasets:
+    - name: "small_text"
+      size: "1KB"
+      type: "text"
+    - name: "medium_text"
+      size: "10KB"
+      type: "text"
+    - name: "large_text"
+      size: "100KB"
+      type: "text"
+
+  # Resource monitoring
+  monitor_resources:
+    cpu_usage: true
+    memory_usage: true
+    processing_time: true
+    throughput: true
+
+# Quality assessment
+quality:
+  enabled: true
+
+  # Quality metrics
+  metrics:
+    chunk_coherence: true
+    boundary_accuracy: true
+    size_consistency: true
+    content_preservation: true
+
+  # Quality scoring
+  scoring_method: "weighted_average"
+  quality_weights:
+    coherence: 0.3
+    boundary: 0.25
+    consistency: 0.25
+    preservation: 0.2
+
+# Detailed reporting
+reporting:
+  enabled: true
+
+  # Report types
+  generate_comparison_report: true
+  generate_performance_report: true
+  generate_quality_report: true
+  generate_statistical_report: true
+
+  # Report formats
+  output_formats: ["json", "yaml", "csv", "html"]
+
+  # Visualization
+  generate_plots: true
+  plot_types: ["performance", "quality", "distribution", "comparison"]
+
+# Export results for further analysis
+export:
+  enabled: true
+  export_raw_data: true
+  export_processed_results: true
+  export_statistical_analysis: true
+  export_directory: "parallel_test_results/"
+
+output:
+  format: "json"
+  include_metadata: true
+  include_all_results: true
+  include_comparison_summary: true
+  detailed_performance_metrics: true

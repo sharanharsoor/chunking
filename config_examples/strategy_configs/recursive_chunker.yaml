@@ -1,0 +1,365 @@
+# Recursive Chunker Configuration Examples
+# This file contains configuration profiles for the Recursive Chunking strategy
+
+# High-Quality Hierarchical Configuration
+# Optimized for maximum hierarchical structure preservation and content understanding
+high_quality_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 4                    # Maximum recursion depth
+  adaptive_depth: true            # Adapt depth based on content complexity
+  preserve_hierarchy: true        # Maintain parent-child relationships
+  quality_threshold: 0.8          # High quality threshold for chunk acceptance
+  enable_streaming: true          # Enable streaming capabilities
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "semantic"
+      strategy: "semantic"
+      parameters:
+        similarity_threshold: 0.75
+        boundary_method: "similarity_threshold"
+        semantic_model: "sentence_transformers"
+        embedding_model: "all-MiniLM-L6-v2"
+      min_chunk_size: 200
+      max_chunk_size: 2500
+      target_chunk_size: 1200
+      max_children: 8
+      quality_threshold: 0.8
+    
+    - name: "boundary_aware"
+      strategy: "boundary_aware"
+      parameters:
+        document_format: "auto"
+        boundary_strategy: "adaptive"
+        preserve_structure: true
+        max_chunk_size: 1500
+      min_chunk_size: 150
+      max_chunk_size: 1500
+      target_chunk_size: 600
+      max_children: 6
+      quality_threshold: 0.75
+    
+    - name: "sentence"
+      strategy: "sentence"
+      parameters:
+        max_sentences: 4
+        min_sentence_length: 20
+        preserve_sentence_boundaries: true
+      min_chunk_size: 80
+      max_chunk_size: 800
+      target_chunk_size: 300
+      max_children: 5
+      quality_threshold: 0.7
+    
+    - name: "token"
+      strategy: "token"
+      parameters:
+        max_tokens: 150
+        tokenizer: "tiktoken"
+        model_name: "gpt-3.5-turbo"
+        overlap_tokens: 20
+      min_chunk_size: 50
+      max_chunk_size: 400
+      target_chunk_size: 200
+      max_children: 4
+      quality_threshold: 0.6
+
+---
+
+# Balanced Hierarchical Configuration  
+# Good balance between quality and performance for general use
+balanced_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 3                    # Moderate depth for balance
+  adaptive_depth: true            # Enable adaptive behavior
+  preserve_hierarchy: true        # Maintain relationships
+  quality_threshold: 0.6          # Moderate quality threshold
+  enable_streaming: true          # Streaming enabled
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "semantic"
+      strategy: "semantic"
+      parameters:
+        similarity_threshold: 0.7
+        boundary_method: "sliding_window"
+        semantic_model: "tfidf"
+      min_chunk_size: 150
+      max_chunk_size: 2000
+      target_chunk_size: 1000
+      max_children: 10
+      quality_threshold: 0.6
+    
+    - name: "sentence"
+      strategy: "sentence" 
+      parameters:
+        max_sentences: 5
+        min_sentence_length: 15
+      min_chunk_size: 100
+      max_chunk_size: 600
+      target_chunk_size: 350
+      max_children: 8
+      quality_threshold: 0.5
+    
+    - name: "token"
+      strategy: "token"
+      parameters:
+        max_tokens: 100
+        tokenizer: "tiktoken"
+        overlap_tokens: 15
+      min_chunk_size: 40
+      max_chunk_size: 300
+      target_chunk_size: 150
+      max_children: 6
+      quality_threshold: 0.4
+
+---
+
+# High-Performance Configuration
+# Optimized for speed and efficiency with minimal overhead
+high_performance_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 2                    # Shallow depth for speed
+  adaptive_depth: true            # Quick adaptive decisions
+  preserve_hierarchy: false       # Skip relationship tracking for speed
+  quality_threshold: 0.4          # Lower threshold for speed
+  enable_streaming: true          # Streaming for memory efficiency
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "paragraph"
+      strategy: "paragraph"
+      parameters:
+        min_paragraph_length: 50
+        preserve_whitespace: false
+      min_chunk_size: 200
+      max_chunk_size: 1500
+      target_chunk_size: 800
+      max_children: 12
+      quality_threshold: 0.4
+    
+    - name: "sentence"
+      strategy: "sentence"
+      parameters:
+        max_sentences: 6
+        fast_sentence_split: true
+      min_chunk_size: 80
+      max_chunk_size: 500
+      target_chunk_size: 250
+      max_children: 10
+      quality_threshold: 0.3
+
+---
+
+# Document Structure-Aware Configuration
+# Specialized for documents with clear hierarchical structure
+document_structure_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 4                    # Deep hierarchy for structured docs
+  adaptive_depth: false           # Fixed depth for consistency
+  preserve_hierarchy: true        # Essential for document structure
+  quality_threshold: 0.7          # Good quality for structured content
+  enable_streaming: false         # Batch processing for structure analysis
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "document_structure"
+      strategy: "boundary_aware"
+      parameters:
+        document_format: "auto"
+        boundary_strategy: "strict"
+        preserve_structure: true
+        respect_headers: true
+        respect_sections: true
+      min_chunk_size: 300
+      max_chunk_size: 3000
+      target_chunk_size: 1500
+      max_children: 8
+      quality_threshold: 0.8
+    
+    - name: "paragraph"
+      strategy: "paragraph"
+      parameters:
+        min_paragraph_length: 100
+        preserve_formatting: true
+      min_chunk_size: 150
+      max_chunk_size: 1200
+      target_chunk_size: 600
+      max_children: 6
+      quality_threshold: 0.7
+    
+    - name: "sentence"
+      strategy: "sentence"
+      parameters:
+        max_sentences: 4
+        respect_punctuation: true
+      min_chunk_size: 60
+      max_chunk_size: 600
+      target_chunk_size: 280
+      max_children: 5
+      quality_threshold: 0.6
+    
+    - name: "phrase"
+      strategy: "token"
+      parameters:
+        max_tokens: 75
+        tokenizer: "tiktoken"
+        respect_word_boundaries: true
+      min_chunk_size: 30
+      max_chunk_size: 200
+      target_chunk_size: 120
+      max_children: 4
+      quality_threshold: 0.5
+
+---
+
+# Content Analysis Configuration
+# Focused on semantic understanding and content analysis
+content_analysis_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 3                    # Moderate depth for analysis
+  adaptive_depth: true            # Adapt based on content complexity
+  preserve_hierarchy: true        # Important for analysis relationships
+  quality_threshold: 0.75         # Higher quality for analysis
+  enable_streaming: true          # Support large documents
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "semantic_topics"
+      strategy: "semantic"
+      parameters:
+        similarity_threshold: 0.8
+        boundary_method: "coherence_based"
+        semantic_model: "sentence_transformers"
+        embedding_model: "all-MiniLM-L6-v2"
+        enable_topic_modeling: true
+      min_chunk_size: 250
+      max_chunk_size: 2200
+      target_chunk_size: 1100
+      max_children: 7
+      quality_threshold: 0.8
+    
+    - name: "semantic_concepts"
+      strategy: "semantic"
+      parameters:
+        similarity_threshold: 0.65
+        boundary_method: "similarity_threshold"
+        semantic_model: "tfidf"
+      min_chunk_size: 120
+      max_chunk_size: 800
+      target_chunk_size: 400
+      max_children: 6
+      quality_threshold: 0.7
+    
+    - name: "linguistic_units"
+      strategy: "sentence"
+      parameters:
+        max_sentences: 3
+        analyze_sentence_complexity: true
+        preserve_discourse_markers: true
+      min_chunk_size: 50
+      max_chunk_size: 400
+      target_chunk_size: 200
+      max_children: 5
+      quality_threshold: 0.6
+
+---
+
+# Multi-Modal Processing Configuration  
+# Suitable for mixed content types and formats
+multi_modal_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 3                    # Flexible depth
+  adaptive_depth: true            # Essential for varied content
+  preserve_hierarchy: true        # Track content relationships
+  quality_threshold: 0.55         # Flexible quality for varied content
+  enable_streaming: true          # Handle large mixed content
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "format_aware"
+      strategy: "boundary_aware"
+      parameters:
+        document_format: "auto"
+        boundary_strategy: "hybrid"
+        handle_mixed_formats: true
+        preserve_structure: true
+      min_chunk_size: 100
+      max_chunk_size: 2000
+      target_chunk_size: 800
+      max_children: 10
+      quality_threshold: 0.6
+    
+    - name: "content_units"
+      strategy: "paragraph"
+      parameters:
+        handle_code_blocks: true
+        handle_lists: true
+        preserve_formatting: false
+      min_chunk_size: 80
+      max_chunk_size: 800
+      target_chunk_size: 350
+      max_children: 8
+      quality_threshold: 0.5
+    
+    - name: "text_fragments"
+      strategy: "overlapping"
+      parameters:
+        window_size: 200
+        step_size: 150
+        granularity: "sentence"
+      min_chunk_size: 50
+      max_chunk_size: 300
+      target_chunk_size: 175
+      max_children: 6
+      quality_threshold: 0.4
+
+---
+
+# Memory-Efficient Configuration
+# Optimized for large documents with memory constraints
+memory_efficient_recursive:
+  chunker_name: "recursive"
+  
+  # Hierarchy configuration
+  max_depth: 2                    # Shallow for memory efficiency
+  adaptive_depth: true            # Adapt to avoid deep recursion
+  preserve_hierarchy: false       # Skip for memory savings
+  quality_threshold: 0.3          # Lower threshold to avoid reprocessing
+  enable_streaming: true          # Essential for memory efficiency
+  
+  # Hierarchical levels configuration
+  hierarchy_levels:
+    - name: "fixed_chunks"
+      strategy: "fixed_size"
+      parameters:
+        chunk_size: 1000
+        overlap: false
+      min_chunk_size: 500
+      max_chunk_size: 1500
+      target_chunk_size: 1000
+      max_children: 15
+      quality_threshold: 0.3
+    
+    - name: "sub_chunks"
+      strategy: "fixed_size"
+      parameters:
+        chunk_size: 300
+        overlap: false
+      min_chunk_size: 150
+      max_chunk_size: 450
+      target_chunk_size: 300
+      max_children: 8
+      quality_threshold: 0.2

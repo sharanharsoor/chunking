@@ -1,0 +1,270 @@
+# Document-First Configuration
+# Optimized for document processing, research, and content analysis
+# Prioritizes document understanding and text quality over code structure
+
+profile_name: "document_first"
+description: "Document-focused configuration optimized for text analysis and content processing"
+
+# Document-centric strategy selection
+strategy_selection:
+  # Document formats - specialized extractors first
+  ".pdf":
+    primary: "pdf_chunker"
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".docx":
+    primary: "paragraph_based"       # Use paragraph-based for Word docs
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".doc":
+    primary: "paragraph_based"       # Use paragraph-based for Word docs
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".odt":
+    primary: "paragraph_based"       # Use paragraph-based for ODT docs
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".rtf":
+    primary: "paragraph_based"       # Use paragraph-based for RTF docs
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Structured text documents
+  ".md":
+    primary: "paragraph_based"       # Preserve markdown structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".rst":
+    primary: "paragraph_based"       # reStructuredText blocks
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".txt":
+    primary: "sentence_based"        # Natural reading flow
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".text":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Web content as documents
+  ".html":
+    primary: "paragraph_based"       # HTML content blocks
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".htm":
+    primary: "paragraph_based"
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Data formats in document context
+  ".xml":
+    primary: "paragraph_based"       # XML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".json":
+    primary: "paragraph_based"       # JSON structure for readability
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".yaml":
+    primary: "sentence_based"        # YAML is human-readable
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".yml":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Academic and technical formats
+  ".tex":
+    primary: "paragraph_based"       # LaTeX documents
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".bib":
+    primary: "sentence_based"        # Bibliography entries
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Code files in document context (documentation focus)
+  ".py":
+    primary: "paragraph_based"       # Focus on documentation blocks
+    fallbacks: ["python_code", "sentence_based", "fixed_size"]
+
+  ".js":
+    primary: "paragraph_based"       # Focus on readable structure
+    fallbacks: ["universal_code", "sentence_based", "fixed_size"]
+
+  ".cpp":
+    primary: "paragraph_based"       # Logical code blocks
+    fallbacks: ["universal_code", "sentence_based", "fixed_size"]
+
+  ".java":
+    primary: "paragraph_based"
+    fallbacks: ["universal_code", "sentence_based", "fixed_size"]
+
+  # Configuration files (readable focus)
+  ".conf":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".ini":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".cfg":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Log files (reading comprehension)
+  ".log":
+    primary: "sentence_based"        # Line-by-line reading
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Default for document processing
+  "unknown":
+    primary: "sentence_based"        # Safe for reading
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+# Document-optimized default strategies
+strategies:
+  primary: "sentence_based"
+  fallbacks: ["paragraph_based", "fixed_size"]
+
+  configs:
+    # Document-specialized extractors
+    pdf_chunker:
+      max_pages_per_chunk: 1        # One page for better context
+      extract_images: false         # Focus on text
+      extract_tables: true          # Important for documents
+      preserve_formatting: false    # Content over formatting
+      include_metadata: true        # Document metadata
+      backend: "auto"
+      handle_extraction_errors: true
+
+    # Text-optimized strategies
+    sentence_based:
+      max_sentences: 6              # Longer for better flow
+      min_sentences: 2              # Ensure context
+      max_chunk_size: 3000          # Larger for document flow
+      overlap_sentences: 1          # Maintain context
+      sentence_splitter: "simple"   # Reliable
+      max_text_buffer_size: 4194304 # 4MB for large documents
+      preserve_sentence_boundaries: true
+
+    paragraph_based:
+      max_paragraphs: 4             # Longer logical units
+      min_paragraphs: 1
+      max_chunk_size: 4000          # Accommodate longer paragraphs
+      overlap_paragraphs: 1         # Context preservation
+      merge_short_paragraphs: true  # Better flow
+      preserve_paragraph_structure: true
+      min_paragraph_length: 50      # Filter tiny paragraphs
+
+    fixed_size:
+      chunk_size: 2000              # Larger for documents
+      overlap_size: 200             # 10% overlap for context
+      preserve_words: true          # Don't break words
+      preserve_sentences: true      # Don't break sentences when possible
+
+    # Fallback code strategies (document-focused)
+    python_code:
+      chunk_by: "logical_element"
+      include_docstrings: true      # Emphasize documentation
+      preserve_comments: true       # Comments are important
+      max_line_count: 40            # Smaller for readability
+
+    universal_code:
+      chunk_by: "logical_block"
+      preserve_comments: true       # Comments matter in docs
+      language_detection: true
+      max_line_count: 30            # Readability focus
+
+# Document-focused extraction
+extraction:
+  enabled: true
+
+  pdf:
+    backend: "auto"
+    extract_images: false           # Text focus
+    extract_tables: true            # Important for documents
+    preserve_structure: true        # Document structure matters
+    extract_metadata: true          # Author, title, etc.
+    fallback_on_error: true
+
+  text:
+    encoding: "utf-8"
+    normalize_unicode: true
+    preserve_markdown_structure: true
+    extract_headings: true          # Document structure
+    preserve_formatting_hints: true
+
+  code:
+    preserve_structure: false       # Content over structure
+    include_comments: true          # Comments are documentation
+    parse_docstrings: true          # Extract documentation
+    encoding: "utf-8"
+
+# Document-optimized preprocessing
+preprocessing:
+  enabled: true
+  normalize_whitespace: true        # Clean up text
+  preserve_code_indentation: false # Not the focus
+  extract_metadata: true           # Document metadata
+  normalize_unicode: true          # Text consistency
+  extract_headings: true           # Document structure
+  clean_markup: true               # Remove unnecessary markup
+
+# Document-focused postprocessing
+postprocessing:
+  enabled: true
+  enhance_metadata: true           # Rich document metadata
+  validate_chunks: true            # Ensure quality
+  remove_empty_chunks: true        # Clean results
+  merge_short_chunks: true         # Better reading flow
+  min_chunk_size: 100              # Meaningful chunks
+  improve_readability: true        # Focus on reading experience
+  normalize_spacing: true          # Consistent formatting
+
+# Quality settings for documents
+quality:
+  min_chunk_size: 50              # Allow smaller for lists, etc.
+  max_chunk_size: 6000            # Large chunks for flow
+  coherence_threshold: 0.8        # Higher for documents
+  preserve_semantic_boundaries: true
+  readability_focus: true         # Optimize for human reading
+
+# Performance tuned for document processing
+performance:
+  streaming_threshold: 2097152    # 2MB - documents can be large
+  parallel_processing: true
+  memory_limit: 4294967296       # 4GB for large documents
+  timeout: 600                   # 10 minutes for complex documents
+  pdf_processing_timeout: 300    # 5 minutes for PDF extraction
+
+# Document-focused logging
+logging:
+  level: "INFO"
+  log_strategy_selection: true
+  log_extraction_details: true    # Document processing details
+  log_document_structure: true    # Structure analysis
+  log_quality_metrics: true       # Document quality
+  log_fallback_usage: true
+
+# Output optimized for document analysis
+output:
+  include_metadata: true
+  include_document_structure: true  # Headings, sections, etc.
+  chunk_id_format: "doc_{strategy}_{section}_{index:04d}"
+  preserve_source_structure: true
+  include_quality_scores: true     # Document quality metrics
+  include_readability_scores: true # Reading level, etc.
+  export_document_map: true        # Document structure map
+
+# Usage for document processing:
+#   orchestrator = ChunkerOrchestrator(config_path="config_examples/document_first_config.yaml")
+#   result = orchestrator.chunk_file("research_paper.pdf")    # Uses pdf_chunker
+#   result = orchestrator.chunk_file("article.md")           # Uses paragraph_based
+#   result = orchestrator.chunk_file("report.txt")           # Uses sentence_based
+#   result = orchestrator.chunk_file("data.json")            # Uses paragraph_based (readable)
+#
+# Features:
+#   - Optimized for reading comprehension and document flow
+#   - Preserves document structure and formatting
+#   - Emphasizes text quality over code structure
+#   - Larger chunks for better context and flow
+#   - Rich metadata extraction for document analysis

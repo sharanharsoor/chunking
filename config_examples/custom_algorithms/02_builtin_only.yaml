@@ -1,0 +1,65 @@
+
+# Configuration 2: Built-in Algorithms Only
+# This config uses only built-in algorithms as baseline for comparison
+
+name: "builtin_only_config"
+description: "Baseline configuration using only built-in chunking algorithms"
+
+# No custom algorithms section - only built-ins
+# custom_algorithms: []  # Optional: explicitly empty
+
+# Use only built-in algorithms
+strategies:
+  primary: "semantic"
+  fallbacks: ["paragraph_based", "fixed_size", "adaptive"]
+
+# Parameters for built-in algorithms
+parameters:
+  semantic:
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.7
+    min_chunk_size: 100
+    max_chunk_size: 1000
+
+  paragraph_based:
+    min_paragraph_length: 50
+    merge_short_paragraphs: true
+    preserve_formatting: false
+
+  fixed_size:
+    chunk_size: 512
+    overlap_size: 50
+    unit: "character"
+    preserve_boundaries: true
+
+  adaptive:
+    base_strategy: "semantic"
+    adaptation_rate: 0.1
+    feedback_weight: 0.8
+
+# Multi-strategy configuration (built-in only)
+multi_strategy:
+  enabled: true
+  strategies:
+    - name: "semantic"
+      weight: 0.4
+    - name: "paragraph_based"
+      weight: 0.3
+    - name: "fixed_size"
+      weight: 0.3
+  combination_method: "weighted_voting"
+  min_agreement_threshold: 0.6
+
+# Output configuration
+output:
+  format: "yaml"
+  include_metadata: true
+  include_embeddings: true
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+# Performance settings
+performance:
+  parallel_processing: true
+  max_workers: 4
+  memory_limit: "2GB"
+  streaming_threshold: "10MB"

@@ -1,0 +1,124 @@
+Dynamic Content Analysis for Adaptive Chunking
+==============================================
+
+SECTION 1: Structured Documentation
+===================================
+
+This section contains well-structured documentation that should trigger the adaptive chunker to select a paragraph-based or sentence-based strategy. The content has clear hierarchical organization with headers, paragraphs, and logical flow.
+
+The adaptive chunker analyzes content characteristics including:
+- Text ratio and readability
+- Structural elements and patterns
+- Content complexity and entropy
+- File size and repetition patterns
+
+Based on this analysis, it automatically selects the most appropriate chunking strategy and optimizes parameters for the specific content type.
+
+SECTION 2: Code-like Content
+=============================
+
+function adaptiveChunkingDemo() {
+    const contentProfile = analyzeContent(input);
+    const strategy = selectOptimalStrategy(contentProfile);
+    const parameters = optimizeParameters(strategy, contentProfile);
+    
+    return {
+        strategy: strategy,
+        parameters: parameters,
+        confidence: calculateConfidence(contentProfile)
+    };
+}
+
+class AdaptiveProcessor {
+    constructor(options = {}) {
+        this.strategies = options.strategies || ['fastcdc', 'paragraph', 'sentence'];
+        this.learningEnabled = options.learning !== false;
+        this.adaptationThreshold = options.threshold || 0.1;
+    }
+    
+    process(content) {
+        const profile = this.profileContent(content);
+        const strategy = this.selectStrategy(profile);
+        return this.executeStrategy(strategy, content);
+    }
+}
+
+SECTION 3: Data-like Content
+=============================
+
+| Strategy      | Best For           | Characteristics                    |
+|---------------|--------------------|------------------------------------|
+| FastCDC       | Binary/Large Files | Content-defined boundaries        |
+| Paragraph     | Documents          | Natural text structure            |
+| Sentence      | Articles           | Sentence-level granularity        |
+| Fixed Size    | Uniform Content    | Predictable, consistent chunks     |
+
+Performance Metrics:
+- Throughput: 245.7 MB/s
+- Accuracy: 94.2%
+- Adaptation Rate: 0.15 per operation
+- Memory Usage: 12.3 MB peak
+
+Configuration Settings:
+{
+  "adaptive": {
+    "learning_rate": 0.1,
+    "exploration_rate": 0.05,
+    "adaptation_threshold": 0.1,
+    "min_samples": 5,
+    "performance_window": 50
+  }
+}
+
+SECTION 4: Repetitive Content
+=============================
+
+This section contains repetitive patterns that should trigger the adaptive chunker to consider FastCDC or other content-defined strategies. The repetitive nature of this content makes it ideal for demonstrating how the adaptive chunker detects content characteristics.
+
+Pattern A: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+Pattern A: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+Pattern A: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+Pattern A: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+Pattern B: The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+
+Pattern C: Data-Data-Data-Data-Data-Data-Data-Data-Data-Data-Data-Data
+
+SECTION 5: Mixed Content Types
+==============================
+
+This final section combines multiple content types to test the adaptive chunker's ability to handle heterogeneous content within a single file.
+
+### Subsection A: Natural Language
+The adaptive chunking system represents a significant advancement in document processing technology. By analyzing content characteristics in real-time, it can automatically optimize chunking strategies for different types of content, leading to improved processing efficiency and better downstream task performance.
+
+### Subsection B: Technical Specifications
+- Algorithm: Adaptive Dynamic Chunking (ADC)
+- Input: Any file format or content type
+- Output: Optimally sized chunks with metadata
+- Performance: O(n) time complexity, O(1) space complexity
+- Adaptability: Self-tuning based on content analysis
+
+### Subsection C: Example Output
+{
+  "chunks": [
+    {
+      "id": "adaptive_0_0_1247",
+      "content": "Content chunk with adaptive boundaries...",
+      "strategy": "paragraph_based",
+      "confidence": 0.89,
+      "metadata": {
+        "content_type": "text",
+        "structure_score": 0.75,
+        "complexity": 0.62
+      }
+    }
+  ]
+}
+
+This diverse content should demonstrate the adaptive chunker's ability to:
+1. Analyze different content patterns
+2. Select appropriate strategies
+3. Adapt parameters based on content characteristics
+4. Learn from performance feedback
+5. Optimize for different content types within the same document

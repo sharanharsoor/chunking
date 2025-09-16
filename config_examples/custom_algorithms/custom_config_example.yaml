@@ -1,0 +1,102 @@
+# Example Configuration with Custom Algorithms
+# This configuration demonstrates how to use custom algorithms alongside built-in ones
+
+# Load custom algorithms
+custom_algorithms:
+  # Load individual algorithm files (corrected paths from project root)
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+    algorithms: ["sentiment_based"]  # Optional: specific algorithms to load
+
+  - path: "../../examples/custom_algorithms/regex_pattern_chunker.py"
+
+  - path: "../../examples/custom_algorithms/balanced_length_chunker.py"
+
+# Primary and fallback strategies mixing custom and built-in
+strategies:
+  primary: "sentiment_based"  # Use our custom sentiment-based chunker
+  fallbacks:
+    - "balanced_length"      # Custom balanced length chunker
+    - "semantic"            # Built-in semantic chunker
+    - "paragraph_based"     # Built-in paragraph chunker
+
+# Parameters for different strategies
+parameters:
+  # Custom algorithm parameters
+  sentiment_based:
+    sentiment_threshold: 0.25
+    min_chunk_sentences: 3
+    max_chunk_sentences: 8
+    sentiment_smoothing: true
+
+  balanced_length:
+    target_length: 1200
+    length_tolerance: 0.2
+    boundary_preference: "sentence"
+    balance_algorithm: "adaptive"
+
+  regex_pattern_based:
+    chunk_patterns:
+      - name: "section_header"
+        pattern: "^## .+$"
+        flags: "m"
+        split_mode: "before"
+    min_chunk_length: 200
+
+  # Built-in algorithm parameters
+  semantic:
+    similarity_threshold: 0.7
+    model_name: "all-MiniLM-L6-v2"
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+
+# Multi-strategy configuration with custom algorithms
+multi_strategy:
+  enabled: true
+  strategies:
+    - name: "sentiment_based"
+      weight: 0.4
+    - name: "balanced_length"
+      weight: 0.3
+    - name: "semantic"
+      weight: 0.3
+  comparison_mode: "all"  # Run all strategies and compare results
+
+# File type handling
+file_types:
+  text: ["txt", "md"]
+  review: ["txt"]  # Use sentiment-based for review files
+  structured: ["log", "transcript"]  # Use regex-based for structured files
+
+# Preprocessing
+preprocessing:
+  normalize_whitespace: true
+  remove_extra_newlines: false  # Keep formatting for custom algorithms
+
+# Postprocessing
+postprocessing:
+  min_chunk_size: 50
+  remove_empty_chunks: true
+
+# Quality and validation
+quality:
+  enable_validation: true
+  min_quality_score: 0.3  # Lower threshold to accommodate custom algorithms
+
+# Output configuration
+output:
+  include_metadata: true
+  include_source_info: true
+  format: "json"
+
+# Custom algorithm specific settings
+custom_settings:
+  # Enable detailed logging for custom algorithms
+  verbose_custom_loading: true
+
+  # Validation settings
+  strict_validation: false  # Allow custom algorithms with warnings
+
+  # Performance settings
+  parallel_custom_loading: true

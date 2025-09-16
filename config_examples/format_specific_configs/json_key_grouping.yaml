@@ -1,0 +1,34 @@
+# JSON Key-Based Grouping Configuration
+# Groups JSON objects by specific key values for logical chunks
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  json_chunker:
+    chunk_by: "key_groups"        # Group by key values
+    group_by_key: "category"      # Key to group by (customize as needed)
+    preserve_structure: true      # Maintain valid JSON structure
+    encoding: "utf-8"
+    handle_jsonl: true
+    compact_output: false
+
+# Example configurations for different use cases:
+# group_by_key: "type"          # Group API responses by type
+# group_by_key: "department"    # Group employee data by department
+# group_by_key: "status"        # Group orders by status
+# group_by_key: "region"        # Group location data by region
+
+strategy_selection:
+  ".json":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+processing:
+  enable_parallel: true
+  max_workers: 2
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 100

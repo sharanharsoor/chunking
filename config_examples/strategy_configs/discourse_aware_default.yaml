@@ -1,0 +1,130 @@
+# Discourse-Aware Semantic Chunker Configuration
+# 
+# This configuration demonstrates the advanced discourse-aware semantic chunker
+# that combines multiple layers of analysis for superior semantic coherence:
+# - Discourse marker detection (50+ patterns, 9 types)
+# - Topic modeling for coherent splits (LDA + TF-IDF)
+# - Entity boundary preservation (spaCy NER)
+# - Multi-layered coherence analysis
+# - Configurable weighting system
+#
+# Perfect for high-quality RAG applications requiring semantic understanding.
+
+strategies:
+  primary: discourse_aware
+
+# Configuration for discourse-aware chunker
+configs:
+  discourse_aware:
+    # ===================
+    # SEMANTIC PARAMETERS (inherited from SemanticChunker)
+    # ===================
+    
+    # Semantic model for embeddings
+    semantic_model: "sentence_transformer"  # Options: sentence_transformer, spacy, tfidf
+    embedding_model: "all-MiniLM-L6-v2"   # Specific embedding model
+    
+    # Similarity threshold for semantic boundaries
+    similarity_threshold: 0.7              # 0.0-1.0, higher = more chunks
+    
+    # Chunk size constraints
+    min_chunk_sentences: 3                 # Minimum sentences per chunk
+    max_chunk_sentences: 15                # Maximum sentences per chunk
+    max_chunk_chars: 4000                  # Maximum characters per chunk
+    
+    # Boundary detection method
+    boundary_detection: "coherence_based"  # Options: similarity_threshold, sliding_window, dynamic_threshold, coherence_based
+    context_window_size: 3                 # Context sentences for analysis
+    
+    # ===================
+    # DISCOURSE-AWARE PARAMETERS (new advanced features)
+    # ===================
+    
+    # Multi-factor weighting system (should sum to ≤ 1.0)
+    discourse_weight: 0.4                  # Weight for discourse markers (0.0-1.0)
+    topic_weight: 0.3                      # Weight for topic modeling (0.0-1.0)
+    entity_weight: 0.2                     # Weight for entity boundary preservation (0.0-1.0)  
+    coherence_weight: 0.1                  # Weight for overall coherence analysis (0.0-1.0)
+    
+    # Boundary detection sensitivity
+    min_boundary_strength: 0.6             # Minimum boundary strength to create split (0.0-1.0)
+    discourse_marker_sensitivity: 0.8      # Sensitivity to discourse markers (0.0-1.0)
+    
+    # Feature toggles
+    preserve_entity_boundaries: true       # Enable entity boundary preservation (requires spaCy)
+    detect_topic_shifts: true              # Enable topic modeling analysis (requires scikit-learn)
+    
+    # ===================
+    # OUTPUT CONFIGURATION
+    # ===================
+    
+    # Include detailed discourse analysis in chunk metadata
+    include_discourse_metadata: true
+    include_coherence_analysis: true
+    include_boundary_information: true
+
+# ===================
+# USE CASE EXAMPLES
+# ===================
+
+# Academic Papers & Research Documents
+# - High discourse_weight (0.5) for clear section transitions
+# - High topic_weight (0.3) for topic coherence
+# - Lower entity_weight (0.1) since entities less critical
+# - Example config: discourse_weight: 0.5, topic_weight: 0.3, entity_weight: 0.1, coherence_weight: 0.1
+
+# Technical Documentation
+# - Balanced weights for comprehensive analysis
+# - Higher min_boundary_strength (0.7) for cleaner boundaries
+# - Example config: discourse_weight: 0.35, topic_weight: 0.25, entity_weight: 0.25, coherence_weight: 0.15
+
+# News Articles & Journalism
+# - Higher entity_weight (0.4) to preserve named entities
+# - Moderate discourse_weight (0.3) for story flow
+# - Example config: discourse_weight: 0.3, topic_weight: 0.2, entity_weight: 0.4, coherence_weight: 0.1
+
+# Legal Documents
+# - Very high coherence_weight (0.3) for precise boundaries
+# - High min_boundary_strength (0.8) for clean splits
+# - Example config: discourse_weight: 0.3, topic_weight: 0.2, entity_weight: 0.2, coherence_weight: 0.3
+
+# ===================
+# PERFORMANCE TUNING
+# ===================
+
+# For faster processing (lower quality):
+# - Lower discourse_marker_sensitivity (0.5)
+# - Higher min_boundary_strength (0.8)
+# - Disable topic modeling: detect_topic_shifts: false
+
+# For highest quality (slower processing):
+# - Higher discourse_marker_sensitivity (0.9)
+# - Lower min_boundary_strength (0.4)  
+# - Enable all features: preserve_entity_boundaries: true, detect_topic_shifts: true
+# - Use better embedding model: embedding_model: "all-mpnet-base-v2"
+
+# ===================
+# DISCOURSE MARKER TYPES DETECTED
+# ===================
+
+# The system detects 9 types of discourse markers:
+# 1. CONTRAST: however, nevertheless, but, on the other hand, in contrast, conversely
+# 2. CONTINUATION: furthermore, moreover, additionally, also, besides, in addition  
+# 3. CAUSATION: therefore, consequently, as a result, thus, hence, accordingly
+# 4. SEQUENCE: first, second, then, next, finally, in conclusion, to conclude
+# 5. EXEMPLIFICATION: for example, for instance, such as, namely, specifically
+# 6. EMPHASIS: indeed, in fact, clearly, obviously, undoubtedly, certainly
+# 7. SUMMARY: in summary, to summarize, overall, in brief, in short
+# 8. COMPARISON: similarly, likewise, in comparison, compared to, by comparison
+# 9. ELABORATION: specifically, in particular, namely, that is, in other words
+
+# ===================
+# INTEGRATION WITH EXISTING SYSTEM
+# ===================
+
+# This chunker integrates seamlessly with existing infrastructure:
+# - Inherits all SemanticChunker capabilities
+# - Compatible with streaming (StreamableChunker)
+# - Supports adaptive behavior (AdaptableChunker)
+# - Registered in chunker registry as "discourse_aware"
+# - Full backward compatibility with semantic chunker parameters

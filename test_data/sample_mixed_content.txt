@@ -1,0 +1,139 @@
+Data Processing Pipeline Configuration
+=====================================
+
+This document contains mixed content types to test FastCDC's ability to handle
+different data patterns and structures within a single file.
+
+SECTION 1: Configuration Data
+{
+  "pipeline": {
+    "name": "content_processing_v2",
+    "version": "2.1.3",
+    "stages": [
+      {
+        "id": "input_validation",
+        "type": "validator",
+        "config": {
+          "max_file_size": 104857600,
+          "allowed_types": ["text", "json", "xml", "csv"],
+          "encoding": "utf-8"
+        }
+      },
+      {
+        "id": "content_analysis",
+        "type": "analyzer",
+        "config": {
+          "detect_language": true,
+          "extract_metadata": true,
+          "calculate_entropy": true
+        }
+      },
+      {
+        "id": "chunking_stage",
+        "type": "chunker",
+        "config": {
+          "algorithm": "fastcdc",
+          "min_size": 2048,
+          "max_size": 65536,
+          "avg_size": 8192,
+          "hash_function": "gear"
+        }
+      }
+    ]
+  }
+}
+
+SECTION 2: Sample Data Records
+user_id,name,email,join_date,status,last_login
+1001,Alice Johnson,alice@example.com,2023-01-15,active,2024-03-20
+1002,Bob Smith,bob@example.com,2023-02-28,active,2024-03-19
+1003,Carol Davis,carol@example.com,2023-03-10,inactive,2024-01-15
+1004,David Wilson,david@example.com,2023-04-05,active,2024-03-20
+1005,Emma Brown,emma@example.com,2023-05-12,suspended,2023-12-01
+
+SECTION 3: Log Entries
+2024-03-20T10:30:15.123Z [INFO] Pipeline started: content_processing_v2
+2024-03-20T10:30:15.456Z [DEBUG] Loading configuration from config.json
+2024-03-20T10:30:15.789Z [INFO] Validator initialized: max_size=100MB
+2024-03-20T10:30:16.012Z [WARN] High memory usage detected: 78% utilization
+2024-03-20T10:30:16.345Z [INFO] Processing file: document_batch_001.txt
+2024-03-20T10:30:16.678Z [DEBUG] Content analysis completed: lang=en, entropy=7.2
+2024-03-20T10:30:16.901Z [INFO] Chunking initiated: algorithm=fastcdc
+2024-03-20T10:30:17.234Z [DEBUG] Chunk boundaries detected: count=147, avg_size=8.3KB
+2024-03-20T10:30:17.567Z [INFO] Processing completed successfully
+
+SECTION 4: Binary-like Data (Base64 Encoded)
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+U29tZSBiaW5hcnkgZGF0YSBlbmNvZGVkIGFzIGJhc2U2NCBmb3IgdGVzdGluZyBGYXN0Q0RDIGNodW5raW5nIGJlaGF2aW9y
+VGhpcyBzaW11bGF0ZXMgaG93IGJpbmFyeSBjb250ZW50IG1pZ2h0IGFwcGVhciBpbiBhIG1peGVkIGZpbGU=
+
+SECTION 5: Structured Text Analysis
+The FastCDC algorithm performs exceptionally well on mixed content because it
+adapts to natural boundaries in the data. Here's what makes it effective:
+
+Pattern Recognition:
+- JSON objects create clear structural boundaries
+- CSV records have natural row separations
+- Log entries follow timestamp patterns
+- Base64 data has consistent character distributions
+
+Boundary Detection:
+The rolling hash computation identifies these patterns:
+1. Sudden changes in character frequency (JSON braces, CSV commas)
+2. Repeated patterns (timestamp formats, field separators)
+3. Content transitions (text to structured data)
+4. Entropy variations (random data vs structured text)
+
+SECTION 6: Performance Metrics
+Metric                  | Value      | Unit        | Notes
+------------------------|------------|-------------|------------------
+Throughput              | 245.7      | MB/s        | Average processing rate
+Chunk Count             | 1,247      | chunks      | Total chunks created
+Average Chunk Size      | 8,194      | bytes       | Close to target (8KB)
+Deduplication Ratio     | 23.4       | %           | Space savings achieved
+Memory Usage            | 12.3       | MB          | Peak memory consumption
+Processing Time         | 2.34       | seconds     | Total pipeline time
+
+SECTION 7: Hash Distribution Analysis
+Hash values (first 32 bits) for sample chunks:
+0x1A2B3C4D, 0x5E6F7A8B, 0x9C0D1E2F, 0x3A4B5C6D, 0x7E8F9A0B
+0x1C2D3E4F, 0x5A6B7C8D, 0x9E0F1A2B, 0x3C4D5E6F, 0x7A8B9C0D
+0x1E2F3A4B, 0x5C6D7E8F, 0x9A0B1C2D, 0x3E4F5A6B, 0x7C8D9E0F
+
+Statistical Properties:
+- Uniform distribution: 97.3% confidence
+- Collision rate: 0.002% (well within acceptable range)
+- Boundary quality: High (89.7% score)
+
+SECTION 8: Advanced Configuration Options
+<config>
+  <chunking>
+    <algorithm name="fastcdc">
+      <parameters>
+        <min_size>2048</min_size>
+        <max_size>65536</max_size>
+        <avg_size>8192</avg_size>
+        <normalization>true</normalization>
+        <hash_function>gear</hash_function>
+        <window_size>48</window_size>
+        <mask_bits>13</mask_bits>
+      </parameters>
+      <performance>
+        <parallel_processing>true</parallel_processing>
+        <memory_limit>512MB</memory_limit>
+        <cache_size>64MB</cache_size>
+      </performance>
+    </algorithm>
+  </chunking>
+</config>
+
+SECTION 9: Conclusion
+This mixed content file demonstrates FastCDC's versatility in handling:
+- Structured data (JSON, CSV, XML)
+- Unstructured text (documentation, analysis)
+- Semi-structured data (logs, metrics)
+- Binary-encoded content (Base64)
+- Multiple content transitions within a single file
+
+The algorithm's ability to adapt to different content patterns makes it ideal
+for real-world scenarios where files contain heterogeneous data types.

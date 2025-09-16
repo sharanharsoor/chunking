@@ -1,0 +1,38 @@
+# Semantic Analysis Configuration
+# Uses semantic understanding for intelligent chunking
+
+name: "semantic_analysis"
+description: "Semantic chunking with embedding-based similarity"
+
+strategies:
+  primary: "semantic"
+  fallbacks:
+    - "embedding_based"
+    - "paragraph_based"
+    - "sentence_based"
+
+parameters:
+  semantic:
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.75
+    min_chunk_size: 200
+    max_chunk_size: 1500
+
+  embedding_based:
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.7
+    chunk_size: 1000
+    overlap_size: 100
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+
+  sentence_based:
+    min_sentence_length: 20
+    max_sentences_per_chunk: 8
+
+output:
+  format: "json"
+  include_metadata: true
+  include_embeddings: false

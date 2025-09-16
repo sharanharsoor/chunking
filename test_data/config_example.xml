@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="http://example.com/config" version="2.1">
+    <metadata>
+        <title>Application Configuration</title>
+        <description>Configuration file for the main application server</description>
+        <author>System Administrator</author>
+        <created>2025-01-15T10:30:00Z</created>
+        <lastModified>2025-01-20T14:45:00Z</lastModified>
+    </metadata>
+
+    <server>
+        <general>
+            <name>MainServer</name>
+            <environment>production</environment>
+            <version>3.2.1</version>
+            <timezone>UTC</timezone>
+        </general>
+
+        <network>
+            <host>0.0.0.0</host>
+            <port>8080</port>
+            <ssl>
+                <enabled>true</enabled>
+                <certificate>/etc/ssl/certs/server.crt</certificate>
+                <privateKey>/etc/ssl/private/server.key</privateKey>
+                <protocols>
+                    <protocol>TLSv1.2</protocol>
+                    <protocol>TLSv1.3</protocol>
+                </protocols>
+            </ssl>
+            <cors>
+                <enabled>true</enabled>
+                <allowedOrigins>
+                    <origin>https://example.com</origin>
+                    <origin>https://app.example.com</origin>
+                </allowedOrigins>
+                <allowedMethods>GET,POST,PUT,DELETE</allowedMethods>
+            </cors>
+        </network>
+
+        <performance>
+            <maxConnections>1000</maxConnections>
+            <timeout>30000</timeout>
+            <keepAlive>true</keepAlive>
+            <compression>
+                <enabled>true</enabled>
+                <level>6</level>
+                <types>text/html,text/css,application/json,application/javascript</types>
+            </compression>
+        </performance>
+    </server>
+
+    <database>
+        <primary>
+            <type>postgresql</type>
+            <host>db-primary.example.com</host>
+            <port>5432</port>
+            <name>maindb</name>
+            <username>appuser</username>
+            <password>${DB_PASSWORD}</password>
+            <pool>
+                <minConnections>5</minConnections>
+                <maxConnections>50</maxConnections>
+                <acquireTimeout>10000</acquireTimeout>
+                <idleTimeout>300000</idleTimeout>
+            </pool>
+        </primary>
+
+        <replica>
+            <type>postgresql</type>
+            <host>db-replica.example.com</host>
+            <port>5432</port>
+            <name>maindb</name>
+            <username>readonly</username>
+            <password>${DB_READONLY_PASSWORD}</password>
+            <pool>
+                <minConnections>2</minConnections>
+                <maxConnections>20</maxConnections>
+                <acquireTimeout>10000</acquireTimeout>
+                <idleTimeout>300000</idleTimeout>
+            </pool>
+        </replica>
+
+        <cache>
+            <type>redis</type>
+            <host>cache.example.com</host>
+            <port>6379</port>
+            <database>0</database>
+            <ttl>3600</ttl>
+            <keyPrefix>app:</keyPrefix>
+        </cache>
+    </database>
+
+    <logging>
+        <level>info</level>
+        <format>json</format>
+        <destinations>
+            <destination type="console">
+                <enabled>true</enabled>
+                <colorize>true</colorize>
+            </destination>
+            <destination type="file">
+                <enabled>true</enabled>
+                <filename>/var/log/app/application.log</filename>
+                <rotation>
+                    <maxSize>100MB</maxSize>
+                    <maxFiles>10</maxFiles>
+                    <datePattern>YYYY-MM-DD</datePattern>
+                </rotation>
+            </destination>
+            <destination type="syslog">
+                <enabled>false</enabled>
+                <facility>local0</facility>
+                <hostname>log-server.example.com</hostname>
+                <port>514</port>
+            </destination>
+        </destinations>
+        <fields>
+            <timestamp>true</timestamp>
+            <level>true</level>
+            <message>true</message>
+            <requestId>true</requestId>
+            <userId>false</userId>
+        </fields>
+    </logging>
+
+    <security>
+        <authentication>
+            <type>jwt</type>
+            <secretKey>${JWT_SECRET}</secretKey>
+            <expirationTime>86400</expirationTime>
+            <issuer>example.com</issuer>
+            <audience>app.example.com</audience>
+        </authentication>
+
+        <authorization>
+            <enabled>true</enabled>
+            <defaultRole>user</defaultRole>
+            <roles>
+                <role name="admin">
+                    <permissions>
+                        <permission>read</permission>
+                        <permission>write</permission>
+                        <permission>delete</permission>
+                        <permission>admin</permission>
+                    </permissions>
+                </role>
+                <role name="user">
+                    <permissions>
+                        <permission>read</permission>
+                        <permission>write</permission>
+                    </permissions>
+                </role>
+                <role name="guest">
+                    <permissions>
+                        <permission>read</permission>
+                    </permissions>
+                </role>
+            </roles>
+        </authorization>
+
+        <rateLimit>
+            <enabled>true</enabled>
+            <windowMs>900000</windowMs>
+            <max>100</max>
+            <skipSuccessfulRequests>false</skipSuccessfulRequests>
+        </rateLimit>
+    </security>
+
+    <features>
+        <feature name="userRegistration" enabled="true">
+            <description>Allow new user registration</description>
+            <config>
+                <emailVerification>true</emailVerification>
+                <autoActivation>false</autoActivation>
+            </config>
+        </feature>
+
+        <feature name="fileUpload" enabled="true">
+            <description>File upload functionality</description>
+            <config>
+                <maxFileSize>10MB</maxFileSize>
+                <allowedTypes>image/jpeg,image/png,application/pdf</allowedTypes>
+                <storageLocation>/var/uploads</storageLocation>
+            </config>
+        </feature>
+
+        <feature name="emailNotifications" enabled="false">
+            <description>Email notification system</description>
+            <config>
+                <smtpHost>smtp.example.com</smtpHost>
+                <smtpPort>587</smtpPort>
+                <smtpUser>notifications@example.com</smtpUser>
+                <smtpPassword>${SMTP_PASSWORD}</smtpPassword>
+            </config>
+        </feature>
+    </features>
+
+    <monitoring>
+        <metrics>
+            <enabled>true</enabled>
+            <endpoint>/metrics</endpoint>
+            <format>prometheus</format>
+        </metrics>
+
+        <health>
+            <enabled>true</enabled>
+            <endpoint>/health</endpoint>
+            <checks>
+                <check name="database" timeout="5000"/>
+                <check name="cache" timeout="3000"/>
+                <check name="external-api" timeout="10000"/>
+            </checks>
+        </health>
+    </monitoring>
+</configuration>

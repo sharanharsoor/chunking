@@ -1,0 +1,13 @@
+This is a simple text document designed to test the adaptive chunker's behavior with unstructured, conversational content. The adaptive chunker should analyze this content and determine that sentence-based chunking is most appropriate.
+
+The content here is relatively simple and doesn't have complex structure or repetitive patterns. It reads like natural language without heavy technical terminology or data structures. This should result in the adaptive chunker selecting a sentence-based or paragraph-based strategy.
+
+Some sentences are short. Others are much longer and contain multiple clauses that provide additional information about the topic being discussed. The adaptive chunker needs to handle this variation in sentence length and complexity.
+
+The text flows naturally from one idea to the next. There are no code blocks, no data tables, no JSON structures, and no highly repetitive patterns. This is the kind of content you might find in a blog post, article, or casual documentation.
+
+Performance metrics should show good quality scores for this type of content when using text-aware strategies. The adaptive chunker should learn that for similar content profiles, sentence-based or paragraph-based strategies work best.
+
+This document serves as a baseline for testing adaptive behavior. It represents the most straightforward use case where content characteristics clearly point to a specific optimal strategy. The chunker should make this determination quickly and confidently.
+
+Future adaptations should remember this content type and automatically select appropriate strategies for similar documents. This is how the learning mechanism builds up knowledge about content-strategy relationships over time.

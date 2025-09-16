@@ -1,0 +1,31 @@
+# JSON Size-Optimized Configuration
+# Chunks JSON data based on size limits for memory control
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  json_chunker:
+    chunk_by: "size_limit"        # Chunk by size limits
+    size_limit_mb: 5              # 5MB per chunk
+    preserve_structure: true      # Maintain valid JSON structure
+    encoding: "utf-8"
+    handle_jsonl: true
+    compact_output: true          # Use compact output for size efficiency
+
+strategy_selection:
+  ".json":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+# Optimized for large JSON files and memory constraints
+processing:
+  enable_parallel: true
+  max_workers: 8
+  enable_streaming: true
+  memory_limit_gb: 2
+
+quality_control:
+  enable_validation: true
+  max_chunk_size: 10000000  # 10MB max chunk size

@@ -1,0 +1,310 @@
+# Patch-based Image Chunking Configuration
+#
+# This configuration file demonstrates how to use the patch_based_image chunker
+# to extract patches from images using sliding window approach with configurable
+# sampling strategies and stride parameters.
+#
+# The patch_based_image chunker extracts patches using flexible positioning,
+# making it ideal for:
+# - Computer vision preprocessing with overlapping patches
+# - Random sampling for training data augmentation
+# - Edge-aware analysis focusing on boundaries
+# - Feature extraction with controlled overlap
+# - Medical image analysis with sliding windows
+
+profile_name: "Patch-based Image Processing"
+
+chunking:
+  default_strategy: "patch_based_image"
+  
+  # Strategy selection based on file type
+  strategy_selection:
+    # Image formats supported by patch-based chunker
+    image_formats:
+      - extension: ".jpg"
+        strategy: "patch_based_image"
+      - extension: ".jpeg"  
+        strategy: "patch_based_image"
+      - extension: ".png"
+        strategy: "patch_based_image"
+      - extension: ".gif"
+        strategy: "patch_based_image"
+      - extension: ".bmp"
+        strategy: "patch_based_image"
+      - extension: ".tiff"
+        strategy: "patch_based_image"
+      - extension: ".tif"
+        strategy: "patch_based_image" 
+      - extension: ".webp"
+        strategy: "patch_based_image"
+      - extension: ".ico"
+        strategy: "patch_based_image"
+      - extension: ".svg"
+        strategy: "patch_based_image"
+
+  # Parameters for patch_based_image strategy
+  strategy_params:
+    patch_based_image:
+      # Patch dimensions in pixels
+      patch_width: 224             # Width of each patch (default: 224)
+      patch_height: 224            # Height of each patch (default: 224)
+      
+      # Stride settings (controls overlap)
+      stride_x: 112               # Horizontal step size (default: 112, 50% overlap)
+      stride_y: 112               # Vertical step size (default: 112, 50% overlap)
+      
+      # Sampling strategy
+      sampling_strategy: "uniform" # "uniform", "random", "edge_aware" (default: uniform)
+      
+      # Patch limits and randomization
+      max_patches: null           # Maximum patches to extract (null = no limit)
+      random_seed: null           # Seed for random sampling (null = no seed)
+      
+      # Edge handling
+      edge_handling: "pad"        # "pad", "crop", "skip" (default: pad)
+      
+      # Aspect ratio and output
+      preserve_aspect_ratio: false # Whether to preserve aspect ratio (default: false)
+      output_format: "PNG"        # Output format: PNG, JPEG, BMP, TIFF, WEBP (default: PNG)
+
+  # Fallback strategies if primary chunker fails
+  fallback_strategies:
+    - "grid_based_image"
+    - "fixed_size"
+    - "sentence_based"
+
+# Alternative configurations for different use cases
+alternative_configs:
+  
+  # Computer Vision - CNN preprocessing with overlap
+  cnn_preprocessing:
+    profile_name: "CNN Preprocessing with Overlap"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 224
+          patch_height: 224
+          stride_x: 112            # 50% overlap for better feature extraction
+          stride_y: 112
+          sampling_strategy: "uniform"
+          edge_handling: "pad"
+          output_format: "PNG"
+  
+  # Random Sampling - Data augmentation
+  data_augmentation:
+    profile_name: "Random Patch Sampling"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 128
+          patch_height: 128
+          stride_x: 64             # Not used for random sampling
+          stride_y: 64
+          sampling_strategy: "random"
+          max_patches: 50          # Limit random patches
+          random_seed: 42          # For reproducible results
+          edge_handling: "crop"
+          output_format: "JPEG"
+          
+  # Edge-aware Analysis - Focus on boundaries
+  edge_analysis:
+    profile_name: "Edge-aware Image Analysis"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 256
+          patch_height: 256
+          stride_x: 128            # Spacing for edge patches
+          stride_y: 128
+          sampling_strategy: "edge_aware"
+          edge_handling: "pad"
+          output_format: "PNG"
+          
+  # Medical Imaging - High overlap for detailed analysis
+  medical_imaging:
+    profile_name: "Medical Image Analysis"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 512
+          patch_height: 512
+          stride_x: 256            # 50% overlap
+          stride_y: 256
+          sampling_strategy: "uniform"
+          edge_handling: "pad"     # Important for medical images
+          preserve_aspect_ratio: true
+          output_format: "TIFF"    # High quality for medical
+          
+  # Feature Extraction - Dense sampling
+  dense_features:
+    profile_name: "Dense Feature Extraction"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 64
+          patch_height: 64
+          stride_x: 32             # 75% overlap for dense sampling
+          stride_y: 32
+          sampling_strategy: "uniform"
+          edge_handling: "skip"    # Skip incomplete patches
+          output_format: "PNG"
+          
+  # Sparse Sampling - Efficient processing
+  sparse_sampling:
+    profile_name: "Sparse Patch Sampling"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 256
+          patch_height: 256
+          stride_x: 256            # No overlap for efficiency
+          stride_y: 256
+          sampling_strategy: "uniform"
+          edge_handling: "skip"
+          output_format: "JPEG"
+          
+  # Object Detection - Mixed sampling
+  object_detection:
+    profile_name: "Object Detection Preprocessing"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 416         # YOLO-style dimensions
+          patch_height: 416
+          stride_x: 208            # 50% overlap
+          stride_y: 208
+          sampling_strategy: "uniform"
+          edge_handling: "pad"
+          output_format: "PNG"
+          
+  # Mobile Processing - Small patches
+  mobile_vision:
+    profile_name: "Mobile Vision Processing"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 96
+          patch_height: 96
+          stride_x: 48             # 50% overlap
+          stride_y: 48
+          sampling_strategy: "uniform"
+          max_patches: 100         # Limit for mobile constraints
+          edge_handling: "crop"
+          output_format: "WEBP"    # Efficient format
+          
+  # Satellite Imagery - Large patches with overlap
+  satellite_analysis:
+    profile_name: "Satellite Image Analysis"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 1024
+          patch_height: 1024
+          stride_x: 768            # 25% overlap
+          stride_y: 768
+          sampling_strategy: "uniform"
+          edge_handling: "pad"
+          preserve_aspect_ratio: true
+          output_format: "TIFF"
+          
+  # Quality Assessment - Random patches
+  quality_assessment:
+    profile_name: "Image Quality Assessment"
+    chunking:
+      default_strategy: "patch_based_image"
+      strategy_params:
+        patch_based_image:
+          patch_width: 128
+          patch_height: 128
+          stride_x: 64             # Not used for random
+          stride_y: 64
+          sampling_strategy: "random"
+          max_patches: 30          # Sample for quality metrics
+          random_seed: 123         # Reproducible sampling
+          edge_handling: "crop"
+          output_format: "PNG"
+
+# Processing settings
+processing:
+  max_workers: 4              # Number of parallel workers for processing
+  chunk_size_limit: "100MB"   # Maximum size for individual patches
+  
+  # Memory management
+  memory_limit: "4GB"         # Memory limit for processing
+  cache_patches: false        # Whether to cache processed patches
+  
+# Output settings  
+output:
+  preserve_metadata: true     # Preserve original image metadata
+  include_source_info: true   # Include source image information
+  patch_naming_pattern: "patch_{index}_{x}x{y}"  # Pattern for patch naming
+  
+  # Patch-specific output options
+  include_position_info: true # Include pixel position in metadata
+  include_overlap_info: true  # Include overlap information
+  include_sampling_info: true # Include sampling strategy details
+
+# Quality settings
+quality:
+  jpeg_quality: 90           # JPEG compression quality (1-100)
+  png_compression: 6         # PNG compression level (0-9)
+  webp_quality: 85           # WebP quality (1-100)
+  tiff_compression: "lzw"    # TIFF compression method
+
+# Sampling strategy details
+sampling:
+  uniform:
+    description: "Regular grid sampling with configurable stride"
+    parameters:
+      - "stride_x: horizontal step size between patches"
+      - "stride_y: vertical step size between patches"
+    use_cases:
+      - "CNN preprocessing"
+      - "Feature extraction"
+      - "Systematic analysis"
+      
+  random:
+    description: "Random patch sampling within image boundaries"
+    parameters:
+      - "max_patches: maximum number of random patches"
+      - "random_seed: seed for reproducible sampling"
+    use_cases:
+      - "Data augmentation"
+      - "Quality assessment"
+      - "Statistical sampling"
+      
+  edge_aware:
+    description: "Focus sampling on edges and boundaries"
+    parameters:
+      - "Automatically detects edges and corners"
+      - "Includes some center patches for completeness"
+    use_cases:
+      - "Edge analysis"
+      - "Boundary detection"
+      - "Feature point extraction"
+
+# Edge handling strategies
+edge_handling:
+  pad:
+    description: "Pad image to fit patches that extend beyond boundaries"
+    behavior: "Creates padded image with zeros/background color"
+    best_for: "Medical imaging, complete coverage needed"
+    
+  crop:
+    description: "Crop patches to fit within image boundaries, then resize"
+    behavior: "May change patch aspect ratio"
+    best_for: "When exact patch size is critical"
+    
+  skip:
+    description: "Skip patches that extend beyond image boundaries"
+    behavior: "May result in fewer patches than expected"
+    best_for: "When only complete patches are acceptable"

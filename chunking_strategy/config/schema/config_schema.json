@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chunking-strategy.org/config-schema.json",
+  "title": "Chunking Strategy Configuration Schema",
+  "description": "JSON Schema for validating chunking strategy configuration files",
+  "type": "object",
+  "properties": {
+    "profile_name": {
+      "type": "string",
+      "description": "Name of the configuration profile"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the configuration profile"
+    },
+    "strategies": {
+      "type": "object",
+      "description": "Strategy selection and configuration",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Primary chunking strategy to use"
+        },
+        "fallbacks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fallback strategies in order of preference"
+        },
+        "configs": {
+          "type": "object",
+          "description": "Strategy-specific configurations",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "chunk_size": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000,
+                "description": "Size of chunks"
+              },
+              "overlap_size": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Overlap between chunks"
+              },
+              "max_sentences": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "Maximum sentences per chunk"
+              },
+              "min_sentences": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Minimum sentences per chunk"
+              },
+              "max_paragraphs": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum paragraphs per chunk"
+              },
+              "similarity_threshold": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Similarity threshold for semantic chunking"
+              },
+              "model_name": {
+                "type": "string",
+                "description": "Model name for embedding-based strategies"
+              },
+              "preserve_boundaries": {
+                "type": "boolean",
+                "description": "Whether to preserve word/sentence boundaries"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": ["primary"],
+      "additionalProperties": false
+    },
+    "strategy_selection": {
+      "type": "object",
+      "description": "Rules for automatic strategy selection based on content type",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "primary": {
+            "type": "string"
+          },
+          "fallbacks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["primary"]
+      }
+    },
+    "preprocessing": {
+      "type": "object",
+      "description": "Preprocessing configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether preprocessing is enabled"
+        },
+        "normalize_whitespace": {
+          "type": "boolean",
+          "description": "Normalize whitespace in content"
+        },
+        "remove_headers_footers": {
+          "type": "boolean",
+          "description": "Remove headers and footers"
+        },
+        "clean_markup": {
+          "type": "boolean",
+          "description": "Clean markup and formatting"
+        },
+        "normalize_unicode": {
+          "type": "boolean",
+          "description": "Normalize Unicode characters"
+        },
+        "custom_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Custom preprocessing steps"
+        }
+      },
+      "additionalProperties": true
+    },
+    "postprocessing": {
+      "type": "object",
+      "description": "Postprocessing configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether postprocessing is enabled"
+        },
+        "remove_empty_chunks": {
+          "type": "boolean",
+          "description": "Remove empty chunks"
+        },
+        "merge_short_chunks": {
+          "type": "boolean",
+          "description": "Merge short chunks together"
+        },
+        "min_chunk_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum chunk size for merging"
+        },
+        "max_merge_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum size after merging"
+        },
+        "deduplicate": {
+          "type": "boolean",
+          "description": "Remove duplicate chunks"
+        },
+        "similarity_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Similarity threshold for deduplication"
+        },
+        "filter_by_size": {
+          "type": "boolean",
+          "description": "Filter chunks by absolute size limits"
+        },
+        "absolute_min_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Absolute minimum chunk size"
+        },
+        "absolute_max_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Absolute maximum chunk size"
+        },
+        "enhance_metadata": {
+          "type": "boolean",
+          "description": "Enhance chunk metadata"
+        },
+        "normalize_content": {
+          "type": "boolean",
+          "description": "Normalize chunk content"
+        }
+      },
+      "additionalProperties": true
+    },
+    "quality_thresholds": {
+      "type": "object",
+      "description": "Quality threshold settings",
+      "properties": {
+        "min_coherence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum coherence score"
+        },
+        "min_coverage": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum coverage score"
+        },
+        "max_overlap_ratio": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Maximum allowed overlap ratio"
+        },
+        "min_information_density": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum information density"
+        }
+      },
+      "additionalProperties": false
+    },
+    "performance": {
+      "type": "object",
+      "description": "Performance settings",
+      "properties": {
+        "streaming_threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "File size threshold for streaming processing in bytes"
+        },
+        "parallel_processing": {
+          "type": "boolean",
+          "description": "Enable parallel processing"
+        },
+        "memory_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Memory limit in bytes"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Processing timeout in seconds"
+        },
+        "batch_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Batch size for processing multiple files"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "description": "Output configuration",
+      "properties": {
+        "include_metadata": {
+          "type": "boolean",
+          "description": "Include metadata in output"
+        },
+        "include_quality_scores": {
+          "type": "boolean",
+          "description": "Include quality scores in output"
+        },
+        "chunk_id_format": {
+          "type": "string",
+          "description": "Format string for chunk IDs"
+        },
+        "preserve_source_structure": {
+          "type": "boolean",
+          "description": "Preserve source document structure"
+        }
+      },
+      "additionalProperties": true
+    },
+    "pipeline": {
+      "type": "object",
+      "description": "Pipeline configuration for chained operations",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Pipeline name"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Step name"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["chunker", "filter", "transform", "merge"],
+                "description": "Step type"
+              },
+              "strategy": {
+                "type": "string",
+                "description": "Strategy name for chunker steps"
+              },
+              "config": {
+                "type": "object",
+                "description": "Step-specific configuration"
+              }
+            },
+            "required": ["name", "type"],
+            "additionalProperties": false
+          },
+          "description": "Pipeline steps"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["strategies"],
+  "additionalProperties": true
+}

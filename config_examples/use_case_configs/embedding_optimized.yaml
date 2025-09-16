@@ -1,0 +1,218 @@
+# Embedding-Optimized Configuration
+# Designed for generating high-quality embeddings for vector databases and RAG systems
+
+profile_name: "embedding_optimized"
+description: "Optimized configuration for generating high-quality embeddings for vector databases and RAG systems"
+
+# Legacy strategies section for test compatibility  
+strategies:
+  default: "sentence_based"
+
+# Extraction configuration for embedding optimization
+extraction:
+  enabled: true
+  preserve_structure: true
+  include_metadata: true
+  
+chunking:
+  # Default strategy for most content types - optimized for embedding
+  default_strategy: "sentence_based"
+  
+  # Strategy selection by file extension - all optimized for embedding
+  strategy_selection:
+    # Text files - sentence-based for semantic coherence
+    ".txt": "sentence_based"
+    ".md": "sentence_based"
+    ".rst": "sentence_based"
+    
+    # Documents - use specialized chunkers that preserve structure
+    ".pdf": "pdf_chunker"
+    ".docx": "universal_document"
+    ".doc": "universal_document"
+    
+    # Code files - use universal strategies for embedding compatibility
+    ".py": "paragraph_based"  # Functions and classes as chunks
+    ".js": "paragraph_based"
+    ".cpp": "paragraph_based"
+    ".c": "paragraph_based"
+    ".java": "paragraph_based"
+    ".rb": "paragraph_based"
+    ".go": "paragraph_based"
+    ".rs": "paragraph_based"
+
+# Embedding configuration
+embedding:
+  # Default embedding model - good balance of speed and quality
+  default_model: "all-MiniLM-L6-v2"
+  
+  # Model selection by use case
+  model_selection:
+    # Fast processing for large datasets
+    speed_optimized: "all-MiniLM-L6-v2"
+    
+    # High quality for critical applications
+    quality_optimized: "all-mpnet-base-v2"
+    
+    # Multimodal for text+image search
+    multimodal: "clip-vit-b-32"
+    
+    # Multilingual content
+    multilingual: "paraphrase-multilingual-MiniLM-L12-v2"
+  
+  # Output format for embeddings
+  output_format: "full_metadata"  # Include all context for vector DB
+  
+  # Embedding processing options
+  batch_size: 32
+  normalize_embeddings: true
+  max_length: 512  # Truncate very long text
+  
+  # Device selection (auto-detect if not specified)
+  device: null  # "cuda", "cpu", or null for auto-detection
+
+# Strategy-specific parameters optimized for embeddings
+strategy_params:
+  sentence_based:
+    max_sentences: 3  # Smaller chunks for better semantic coherence
+    overlap_sentences: 1  # Some overlap for context continuity
+    min_chunk_size: 50  # Ensure chunks have enough content
+    
+  paragraph_based:
+    max_paragraphs: 2  # Keep chunks focused
+    overlap_paragraphs: 0  # Avoid duplication in embeddings
+    min_chunk_size: 100
+    
+  fixed_size:
+    chunk_size: 512  # Good size for most embedding models
+    overlap_size: 50  # 10% overlap for context
+    
+  pdf_chunker:
+    backend: "pymupdf"  # Best for text extraction
+    include_images: false  # Text-only for text embeddings
+    include_tables: true  # Preserve table content
+    chunk_by: "page"  # Page-level chunks for document structure
+
+# Preprocessing for better embeddings
+preprocessing:
+  # Text cleaning
+  remove_excessive_whitespace: true
+  normalize_unicode: true
+  remove_empty_lines: true
+  
+  # Content filtering
+  min_chunk_length: 20  # Skip very short chunks
+  max_chunk_length: 2048  # Split very long chunks
+  
+  # Language detection
+  detect_language: true
+  filter_languages: null  # Accept all languages
+
+# Postprocessing for embedding optimization
+postprocessing:
+  # Quality filtering
+  remove_duplicate_chunks: true
+  remove_near_duplicate_chunks: true  # Cosine similarity > 0.95
+  
+  # Content validation
+  remove_chunks_without_letters: true  # Skip numeric-only chunks
+  remove_chunks_with_excessive_repetition: true
+  
+  # Metadata enhancement
+  add_chunk_statistics: true
+  add_content_type_hints: true  # Help with downstream processing
+
+# Vector database preparation
+vector_database:
+  # ID generation strategy
+  id_strategy: "content_hash"  # Deterministic IDs for deduplication
+  
+  # Payload optimization
+  include_source_info: true
+  include_chunk_position: true
+  include_processing_metadata: true
+  
+  # Export format
+  export_format: "json"
+  batch_export_size: 1000  # Split large exports
+
+# Quality control for embeddings
+quality:
+  # Embedding quality checks
+  check_embedding_distribution: true  # Warn about degenerate embeddings
+  check_semantic_coherence: true  # Validate chunk coherence
+  
+  # Performance monitoring
+  track_embedding_time: true
+  track_model_performance: true
+  
+  # Validation thresholds
+  min_embedding_variance: 0.01  # Detect near-zero embeddings
+  max_chunk_similarity: 0.95  # Flag potential duplicates
+
+# Performance optimization
+performance:
+  # Parallel processing
+  enable_parallel_chunking: true
+  enable_parallel_embedding: true
+  max_workers: null  # Auto-detect based on CPU cores
+  
+  # Memory management
+  clear_model_cache: false  # Keep models loaded for batch processing
+  embedding_batch_size: 32  # Process embeddings in batches
+  
+  # GPU optimization
+  prefer_gpu: true  # Use GPU if available
+  gpu_memory_fraction: 0.8  # Don't use all GPU memory
+
+# Logging and monitoring
+logging:
+  level: "INFO"
+  log_embedding_stats: true
+  log_processing_times: true
+  
+  # Progress tracking
+  show_progress_bars: true
+  progress_update_interval: 100  # chunks
+
+# Fallback configuration
+fallback:
+  # Strategy fallbacks if primary fails
+  strategy_fallbacks:
+    - "sentence_based"
+    - "paragraph_based" 
+    - "fixed_size"
+  
+  # Embedding model fallbacks
+  model_fallbacks:
+    - "all-MiniLM-L6-v2"  # Always available fallback
+  
+  # Error handling
+  continue_on_error: true
+  max_retries: 2
+  retry_delay: 1.0  # seconds
+
+# Use case examples
+examples:
+  rag_system:
+    description: "Retrieval-Augmented Generation system"
+    recommended_model: "all-mpnet-base-v2"
+    chunk_strategy: "sentence_based"
+    max_sentences: 2
+    
+  semantic_search:
+    description: "Semantic search over documents"
+    recommended_model: "all-MiniLM-L6-v2"
+    chunk_strategy: "paragraph_based"
+    max_paragraphs: 1
+    
+  multimodal_search:
+    description: "Text and image search"
+    recommended_model: "clip-vit-b-32"
+    chunk_strategy: "sentence_based"
+    include_images: true
+    
+  code_search:
+    description: "Code search and retrieval"
+    recommended_model: "all-MiniLM-L6-v2"
+    chunk_strategy: "python_code"  # Or universal strategies
+    preserve_structure: true

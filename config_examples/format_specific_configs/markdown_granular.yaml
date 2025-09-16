@@ -1,0 +1,38 @@
+# Markdown Granular Configuration
+# Optimized for fine-grained chunking with deep header levels
+
+chunking_strategy:
+  name: markdown_chunker
+  config:
+    chunk_by: headers
+    header_level: 4  # Split on H1, H2, H3, and H4 headers
+    preserve_code_blocks: true
+    preserve_tables: true
+    preserve_lists: true
+    include_frontmatter: true
+    min_chunk_size: 50
+    max_chunk_size: 2000
+
+strategies:
+  primary: markdown_chunker
+  fallbacks:
+    - paragraph_based
+    - sentence_based
+  configs:
+    markdown_chunker:
+      chunk_by: headers
+      header_level: 4
+      preserve_code_blocks: true
+      preserve_tables: true
+      preserve_lists: true
+      include_frontmatter: true
+      min_chunk_size: 50
+      max_chunk_size: 2000
+
+preprocessing:
+  enabled: false
+
+postprocessing:
+  enabled: true
+  merge_short_chunks: true
+  min_chunk_size: 30

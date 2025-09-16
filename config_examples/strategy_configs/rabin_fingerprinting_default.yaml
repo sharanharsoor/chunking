@@ -1,0 +1,70 @@
+# Rabin Fingerprinting Chunker Configuration
+# Classic content-defined chunking for deduplication
+
+profile_name: "rabin_fingerprinting_default"
+description: "Classic Rabin fingerprinting algorithm for content-defined chunking"
+
+strategies:
+  primary: "rabin_fingerprinting"
+  fallbacks:
+    - "fastcdc"
+    - "fixed_size"
+
+  configs:
+    rabin_fingerprinting:
+      # Polynomial for Rabin fingerprinting (64-bit)
+      polynomial: 0x3DA3358B4DC173
+      polynomial_degree: 53
+
+      # Rolling hash window size
+      window_size: 48
+
+      # Boundary detection mask (affects average chunk size)
+      boundary_mask: 0x1FFF  # 13-bit mask (avg ~8KB chunks)
+
+      # Chunk size limits
+      min_chunk_size: 2048      # 2KB minimum
+      max_chunk_size: 65536     # 64KB maximum
+      target_chunk_size: 8192   # 8KB target average
+
+      # Statistical analysis
+      enable_statistics: true
+
+    fastcdc:
+      min_chunk_size: 2048
+      max_chunk_size: 65536
+      avg_chunk_size: 8192
+
+    fixed_size:
+      chunk_size: 8192
+      overlap_size: 200
+
+# Preprocessing options
+preprocessing:
+  enabled: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 500
+
+# Use cases
+use_cases:
+  - "Deduplication storage systems"
+  - "Backup and synchronization"
+  - "Version control systems"
+  - "Content distribution networks"
+
+# Performance characteristics
+performance:
+  throughput: "Medium - polynomial arithmetic overhead"
+  memory_usage: "Low - minimal hash state"
+  cpu_usage: "Medium - rolling polynomial computation"
+  quality: "High - excellent boundary consistency"
+
+# Adaptation settings
+adaptation:
+  enabled: true
+  boundary_mask_range: [0x3FF, 0xFFFF]  # 10-bit to 16-bit masks

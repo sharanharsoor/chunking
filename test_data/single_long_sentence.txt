@@ -1,0 +1,1 @@
+This is an extremely long sentence that goes on and on and continues for quite some time without any punctuation marks that would normally indicate sentence boundaries, making it a good test case for chunkers that need to handle unusually long sentences that might exceed normal chunk size limits and need to be handled appropriately by the chunking algorithm.

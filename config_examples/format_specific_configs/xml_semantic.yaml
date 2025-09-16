@@ -1,0 +1,51 @@
+# XML/HTML Chunking Configuration - Semantic HTML5 Strategy
+# Best for: Modern HTML documents with semantic structure
+# Use case: Processing blog posts, articles, documentation sites
+
+chunking:
+  # Main strategy configuration
+  strategies:
+    primary: xml_html_chunker
+
+    # Strategy-specific configurations
+    configs:
+      xml_html_chunker:
+        # Chunking strategy for HTML semantic elements
+        chunk_by: semantic
+
+        # HTML5 semantic tags to focus on
+        semantic_tags:
+          - header
+          - nav
+          - main
+          - article
+          - section
+          - aside
+          - footer
+          - figure
+          - figcaption
+
+        # Size constraints
+        min_chunk_size: 50
+        chunk_size: 1500
+        max_chunk_size: 4000
+        chunk_overlap: 150
+
+        # Content preservation
+        preserve_structure: true
+        include_attributes: true
+
+        # Parser configuration
+        parser: auto
+        encoding: utf-8
+
+  # Processing options
+  processing:
+    parallel: true
+    batch_size: 10
+
+  # Output configuration
+  output:
+    format: json
+    include_metadata: true
+    preserve_hierarchy: true

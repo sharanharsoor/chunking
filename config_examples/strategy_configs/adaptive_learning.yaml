@@ -1,0 +1,179 @@
+# Adaptive Dynamic Chunker Configuration - Learning Mode
+#
+# This configuration optimizes the Adaptive chunker for learning scenarios
+# where the system should actively adapt and improve over time based on
+# content characteristics and performance feedback.
+
+strategies:
+  primary: adaptive
+  fallback:
+    - fastcdc
+    - paragraph_based
+    - sentence_based
+
+# Adaptive Dynamic Chunker - Learning Configuration
+adaptive:
+  # Strategy selection and management
+  available_strategies:
+    - "fastcdc"           # Content-defined chunking for large/binary files
+    - "paragraph_based"   # Natural text structure
+    - "sentence_based"    # Fine-grained text chunking
+    - "fixed_size"        # Consistent chunking as fallback
+  
+  default_strategy: "paragraph_based"
+  strategy_selection_mode: "auto"  # "auto", "performance", "content"
+  
+  # Adaptation and learning parameters
+  adaptation_threshold: 0.1      # Minimum improvement to trigger adaptation (10%)
+  learning_rate: 0.15            # Aggressive learning for demo purposes
+  exploration_rate: 0.08         # Rate of trying new strategies
+  adaptation_interval: 5         # Adapt every 5 files (frequent adaptation)
+  
+  # Performance tracking and history
+  history_size: 500              # Remember last 500 operations
+  performance_window: 25         # Average performance over 25 operations
+  min_samples: 3                 # Minimum samples before adaptation (quick start)
+  
+  # Content analysis and profiling
+  enable_content_profiling: true    # Analyze content characteristics
+  enable_performance_learning: true # Learn from performance feedback
+  enable_strategy_comparison: true  # Compare strategies for optimization
+  
+  # Persistence and storage
+  persistence_file: "adaptive_learning_history.json"
+  auto_save_interval: 50         # Save every 50 operations
+
+# Processing optimized for learning scenarios
+processing:
+  parallel: true
+  max_workers: 4
+  enable_feedback_collection: true
+  performance_monitoring: true
+
+# Enhanced metadata for learning analysis
+output:
+  include_metadata: true
+  metadata_fields:
+    - content_profile              # Content analysis results
+    - adaptive_strategy           # Selected strategy
+    - optimized_parameters        # Optimized parameters used
+    - performance_metrics         # Performance evaluation
+    - operation_count            # Learning progression
+    - adaptation_history         # Historical adaptations
+    - strategy_confidence        # Confidence in strategy selection
+    - learning_statistics        # Learning progress metrics
+    
+  # Learning-specific metadata
+  learning_metadata:
+    track_improvements: true      # Track performance improvements
+    strategy_effectiveness: true  # Track strategy effectiveness
+    adaptation_triggers: true     # Record what triggered adaptations
+    content_type_mapping: true    # Build content -> strategy mappings
+    performance_trends: true      # Track performance over time
+
+# Quality and learning metrics
+quality:
+  enable_quality_scoring: true    # Calculate quality scores
+  boundary_quality_analysis: true # Analyze boundary quality
+  adaptation_effectiveness: true  # Measure adaptation effectiveness
+  
+  # Learning quality metrics
+  learning_quality:
+    convergence_tracking: true    # Track learning convergence
+    stability_analysis: true     # Analyze strategy stability
+    improvement_rate: true       # Track rate of improvement
+    exploration_effectiveness: true # Measure exploration success
+
+# Performance tuning for learning workloads
+performance:
+  memory_limit: "1GB"            # Moderate memory for learning data
+  enable_caching: true           # Cache strategies and parameters
+  
+  # Learning optimization
+  learning_optimization:
+    batch_learning: true         # Learn from batches of operations
+    incremental_updates: true    # Update parameters incrementally
+    adaptive_intervals: true     # Adjust adaptation intervals dynamically
+    
+  # Feedback optimization
+  feedback_optimization:
+    collect_user_feedback: false # Automatic feedback only
+    quality_threshold: 0.7      # Quality threshold for positive feedback
+    performance_threshold: 1.0   # Performance threshold (1 second)
+
+# Advanced learning features
+advanced:
+  # Multi-level learning
+  hierarchical_learning: true    # Learn at multiple levels
+  cross_content_learning: true   # Learn across content types
+  
+  # Adaptation strategies
+  adaptation_strategies:
+    parameter_tuning: true       # Tune strategy parameters
+    strategy_switching: true     # Switch between strategies
+    hybrid_approaches: false    # Simple strategies only for learning
+    
+  # Learning algorithms
+  learning_algorithms:
+    performance_based: true      # Learn from performance metrics
+    content_based: true         # Learn from content characteristics
+    user_feedback: false        # No user feedback in auto mode
+    temporal_learning: true     # Learn from temporal patterns
+    
+  # Exploration strategies
+  exploration_strategies:
+    random_exploration: true     # Random strategy exploration
+    guided_exploration: true     # Guided by content characteristics
+    performance_exploration: true # Explore based on performance gaps
+
+# Learning monitoring and reporting
+monitoring:
+  enable_learning_metrics: true  # Collect learning metrics
+  adaptation_reporting: true    # Report adaptation events
+  performance_trending: true    # Track performance trends
+  
+  # Learning dashboards
+  learning_dashboard:
+    strategy_usage: true         # Track strategy usage patterns
+    adaptation_frequency: true   # Monitor adaptation frequency
+    improvement_tracking: true   # Track improvements over time
+    content_analysis: true      # Analyze content patterns
+    
+  # Learning alerts
+  learning_alerts:
+    poor_performance: true       # Alert on poor performance
+    adaptation_failures: true    # Alert on adaptation failures
+    learning_stagnation: true    # Alert if learning stagnates
+    strategy_conflicts: true     # Alert on strategy conflicts
+
+# File filtering for learning scenarios
+file_filters:
+  # Include diverse content for learning
+  extensions: []                 # Process all file types for learning
+  
+  include_patterns:
+    - "**/*.txt"                # Text documents
+    - "**/*.json"               # Structured data
+    - "**/*.md"                 # Markdown documents
+    - "**/*.csv"                # Tabular data
+    - "**/*.xml"                # Markup documents
+    - "**/*.html"               # Web content
+    
+  exclude_patterns:
+    - "*.tmp"                   # Temporary files
+    - "*.log"                   # Log files
+    - ".git/**"                 # Version control
+    - "__pycache__/**"          # Cache directories
+    - "node_modules/**"         # Dependencies
+
+# Error handling for learning scenarios
+error_handling:
+  continue_on_errors: true       # Continue learning despite errors
+  log_adaptation_errors: true    # Log adaptation failures
+  fallback_on_failure: true     # Use fallback strategies
+  
+  # Learning error recovery
+  learning_recovery:
+    reset_on_critical_error: false # Don't reset learning on errors
+    adapt_on_errors: true         # Learn from error patterns
+    error_feedback: true          # Use errors as negative feedback

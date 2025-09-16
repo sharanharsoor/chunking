@@ -1,0 +1,59 @@
+# Custom Algorithms Loaded But Built-in Used Configuration
+# This config loads custom algorithms but uses only existing built-in algorithms
+# Validates that custom loading doesn't interfere with built-in algorithm usage
+
+name: "custom_loaded_builtin_used"
+description: "Custom algorithms loaded but only built-in algorithms used for processing"
+
+# Load custom algorithms (but don't use them)
+custom_algorithms:
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+    algorithms: ["sentiment_based"]
+  - path: "../../examples/custom_algorithms/regex_pattern_chunker.py"
+    algorithms: ["regex_pattern_based"]
+  - path: "../../examples/custom_algorithms/balanced_length_chunker.py"
+    algorithms: ["balanced_length"]
+
+# Use ONLY built-in algorithms despite having custom ones loaded
+strategies:
+  primary: "semantic"              # Built-in algorithm
+  fallbacks:
+    - "paragraph_based"            # Built-in algorithm
+    - "sentence_based"             # Built-in algorithm
+    - "fixed_size"                 # Built-in algorithm
+
+# Configure only built-in algorithm parameters
+parameters:
+  semantic:
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.7
+    min_chunk_size: 200
+    max_chunk_size: 1200
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+    preserve_formatting: false
+
+  sentence_based:
+    min_sentence_length: 20
+    max_sentences_per_chunk: 6
+    preserve_sentence_boundaries: true
+
+  fixed_size:
+    chunk_size: 800
+    overlap_size: 80
+    unit: "character"
+    preserve_boundaries: true
+
+# Validation settings
+validation:
+  enabled: true
+  verify_custom_loaded: true       # Verify custom algorithms are loaded
+  verify_custom_not_used: true     # Verify they're not actually used
+
+output:
+  format: "json"
+  include_metadata: true
+  include_loaded_algorithms: true  # Show which algorithms are loaded
+  include_used_algorithms: true    # Show which algorithms are actually used

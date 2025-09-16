@@ -1,0 +1,56 @@
+# PDF multimodal chunking configuration
+# This config extracts text, images, and tables from PDF documents
+
+chunking_strategy:
+  name: "pdf_chunker"
+
+# PDF-specific parameters
+strategies:
+  primary: "pdf_chunker"
+  fallback: ["universal_document", "fixed_size"]
+
+  configs:
+    pdf_chunker:
+      # Page grouping settings
+      pages_per_chunk: 2          # Group 2 pages per text chunk
+
+      # Content extraction options
+      extract_images: true        # Extract embedded images
+      extract_tables: true        # Detect and extract tables
+      preserve_formatting: true   # Keep text formatting info
+
+      # Quality settings
+      image_quality: 90           # Image extraction quality (1-100)
+      table_detection_threshold: 0.8  # Confidence threshold for table detection
+      min_text_length: 100        # Minimum text length for valid chunks
+
+      # Backend selection
+      backend: "auto"             # Options: auto, pymupdf, pypdf2, pdfminer
+
+# Processing options
+processing:
+  use_gpu: false
+  max_workers: 3  # PDF processing can be CPU intensive
+
+  # Memory settings for image/table processing
+  chunk_memory_limit: "2GB"
+
+  # Quality settings
+  enable_validation: true
+  quality_threshold: 0.8
+
+# Output options
+output:
+  include_metadata: true
+  preserve_structure: true
+  include_hierarchy: false
+
+  # PDF-specific output options
+  include_page_numbers: true
+  include_image_data: true      # Include extracted image data
+  include_table_structure: true # Include table structure metadata
+  separate_modalities: true    # Separate text, image, and table chunks
+
+# Use case: Research papers, reports with figures, financial documents
+# Example usage:
+# python -m chunking_strategy.cli chunk research_paper.pdf --config config_examples/pdf_multimodal.yaml

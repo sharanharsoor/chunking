@@ -1,0 +1,111 @@
+# RAG-Optimized Chunking Configuration
+# Optimized for Retrieval-Augmented Generation workflows
+
+profile_name: "rag_optimized"
+description: "Configuration optimized for RAG applications with semantic awareness"
+
+# Strategy selection and fallbacks
+strategies:
+  primary: "semantic_chunking"
+  fallbacks:
+    - "sentence_based"
+    - "paragraph_based"
+    - "fixed_size"
+
+  # Strategy-specific configurations
+  configs:
+    semantic_chunking:
+      model_name: "all-MiniLM-L6-v2"
+      similarity_threshold: 0.75
+      max_chunk_size: 1500
+      min_chunk_size: 200
+      overlap_sentences: 1
+
+    sentence_based:
+      max_sentences: 4
+      min_sentences: 2
+      max_chunk_size: 1200
+      overlap_sentences: 1
+      sentence_splitter: "simple"
+
+    paragraph_based:
+      max_paragraphs: 2
+      max_chunk_size: 1000
+      preserve_structure: true
+
+    fixed_size:
+      chunk_size: 800
+      overlap_size: 100
+      unit: "character"
+      preserve_boundaries: true
+
+# Strategy selection rules by file type
+strategy_selection:
+  pdf:
+    primary: "semantic_chunking"
+    fallbacks: ["paragraph_based", "sentence_based"]
+
+  markdown:
+    primary: "section_based"
+    fallbacks: ["semantic_chunking", "paragraph_based"]
+
+  html:
+    primary: "structure_aware"
+    fallbacks: ["semantic_chunking", "sentence_based"]
+
+  text:
+    primary: "semantic_chunking"
+    fallbacks: ["sentence_based", "paragraph_based"]
+
+# Preprocessing configuration
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  remove_headers_footers: true
+  clean_markup: false
+  normalize_unicode: true
+
+  # Custom preprocessing steps
+  custom_steps:
+    - remove_page_numbers
+    - normalize_quotes
+
+# Postprocessing configuration
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 150
+  max_merge_size: 1200
+  deduplicate: false
+  similarity_threshold: 0.9
+
+  # Quality enhancement
+  enhance_metadata: true
+  normalize_content: true
+
+  # Chunk filtering
+  filter_by_size: true
+  absolute_min_size: 50
+  absolute_max_size: 2000
+
+# Quality thresholds
+quality_thresholds:
+  min_coherence: 0.6
+  min_coverage: 0.8
+  max_overlap_ratio: 0.1
+  min_information_density: 0.3
+
+# Performance settings
+performance:
+  streaming_threshold: 10485760  # 10MB - use streaming for larger files
+  parallel_processing: false
+  memory_limit: 1073741824  # 1GB
+  timeout: 300  # 5 minutes
+
+# Output preferences
+output:
+  include_metadata: true
+  include_quality_scores: true
+  chunk_id_format: "rag_{source}_{index:04d}"
+  preserve_source_structure: true

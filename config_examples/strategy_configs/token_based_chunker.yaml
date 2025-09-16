@@ -1,0 +1,322 @@
+# Token-Based Chunker Configuration
+#
+# This configuration demonstrates various settings for the Token-Based Chunker
+# optimized for different tokenization systems and use cases.
+
+profile_name: "token_based_chunker"
+
+strategies:
+  primary: "token_based"
+  fallbacks: ["fixed_length_word", "sentence_based", "fixed_size"]
+
+# Token-Based Chunker Configuration
+token_based:
+  # Core chunking parameters
+  tokens_per_chunk: 1000           # Number of tokens per chunk
+  overlap_tokens: 100              # Tokens to overlap between chunks
+  max_chunk_chars: 8000           # Maximum chunk size in characters (safety limit)
+
+  # Tokenization settings
+  tokenizer_type: "tiktoken"       # "tiktoken", "transformers", "spacy", "nltk", "simple"
+  tokenizer_model: "gpt-3.5-turbo" # Model-specific tokenizer
+  preserve_word_boundaries: true   # Attempt to preserve word boundaries
+
+  # Quality controls
+  min_chunk_tokens: 10             # Minimum tokens per chunk (for last chunk)
+
+# Alternative configurations for different use cases and models
+configurations:
+
+  # OpenAI GPT Models (tiktoken)
+  gpt_35_turbo:
+    token_based:
+      tokens_per_chunk: 1500
+      overlap_tokens: 150
+      tokenizer_type: "tiktoken"
+      tokenizer_model: "gpt-3.5-turbo"
+      preserve_word_boundaries: true
+      max_chunk_chars: 6000
+      min_chunk_tokens: 50
+
+  gpt_4_optimized:
+    token_based:
+      tokens_per_chunk: 2000
+      overlap_tokens: 200
+      tokenizer_type: "tiktoken"
+      tokenizer_model: "gpt-4"
+      preserve_word_boundaries: true
+      max_chunk_chars: 8000
+      min_chunk_tokens: 100
+
+  # BERT Models (transformers)
+  bert_base:
+    token_based:
+      tokens_per_chunk: 512        # BERT's sequence length limit
+      overlap_tokens: 50
+      tokenizer_type: "transformers"
+      tokenizer_model: "bert-base-uncased"
+      preserve_word_boundaries: false  # BERT handles subwords well
+      max_chunk_chars: 3000
+      min_chunk_tokens: 10
+
+  bert_large:
+    token_based:
+      tokens_per_chunk: 512
+      overlap_tokens: 75
+      tokenizer_type: "transformers"
+      tokenizer_model: "bert-large-uncased"
+      preserve_word_boundaries: false
+      max_chunk_chars: 3500
+
+  # GPT-2 Models (transformers)
+  gpt2_base:
+    token_based:
+      tokens_per_chunk: 1024
+      overlap_tokens: 100
+      tokenizer_type: "transformers"
+      tokenizer_model: "gpt2"
+      preserve_word_boundaries: true
+      max_chunk_chars: 4000
+
+  gpt2_large:
+    token_based:
+      tokens_per_chunk: 1024
+      overlap_tokens: 150
+      tokenizer_type: "transformers"
+      tokenizer_model: "gpt2-large"
+      preserve_word_boundaries: true
+      max_chunk_chars: 5000
+
+  # RoBERTa Models (transformers)
+  roberta_base:
+    token_based:
+      tokens_per_chunk: 512
+      overlap_tokens: 60
+      tokenizer_type: "transformers"
+      tokenizer_model: "roberta-base"
+      preserve_word_boundaries: false
+      max_chunk_chars: 3000
+
+  # T5 Models (transformers)
+  t5_base:
+    token_based:
+      tokens_per_chunk: 512
+      overlap_tokens: 50
+      tokenizer_type: "transformers"
+      tokenizer_model: "t5-base"
+      preserve_word_boundaries: false
+      max_chunk_chars: 3000
+
+  # Sentence Transformers
+  sentence_transformer:
+    token_based:
+      tokens_per_chunk: 256        # Common limit for sentence transformers
+      overlap_tokens: 25
+      tokenizer_type: "transformers"
+      tokenizer_model: "all-MiniLM-L6-v2"
+      preserve_word_boundaries: true
+      max_chunk_chars: 1500
+
+  sentence_transformer_large:
+    token_based:
+      tokens_per_chunk: 512
+      overlap_tokens: 50
+      tokenizer_type: "transformers"
+      tokenizer_model: "all-mpnet-base-v2"
+      preserve_word_boundaries: true
+      max_chunk_chars: 3000
+
+  # Simple tokenization for development/testing
+  development:
+    token_based:
+      tokens_per_chunk: 200
+      overlap_tokens: 20
+      tokenizer_type: "simple"
+      preserve_word_boundaries: true
+      max_chunk_chars: 1500
+      min_chunk_tokens: 5
+
+  # Fast processing (minimal overlap)
+  fast_processing:
+    token_based:
+      tokens_per_chunk: 500
+      overlap_tokens: 0            # No overlap for speed
+      tokenizer_type: "simple"
+      preserve_word_boundaries: false
+      max_chunk_chars: 3000
+
+  # High-quality processing (maximum overlap)
+  high_quality:
+    token_based:
+      tokens_per_chunk: 800
+      overlap_tokens: 200          # 25% overlap
+      tokenizer_type: "tiktoken"
+      tokenizer_model: "gpt-4"
+      preserve_word_boundaries: true
+      max_chunk_chars: 6000
+      min_chunk_tokens: 50
+
+# Processing optimizations
+processing:
+  parallel: false                 # Token-based processing is typically fast
+  enable_validation: true         # Validate chunks after creation
+
+# Quality and performance settings
+quality:
+  min_content_ratio: 0.1          # Minimum content to whitespace ratio
+  enable_content_validation: true  # Check for reasonable content
+
+performance:
+  enable_caching: true            # Cache tokenization results for repeated content
+  batch_size: 50                  # Files to process in each batch
+  tokenization_batch_size: 100    # Tokens to process in each tokenization batch
+
+# Output settings
+output:
+  include_metadata: true          # Include token counts and positions
+  include_token_indices: true     # Include start/end token positions
+  include_tokenizer_info: true    # Include tokenizer metadata
+  format_timestamps: true         # Add processing timestamps
+
+# Use case examples and recommendations
+use_cases:
+
+  # For LLM input (GPT models)
+  llm_input:
+    description: "Optimized for LLM context windows with proper token counting"
+    tokens_per_chunk: 1500
+    overlap_tokens: 150
+    tokenizer_type: "tiktoken"
+    tokenizer_model: "gpt-3.5-turbo"
+    preserve_word_boundaries: true
+
+  # For BERT-style models
+  bert_embeddings:
+    description: "Optimized for BERT sequence length limits"
+    tokens_per_chunk: 512
+    overlap_tokens: 50
+    tokenizer_type: "transformers"
+    tokenizer_model: "bert-base-uncased"
+    preserve_word_boundaries: false
+
+  # For sentence embeddings
+  sentence_embeddings:
+    description: "Optimized for sentence transformer models"
+    tokens_per_chunk: 256
+    overlap_tokens: 25
+    tokenizer_type: "transformers"
+    tokenizer_model: "all-MiniLM-L6-v2"
+    preserve_word_boundaries: true
+
+  # For RAG systems
+  rag_retrieval:
+    description: "Balanced chunks for retrieval-augmented generation"
+    tokens_per_chunk: 1000
+    overlap_tokens: 100
+    tokenizer_type: "tiktoken"
+    tokenizer_model: "gpt-3.5-turbo"
+    preserve_word_boundaries: true
+
+  # For API-optimized processing
+  api_optimized:
+    description: "Optimized for API token limits and cost efficiency"
+    tokens_per_chunk: 2000
+    overlap_tokens: 100
+    tokenizer_type: "tiktoken"
+    tokenizer_model: "gpt-4"
+    preserve_word_boundaries: true
+
+  # For development and testing
+  development:
+    description: "Fast and simple for development purposes"
+    tokens_per_chunk: 200
+    overlap_tokens: 20
+    tokenizer_type: "simple"
+    preserve_word_boundaries: true
+
+# Model-specific recommendations
+model_recommendations:
+
+  # OpenAI Models
+  "gpt-3.5-turbo":
+    tokens_per_chunk: 1500
+    overlap_tokens: 150
+    context_window: 4096
+    recommended_for: ["chat", "completion", "rag"]
+
+  "gpt-4":
+    tokens_per_chunk: 2000
+    overlap_tokens: 200
+    context_window: 8192
+    recommended_for: ["analysis", "reasoning", "complex_tasks"]
+
+  "gpt-4-turbo":
+    tokens_per_chunk: 4000
+    overlap_tokens: 400
+    context_window: 128000
+    recommended_for: ["long_context", "document_analysis"]
+
+  # BERT Models
+  "bert-base-uncased":
+    tokens_per_chunk: 512
+    overlap_tokens: 50
+    context_window: 512
+    recommended_for: ["embeddings", "classification", "ner"]
+
+  "bert-large-uncased":
+    tokens_per_chunk: 512
+    overlap_tokens: 75
+    context_window: 512
+    recommended_for: ["high_quality_embeddings", "complex_nlp"]
+
+  # Sentence Transformers
+  "all-MiniLM-L6-v2":
+    tokens_per_chunk: 256
+    overlap_tokens: 25
+    context_window: 512
+    recommended_for: ["fast_embeddings", "similarity", "clustering"]
+
+  "all-mpnet-base-v2":
+    tokens_per_chunk: 384
+    overlap_tokens: 50
+    context_window: 512
+    recommended_for: ["high_quality_embeddings", "semantic_search"]
+
+# Best practices and recommendations
+best_practices:
+  tokenization:
+    - "Match tokenizer to your downstream model for accurate token counting"
+    - "Use tiktoken for OpenAI models (GPT-3.5, GPT-4)"
+    - "Use transformers tokenizers for HuggingFace models"
+    - "Consider subword tokenization for multilingual content"
+
+  chunking:
+    - "Set tokens_per_chunk based on model's context window"
+    - "Use overlap for tasks requiring context continuity"
+    - "Preserve word boundaries for better readability"
+    - "Account for special tokens in token counts"
+
+  performance:
+    - "Cache tokenization results for repeated processing"
+    - "Use simple tokenizer for development and testing"
+    - "Batch process files for better efficiency"
+    - "Monitor tokenization speed vs accuracy trade-offs"
+
+  quality:
+    - "Validate token counts against model limits"
+    - "Test with representative content"
+    - "Monitor chunk boundary quality"
+    - "Consider content type when choosing tokenizers"
+
+# Common token limits reference
+token_limits:
+  "gpt-3.5-turbo": 4096
+  "gpt-4": 8192
+  "gpt-4-turbo": 128000
+  "text-davinci-003": 4097
+  "bert-base-uncased": 512
+  "bert-large-uncased": 512
+  "roberta-base": 512
+  "t5-base": 512
+  "all-MiniLM-L6-v2": 512
+  "all-mpnet-base-v2": 512

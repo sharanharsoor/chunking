@@ -1,0 +1,13 @@
+id,name,description,symbols
+1,"O'Connor","Data with apostrophe","!'@#$%"
+2,"Smith, Jr.","Name with comma","^&*()_+"
+3,"François","Unicode characters","éñüíó"
+4,"Multi
+Line","Text with
+newlines","<>?{}|"
+5,"Quote""Test","Text with quotes","=+-[]\;"
+6,"Tab	Test","Text with tabs",":'/.,~`"
+7,"","Empty name field",""
+8,"    ","Whitespace only","   "
+9,"Very long name that exceeds typical field lengths and contains many words to test boundary conditions","Long field test","1234567890"
+10,"Normal","Standard entry","ABC"

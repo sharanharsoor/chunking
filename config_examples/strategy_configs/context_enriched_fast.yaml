@@ -1,0 +1,182 @@
+# Context-Enriched Chunker Configuration - Fast Processing Mode
+#
+# This configuration optimizes the Context-Enriched chunker for faster processing
+# while still maintaining semantic awareness. It balances speed and quality for
+# production environments where performance is critical.
+
+strategies:
+  primary: context_enriched
+  fallback:
+    - fixed_size      # Fast fallback
+
+# Context-Enriched Chunker - Fast Processing Configuration
+context_enriched:
+  # Core chunking parameters optimized for speed
+  target_chunk_size: 2000          # Moderate chunk size
+  min_chunk_size: 500              # Smaller minimum for faster processing
+  max_chunk_size: 6000             # Reasonable maximum
+  overlap_size: 50                 # Minimal overlap for speed
+  
+  # Semantic analysis parameters - balanced for speed
+  semantic_similarity_threshold: 0.6     # Lower threshold for faster processing
+  topic_coherence_threshold: 0.5        # Moderate coherence requirement
+  entity_preservation_mode: "moderate"  # Balanced entity preservation
+  context_window_size: 3                # Smaller context window
+  
+  # NLP model parameters - performance focused
+  spacy_model: "en_core_web_sm"         # Standard model
+  enable_ner: true                      # Enable NER but keep simple
+  enable_topic_modeling: true           # Enable but with fewer topics
+  enable_coreference: false             # Disable for speed
+  
+  # Boundary detection parameters - efficient
+  boundary_detection_method: "semantic" # Use only semantic boundaries for speed
+  min_topic_coherence: 0.4              # Lower threshold
+  entity_boundary_weight: 0.3           # Balanced weights
+  topic_boundary_weight: 0.4            # Moderate topic weight
+  semantic_boundary_weight: 0.3         # Moderate semantic weight
+  
+  # Quality parameters - speed optimized
+  preserve_sentence_integrity: true      # Keep sentences intact
+  avoid_entity_splitting: true          # Preserve entities
+  maintain_topic_coherence: true        # Basic topic coherence
+  context_preservation_priority: "speed" # Prioritize speed
+  
+  # Advanced features - minimal for speed
+  enable_cross_references: false        # Disable for speed
+  generate_semantic_fingerprints: true  # Keep for basic similarity
+  extract_key_phrases: false            # Disable for speed
+  analyze_sentiment: false              # Disable for speed
+
+# Processing optimized for speed
+processing:
+  parallel: true                        # Enable parallel processing
+  max_workers: 4                        # Use multiple workers
+  batch_processing: true                # Process in batches
+  
+  # Fast processing options
+  fast_processing:
+    skip_deep_analysis: true            # Skip deep semantic analysis
+    use_approximate_methods: true       # Use faster approximations
+    cache_computations: true            # Cache expensive computations
+    
+  # Performance optimization
+  performance_optimization:
+    vectorization_optimization: true    # Optimize vectorization
+    memory_efficient_processing: true   # Use memory-efficient methods
+    early_stopping: true                # Stop processing when good enough
+
+# Streamlined metadata for fast processing
+output:
+  include_metadata: true
+  lightweight_metadata: true            # Minimal metadata for speed
+  
+  metadata_fields:
+    - coherence_score                   # Basic coherence
+    - chunk_index                      # Position information
+    - sentence_count                   # Basic statistics
+    - word_count                       # Basic statistics
+    - processing_method                # Method used
+    
+  # Fast metadata options
+  fast_metadata:
+    skip_detailed_analysis: true       # Skip detailed analysis
+    basic_topics_only: true            # Only basic topic info
+    essential_entities_only: true      # Only essential entities
+    no_cross_references: true          # No cross-chunk references
+
+# Quality parameters for fast processing
+quality:
+  enforce_minimum_quality: true        # Enforce minimum standards
+  quality_threshold: 0.6              # Moderate quality threshold
+  fast_quality_checks: true           # Use faster quality checks
+  
+  # Fast quality metrics
+  fast_quality:
+    basic_coherence_only: true         # Basic coherence checks
+    essential_boundaries_only: true    # Only essential boundary checks
+    skip_detailed_validation: true     # Skip detailed validation
+
+# Performance tuning for speed
+performance:
+  memory_limit: "1GB"                 # Lower memory usage
+  enable_caching: true                # Cache for speed
+  optimize_for_speed: true            # Speed over quality
+  
+  # Speed optimization
+  speed_optimization:
+    fast_vectorization: true          # Use faster vectorization methods
+    reduced_topic_models: true        # Fewer topics for speed
+    simplified_coherence: true        # Simplified coherence calculation
+    
+  # Resource optimization
+  resource_optimization:
+    cpu_optimization: true            # Optimize CPU usage
+    memory_optimization: true         # Optimize memory usage
+    io_optimization: true             # Optimize I/O operations
+
+# Simplified advanced features
+advanced:
+  # Basic semantic analysis only
+  basic_semantics_only: true          # Use only basic semantic features
+  
+  # Fast boundary strategies
+  boundary_strategies:
+    fast_topic_detection: true        # Fast topic shift detection
+    basic_entity_analysis: true       # Basic entity analysis only
+    simple_semantic_breaks: true      # Simple semantic break detection
+    
+  # Simplified content understanding
+  content_understanding:
+    basic_coherence_only: true        # Basic coherence assessment
+    skip_complex_analysis: true       # Skip complex analysis
+    
+  # Minimal semantic enhancement
+  semantic_enhancement:
+    basic_context_only: true          # Basic context only
+    skip_entity_resolution: true      # Skip entity resolution
+    minimal_topic_refinement: true    # Minimal topic refinement
+
+# Fast error handling
+error_handling:
+  quick_fallback: true                # Quick fallback mechanisms
+  continue_on_errors: true            # Continue processing on errors
+  minimal_error_analysis: true        # Minimal error analysis
+  
+  # Fast error recovery
+  fast_recovery:
+    immediate_fallback: true          # Immediate fallback
+    skip_error_analysis: true         # Skip detailed error analysis
+    use_simple_alternatives: true     # Use simple alternatives
+
+# File filtering for fast processing
+file_filters:
+  # Process common text files quickly
+  extensions: [".txt", ".md"]
+  
+  include_patterns:
+    - "**/*.txt"                      # Text documents
+    - "**/*.md"                       # Markdown documents
+    
+  exclude_patterns:
+    - "*.log"                         # Log files
+    - "*.tmp"                         # Temporary files
+    - ".git/**"                       # Version control
+    - "__pycache__/**"                # Cache directories
+
+# Minimal monitoring for speed
+monitoring:
+  enable_basic_monitoring: true       # Basic monitoring only
+  track_performance_only: true        # Track performance metrics only
+  
+  # Fast monitoring
+  fast_monitoring:
+    throughput_only: true             # Monitor throughput only
+    basic_quality_metrics: true       # Basic quality metrics
+    skip_detailed_analysis: true      # Skip detailed analysis
+    
+  # Performance alerts only
+  performance_alerts:
+    slow_processing: true             # Alert on slow processing
+    high_memory_usage: true           # Alert on high memory usage
+    quality_degradation: false        # Skip quality alerts for speed

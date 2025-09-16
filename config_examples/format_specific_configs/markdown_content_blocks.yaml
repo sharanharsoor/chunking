@@ -1,0 +1,40 @@
+# Markdown Content Blocks Configuration
+# Optimized for preserving code blocks, tables, and structured content
+
+chunking_strategy:
+  name: markdown_chunker
+  config:
+    chunk_by: content_blocks
+    preserve_code_blocks: true
+    preserve_tables: true
+    preserve_lists: true
+    include_frontmatter: true
+    chunk_size: 1500
+    chunk_overlap: 100
+    min_chunk_size: 100
+    max_chunk_size: 5000
+
+strategies:
+  primary: markdown_chunker
+  fallbacks:
+    - paragraph_based
+    - fixed_size
+  configs:
+    markdown_chunker:
+      chunk_by: content_blocks
+      preserve_code_blocks: true
+      preserve_tables: true
+      preserve_lists: true
+      include_frontmatter: true
+      chunk_size: 1500
+      chunk_overlap: 100
+      min_chunk_size: 100
+      max_chunk_size: 5000
+
+preprocessing:
+  enabled: false
+
+postprocessing:
+  enabled: true
+  merge_short_chunks: true
+  min_chunk_size: 80

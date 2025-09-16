@@ -1,0 +1,22 @@
+# Test configuration for auto strategy selection
+# This configuration uses auto strategy to automatically select
+# the best chunking strategy based on file type and content
+
+strategies:
+  primary: auto
+  configs:
+    json_chunker:
+      chunk_by: objects
+      objects_per_chunk: 1
+    csv_chunker:
+      chunk_by: rows
+      rows_per_chunk: 1000
+    fixed_size:
+      chunk_size: 1024
+
+preprocessing:
+  enabled: false
+
+postprocessing:
+  enabled: true
+  merge_short_chunks: true

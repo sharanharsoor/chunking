@@ -1,0 +1,96 @@
+# CSS Responsive Design Chunking Configuration
+#
+# This configuration is optimized for CSS stylesheets with responsive design patterns.
+
+strategies:
+  primary: css_code
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# CSS chunker configured for responsive design
+css_code:
+  chunk_by: media_query          # Chunk by media query boundaries
+  max_lines_per_chunk: 200       # Allow larger CSS rule blocks
+  include_imports: true          # CSS imports and fonts
+  include_media_queries: true    # Critical for responsive design
+  handle_scss: true              # Support SCSS/Sass
+  preserve_comments: true        # Keep design documentation
+  group_responsive: true         # Group related responsive patterns
+
+  # CSS-specific settings
+  min_chunk_size: 50             # Smaller min for CSS rules
+  max_chunk_size: 10000          # Larger max for complex stylesheets
+
+# Processing optimized for CSS
+processing:
+  parallel: true
+  max_workers: 2                 # CSS parsing is fast, fewer workers needed
+  chunk_overlap: 0               # No overlap for style rules
+  
+  # CSS-specific preprocessing
+  normalize_selectors: true      # Standardize selector format
+  group_vendor_prefixes: true    # Group vendor prefix rules
+
+# Enhanced metadata for CSS development
+output:
+  include_metadata: true
+  metadata_fields:
+    - element_type               # css_rule, media_query, at_rule, etc.
+    - element_name               # Rule selector or @rule name
+    - selector                   # CSS selector
+    - selector_type              # class, id, element, pseudo, etc.
+    - selector_specificity       # CSS specificity calculation
+    - properties                 # CSS properties used
+    - property_count             # Number of properties
+    - media_condition            # Media query condition
+    - at_rule_type              # Type of @rule
+    - is_scss                   # SCSS file detection
+    - is_sass                   # Sass file detection
+    
+  # CSS-specific metadata
+  css_metadata:
+    extract_colors: true         # Extract color values
+    extract_fonts: true          # Extract font declarations
+    extract_animations: true     # Extract @keyframes
+    detect_frameworks: true      # Detect CSS frameworks
+
+# File filtering for CSS projects
+file_filters:
+  extensions:
+    - .css
+    - .scss
+    - .sass
+    - .less                      # Support CSS preprocessors
+    
+  # CSS-specific patterns
+  include_patterns:
+    - styles/                    # Style directories
+    - assets/css/               # Asset directories
+    - src/styles/               # Source styles
+    - themes/                   # Theme files
+    
+  exclude_patterns:
+    - "*.min.css"               # Skip minified CSS
+    - vendor/                   # Skip vendor CSS
+    - node_modules/             # Skip dependencies
+    - dist/                     # Skip distribution
+    
+# Quality settings for CSS
+quality:
+  min_rule_lines: 2             # Skip very small rules
+  preserve_css_structure: true  # Maintain CSS hierarchy
+  include_empty_rules: false    # Skip empty rule blocks
+  detect_responsive_patterns: true
+  
+  # CSS best practices
+  group_media_queries: true     # Group related media queries
+  detect_unused_rules: false    # Disabled by default
+  validate_css_syntax: true     # Basic CSS syntax validation
+
+# Responsive design helpers
+responsive:
+  breakpoint_detection: true    # Identify breakpoints
+  mobile_first_analysis: true   # Analyze mobile-first patterns
+  extract_responsive_units: true # Extract rem, em, %, vw, vh units
+  identify_flex_grid: true      # Identify flexbox and grid usage

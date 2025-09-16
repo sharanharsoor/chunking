@@ -1,0 +1,118 @@
+# Time-based Video Chunking Configuration
+# 
+# This configuration uses time-based segmentation to divide video files
+# into fixed-duration chunks with optional overlap and format control.
+#
+# Use Cases:
+# - Video processing and analysis workflows
+# - Content management and archival
+# - Video streaming preparation
+# - Machine learning dataset preparation
+# - Video summarization and highlights
+
+chunking:
+  # Default strategy for video files
+  default_strategy: "time_based_video"
+  
+  # Strategy selection by file extension
+  strategy_selection:
+    .mp4: "time_based_video"
+    .avi: "time_based_video" 
+    .mov: "time_based_video"
+    .mkv: "time_based_video"
+    .webm: "time_based_video"
+    .flv: "time_based_video"
+    .wmv: "time_based_video"
+    .m4v: "time_based_video"
+    
+  # Strategy-specific parameters
+  strategy_params:
+    time_based_video:
+      # Core Parameters
+      segment_duration: 30.0      # Duration of each video segment in seconds
+      overlap_duration: 0.0       # Overlap between consecutive segments (seconds)
+      
+      # Quality and Format Control
+      preserve_format: true       # Preserve original video format when possible
+      target_fps: null            # Target frame rate (null to preserve original)
+      target_resolution: null     # Target resolution as [width, height] or "widthxheight" (null to preserve)
+      
+      # Example configurations for different use cases:
+      #
+      # Short clips for social media:
+      # segment_duration: 15.0
+      # overlap_duration: 1.0
+      # target_resolution: "1080x1920"  # Portrait format
+      #
+      # Long-form content with smooth transitions:
+      # segment_duration: 60.0
+      # overlap_duration: 5.0
+      #
+      # High-efficiency encoding:
+      # target_fps: 24
+      # target_resolution: "1280x720"
+      # preserve_format: false
+      #
+      # Quick preview generation:
+      # segment_duration: 10.0
+      # target_resolution: "640x360"
+      # target_fps: 15
+
+# Processing Configuration
+processing:
+  # Performance tuning for video processing
+  max_workers: 2              # Video processing is CPU/memory intensive
+  batch_size: 1               # Process videos one at a time
+  memory_limit: "4GB"         # Higher memory limit for video processing
+  
+  # Enable progress tracking for long videos
+  show_progress: true
+  
+# Output Configuration  
+output:
+  # Save video segments to organized directories
+  save_chunks: true
+  output_dir: "./video_chunks"
+  
+  # Naming pattern for video segments
+  chunk_naming: "{source_name}_segment_{index:03d}{extension}"
+  
+  # Preserve metadata in output files
+  preserve_metadata: true
+  
+  # Video-specific output options
+  video_options:
+    # Quality settings
+    video_codec: "libx264"      # Use H.264 for compatibility
+    audio_codec: "aac"          # Standard audio codec
+    
+    # Optimization
+    optimize_for_streaming: false
+    constant_rate_factor: 23     # Quality level (lower = better quality)
+    
+# Quality Control
+validation:
+  # Ensure minimum segment quality
+  min_segment_duration: 1.0    # Skip segments shorter than this
+  max_segment_duration: 300.0  # Split segments longer than this
+  
+  # Validate output integrity
+  verify_segments: true
+  check_audio_sync: true
+  
+# Logging and Debugging
+logging:
+  level: "INFO"
+  log_video_properties: true   # Log resolution, fps, duration, etc.
+  log_processing_time: true    # Track performance metrics
+  
+# Advanced Features
+advanced:
+  # Future enhancements (not yet implemented)
+  scene_detection: false       # Would enable scene-based chunking
+  keyframe_alignment: false    # Would align cuts to keyframes
+  motion_analysis: false       # Would analyze motion for smarter cuts
+  
+  # Experimental features
+  parallel_processing: false   # May become available in future versions
+  gpu_acceleration: false      # Hardware acceleration support

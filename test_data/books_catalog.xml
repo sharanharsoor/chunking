@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="http://example.com/books">
+    <book id="1">
+        <title>The Art of Programming</title>
+        <author>
+            <firstName>John</firstName>
+            <lastName>Smith</lastName>
+            <email>john.smith@example.com</email>
+        </author>
+        <publication>
+            <publisher>Tech Publications</publisher>
+            <year>2023</year>
+            <isbn>978-0123456789</isbn>
+        </publication>
+        <description>
+            A comprehensive guide to software development covering algorithms, data structures, and best practices. This book is perfect for both beginners and experienced developers looking to improve their coding skills.
+        </description>
+        <categories>
+            <category>Programming</category>
+            <category>Computer Science</category>
+            <category>Software Development</category>
+        </categories>
+        <price currency="USD">49.99</price>
+        <availability>
+            <inStock>true</inStock>
+            <quantity>150</quantity>
+        </availability>
+    </book>
+
+    <book id="2">
+        <title>Machine Learning Fundamentals</title>
+        <author>
+            <firstName>Sarah</firstName>
+            <lastName>Johnson</lastName>
+            <email>sarah.johnson@university.edu</email>
+        </author>
+        <publication>
+            <publisher>Academic Press</publisher>
+            <year>2024</year>
+            <isbn>978-0987654321</isbn>
+        </publication>
+        <description>
+            An introduction to machine learning concepts, algorithms, and applications. Covers supervised learning, unsupervised learning, and deep learning with practical examples and case studies.
+        </description>
+        <categories>
+            <category>Machine Learning</category>
+            <category>Artificial Intelligence</category>
+            <category>Data Science</category>
+        </categories>
+        <price currency="USD">59.99</price>
+        <availability>
+            <inStock>true</inStock>
+            <quantity>75</quantity>
+        </availability>
+    </book>
+
+    <book id="3">
+        <title>Web Development with Modern Frameworks</title>
+        <author>
+            <firstName>Mike</firstName>
+            <lastName>Chen</lastName>
+            <email>mike.chen@webdev.com</email>
+        </author>
+        <publication>
+            <publisher>Web Publishing House</publisher>
+            <year>2023</year>
+            <isbn>978-0456789123</isbn>
+        </publication>
+        <description>
+            Learn how to build modern web applications using React, Vue.js, and Angular. Includes best practices for responsive design, performance optimization, and deployment strategies.
+        </description>
+        <categories>
+            <category>Web Development</category>
+            <category>Frontend</category>
+            <category>JavaScript</category>
+        </categories>
+        <price currency="USD">44.99</price>
+        <availability>
+            <inStock>false</inStock>
+            <quantity>0</quantity>
+            <expectedRestockDate>2025-02-15</expectedRestockDate>
+        </availability>
+    </book>
+
+    <book id="4">
+        <title>Database Design and Administration</title>
+        <author>
+            <firstName>Emily</firstName>
+            <lastName>Davis</lastName>
+            <email>emily.davis@dbexperts.com</email>
+        </author>
+        <publication>
+            <publisher>Database Publications</publisher>
+            <year>2024</year>
+            <isbn>978-0789123456</isbn>
+        </publication>
+        <description>
+            Comprehensive coverage of database design principles, normalization, indexing, and performance tuning. Includes examples for both SQL and NoSQL databases.
+        </description>
+        <categories>
+            <category>Database</category>
+            <category>SQL</category>
+            <category>Data Management</category>
+        </categories>
+        <price currency="USD">54.99</price>
+        <availability>
+            <inStock>true</inStock>
+            <quantity>120</quantity>
+        </availability>
+    </book>
+
+    <book id="5">
+        <title>Cloud Computing Architecture</title>
+        <author>
+            <firstName>David</firstName>
+            <lastName>Wilson</lastName>
+            <email>david.wilson@cloudtech.com</email>
+        </author>
+        <publication>
+            <publisher>Cloud Computing Press</publisher>
+            <year>2024</year>
+            <isbn>978-0321654987</isbn>
+        </publication>
+        <description>
+            Explore cloud computing concepts, architectures, and services. Covers AWS, Azure, and Google Cloud Platform with practical deployment examples and security considerations.
+        </description>
+        <categories>
+            <category>Cloud Computing</category>
+            <category>DevOps</category>
+            <category>Infrastructure</category>
+        </categories>
+        <price currency="USD">62.99</price>
+        <availability>
+            <inStock>true</inStock>
+            <quantity>90</quantity>
+        </availability>
+    </book>
+</catalog>

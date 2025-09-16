@@ -1,0 +1,34 @@
+# CSV Logical Grouping Configuration
+# Groups CSV rows by column values for logical chunks
+
+strategies:
+  primary: "csv_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  csv_chunker:
+    chunk_by: "logical_groups"    # Group by column values
+    group_by_column: "category"   # Column to group by (customize as needed)
+    preserve_headers: true        # Include headers in each chunk
+    encoding: "utf-8"
+    dialect: "auto"
+    skip_empty_lines: true
+
+# Example for sales data grouping by region
+# Alternative configurations (comment/uncomment as needed):
+# group_by_column: "region"     # Group sales data by region
+# group_by_column: "department" # Group employee data by department
+# group_by_column: "type"       # Group transaction data by type
+
+strategy_selection:
+  ".csv":
+    primary: "csv_chunker"
+    fallbacks: ["fixed_size"]
+
+processing:
+  enable_parallel: true
+  max_workers: 2
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 50

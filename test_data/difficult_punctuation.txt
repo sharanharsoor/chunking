@@ -1,0 +1,9 @@
+Dr. Smith went to the U.S.A. yesterday. He bought items for $19.99 each. The meeting is at 3:30 p.m. on Dec. 15th.
+
+"Hello there!" she said. "How are you?" The response was immediate: "I'm fine, thanks."
+
+Questions arise: What is A.I.? How does N.L.P. work? Why use ML algorithms? The answers aren't simple.
+
+List items: 1. First item. 2. Second item. 3. Third item. That's it!
+
+Abbreviations like etc., i.e., e.g., vs., and co. often confuse sentence detection algorithms.

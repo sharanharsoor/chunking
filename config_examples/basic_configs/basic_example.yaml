@@ -1,0 +1,53 @@
+# Example Chunking Configuration
+# Simple, practical configuration using available strategies
+
+profile_name: "simple_example"
+description: "Simple example configuration for demo purposes"
+
+# Primary and fallback strategies
+strategies:
+  primary: "sentence_based"
+  fallbacks:
+    - "paragraph_based"
+    - "fixed_size"
+
+  # Strategy-specific configurations
+  configs:
+    sentence_based:
+      max_sentences: 2
+      min_sentences: 1
+      max_chunk_size: 1000
+      overlap_sentences: 0
+      sentence_splitter: "simple"
+
+    paragraph_based:
+      max_paragraphs: 2
+      max_chunk_size: 1200
+
+    fixed_size:
+      chunk_size: 500
+      overlap_size: 50
+
+# Preprocessing options
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  clean_markup: false
+
+# Postprocessing options
+postprocessing:
+  enabled: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 50
+
+# Content extraction options
+extraction:
+  enabled: true
+  preserve_structure: true
+  include_metadata: true
+
+# Output preferences
+output:
+  include_metadata: true
+  chunk_id_format: "example_{index:03d}"

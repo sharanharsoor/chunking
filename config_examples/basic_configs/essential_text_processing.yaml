@@ -1,0 +1,32 @@
+# Essential Text Processing Configuration
+# Basic text chunking with commonly used algorithms
+
+name: "essential_text_processing"
+description: "Essential text processing with supported algorithms only"
+
+strategies:
+  primary: "paragraph_based"
+  fallbacks:
+    - "sentence_based"
+    - "fixed_size"
+
+parameters:
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+    preserve_formatting: false
+
+  sentence_based:
+    min_sentence_length: 20
+    max_sentences_per_chunk: 5
+    preserve_sentence_boundaries: true
+
+  fixed_size:
+    chunk_size: 1024
+    overlap_size: 100
+    unit: "character"
+    preserve_boundaries: true
+
+output:
+  format: "json"
+  include_metadata: true

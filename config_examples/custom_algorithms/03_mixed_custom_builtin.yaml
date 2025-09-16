@@ -1,0 +1,80 @@
+# Configuration 3: Mixed Custom + Built-in Algorithms
+# This demonstrates seamless integration of custom and built-in algorithms
+
+name: "mixed_algorithms_config"
+description: "Configuration mixing custom algorithms with built-in ones"
+
+# Load custom algorithms
+custom_algorithms:
+  - path: "../../examples/custom_algorithms/sentiment_based_chunker.py"
+  - path: "../../examples/custom_algorithms/balanced_length_chunker.py"
+
+# Mix custom and built-in algorithms in strategies
+strategies:
+  primary: "sentiment_based"        # Custom algorithm
+  fallbacks:
+    - "semantic"                    # Built-in algorithm
+    - "balanced_length"             # Custom algorithm
+    - "paragraph_based"             # Built-in algorithm
+    - "fixed_size"                  # Built-in algorithm
+
+# Parameters for both custom and built-in algorithms
+parameters:
+  # Custom algorithm parameters
+  sentiment_based:
+    sentiment_threshold: 0.2
+    min_chunk_sentences: 1
+    max_chunk_sentences: 8
+    sentiment_smoothing: false
+
+  balanced_length:
+    target_length: 800
+    length_tolerance: 0.3
+    boundary_preference: "sentence"
+    balance_algorithm: "greedy"
+
+  # Built-in algorithm parameters
+  semantic:
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    similarity_threshold: 0.6
+    min_chunk_size: 200
+    max_chunk_size: 1200
+
+  paragraph_based:
+    min_paragraph_length: 100
+    merge_short_paragraphs: true
+
+  fixed_size:
+    chunk_size: 600
+    overlap_size: 100
+    preserve_boundaries: true
+
+# Multi-strategy combining custom + built-in
+multi_strategy:
+  enabled: true
+  strategies:
+    - name: "sentiment_based"      # Custom
+      weight: 0.3
+    - name: "semantic"             # Built-in
+      weight: 0.3
+    - name: "balanced_length"      # Custom
+      weight: 0.2
+    - name: "paragraph_based"      # Built-in
+      weight: 0.2
+  combination_method: "ensemble_voting"
+  consensus_threshold: 0.7
+
+# Validation settings
+validation:
+  enabled: true
+  cross_validate_strategies: true
+  quality_comparison: true
+  performance_comparison: true
+
+# Output with comprehensive reporting
+output:
+  format: "json"
+  include_metadata: true
+  include_strategy_comparison: true
+  include_performance_metrics: true
+  detailed_chunk_info: true

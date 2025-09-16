@@ -1,0 +1,307 @@
+# Enhanced Auto Strategy Selection Configuration
+# This configuration implements the proper priority order:
+# 1. Specialized extractors for specific file types (.py → python_code, .cpp → c_cpp_code)
+# 2. Universal strategies as fallbacks (sentence_based, paragraph_based, fixed_size)
+# 3. User override capability maintained
+
+profile_name: "enhanced_auto_strategy"
+description: "Intelligent strategy selection with specialized extractors prioritized over universal strategies"
+
+# Strategy selection with proper prioritization
+strategy_selection:
+  # Programming Languages - Specialized extractors first
+  ".py":
+    primary: "python_code"           # Specialized Python AST parser
+    fallbacks: ["sentence_based", "paragraph_based", "fixed_size"]
+
+  ".cpp":
+    primary: "c_cpp_code"            # Specialized C++ parser
+    fallbacks: ["universal_code", "paragraph_based", "fixed_size"]
+
+  ".c":
+    primary: "c_cpp_code"            # Specialized C parser
+    fallbacks: ["universal_code", "paragraph_based", "fixed_size"]
+
+  ".h":
+    primary: "c_cpp_code"            # C/C++ headers
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based"]
+
+  ".hpp":
+    primary: "c_cpp_code"            # C++ headers
+    fallbacks: ["universal_code", "paragraph_based", "sentence_based"]
+
+  # Other code languages - Universal code chunker then fallbacks
+  ".js":
+    primary: "universal_code"        # Universal code chunker for JavaScript
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".ts":
+    primary: "universal_code"        # TypeScript support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".java":
+    primary: "universal_code"        # Java support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".go":
+    primary: "universal_code"        # Go support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".rs":
+    primary: "universal_code"        # Rust support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".php":
+    primary: "universal_code"        # PHP support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  ".rb":
+    primary: "universal_code"        # Ruby support
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Document files - Specialized then universal
+  ".pdf":
+    primary: "pdf_chunker"           # Specialized PDF extractor
+    fallbacks: ["paragraph_based", "sentence_based", "fixed_size"]
+
+  # Document formats using available chunkers
+  ".docx":
+    primary: "paragraph_based"       # Use paragraph-based for Word docs
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".xlsx":
+    primary: "csv_chunker"           # Use CSV chunker for Excel files
+    fallbacks: ["fixed_size"]
+
+  ".pptx":
+    primary: "paragraph_based"       # Use paragraph-based for PowerPoint
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Text files - Universal strategies optimized for text
+  ".txt":
+    primary: "sentence_based"        # Best for readable text
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".md":
+    primary: "paragraph_based"       # Markdown structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".rst":
+    primary: "paragraph_based"       # reStructuredText structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Configuration and data files
+  ".json":
+    primary: "fixed_size"            # Consistent processing
+    fallbacks: ["paragraph_based", "sentence_based"]
+
+  ".xml":
+    primary: "paragraph_based"       # XML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".yaml":
+    primary: "paragraph_based"       # YAML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".yml":
+    primary: "paragraph_based"       # YAML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".toml":
+    primary: "paragraph_based"       # TOML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".ini":
+    primary: "sentence_based"        # Simple config files
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  ".conf":
+    primary: "sentence_based"        # Config files
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Web files
+  ".html":
+    primary: "paragraph_based"       # HTML structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".css":
+    primary: "paragraph_based"       # CSS rules
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".scss":
+    primary: "paragraph_based"       # SCSS structure
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Shell scripts
+  ".sh":
+    primary: "paragraph_based"       # Shell script blocks
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".bash":
+    primary: "paragraph_based"       # Bash scripts
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  ".zsh":
+    primary: "paragraph_based"       # Zsh scripts
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Database files
+  ".sql":
+    primary: "paragraph_based"       # SQL query blocks
+    fallbacks: ["sentence_based", "fixed_size"]
+
+  # Default fallback for unknown extensions
+  "unknown":
+    primary: "sentence_based"        # Safe default
+    fallbacks: ["paragraph_based", "fixed_size"]
+
+# Default strategies when no file-specific rules match
+strategies:
+  primary: "sentence_based"          # Safe universal default
+  fallbacks: ["paragraph_based", "fixed_size"]
+
+  # Comprehensive strategy configurations
+  configs:
+    # Specialized extractors
+    python_code:
+      max_line_count: 50
+      chunk_by: "logical_element"    # function, class, or logical_element
+      preserve_imports: true
+      include_docstrings: true
+      respect_decorators: true
+      handle_syntax_errors: true     # Graceful fallback on syntax errors
+
+    c_cpp_code:
+      max_line_count: 60
+      chunk_by: "logical_element"
+      preserve_includes: true
+      handle_preprocessor: true
+      respect_namespaces: true
+      handle_syntax_errors: true     # Graceful fallback on syntax errors
+
+    universal_code:
+      max_line_count: 40
+      chunk_by: "logical_block"
+      preserve_comments: true
+      language_detection: true
+      handle_syntax_errors: true     # Graceful fallback
+
+    pdf_chunker:
+      max_pages_per_chunk: 2
+      extract_images: false          # Disabled by default for compatibility
+      extract_tables: true
+      preserve_formatting: false
+      include_metadata: true
+      backend: "auto"
+      handle_extraction_errors: true # Graceful fallback
+
+    # Universal strategies (enhanced with streaming support)
+    sentence_based:
+      max_sentences: 5
+      min_sentences: 1
+      max_chunk_size: 2048
+      overlap_sentences: 1
+      sentence_splitter: "simple"
+      max_text_buffer_size: 2097152  # 2MB buffer for streaming protection
+
+    paragraph_based:
+      max_paragraphs: 3
+      min_paragraphs: 1
+      max_chunk_size: 3072
+      overlap_paragraphs: 1
+      merge_short_paragraphs: true
+
+    fixed_size:
+      chunk_size: 1024
+      overlap_size: 128
+      unit: "character"
+      preserve_words: true
+
+# Content extraction with error handling
+extraction:
+  enabled: true
+
+  # PDF extraction with fallbacks
+  pdf:
+    backend: "auto"
+    extract_images: false           # Disabled for compatibility
+    extract_tables: true
+    fallback_on_error: true        # Critical for graceful degradation
+
+  # Code extraction
+  code:
+    preserve_structure: true
+    include_comments: true
+    encoding: "utf-8"
+    parse_docstrings: true
+    fallback_on_error: true        # Graceful syntax error handling
+
+  # Text extraction
+  text:
+    encoding: "utf-8"
+    normalize_unicode: true
+    fallback_on_error: true
+
+# Preprocessing with error handling
+preprocessing:
+  enabled: true
+  normalize_whitespace: true
+  preserve_code_indentation: true
+  extract_metadata: true
+  validate_syntax: false           # Don't validate to avoid failures
+  continue_on_error: true          # Continue processing on errors
+
+# Postprocessing optimized for mixed content
+postprocessing:
+  enabled: true
+  enhance_metadata: true
+  validate_chunks: true
+  remove_empty_chunks: true
+  merge_short_chunks: true
+  min_chunk_size: 50
+  continue_on_error: true          # Continue processing on errors
+
+# Quality settings for diverse content
+quality:
+  min_chunk_size: 20
+  max_chunk_size: 8192
+  coherence_threshold: 0.6         # Lower for code vs text mix
+  preserve_semantic_boundaries: true
+
+# Performance settings
+performance:
+  streaming_threshold: 1048576     # 1MB
+  parallel_processing: true
+  memory_limit: 1073741824        # 1GB
+  timeout: 180                    # 3 minutes
+  continue_on_timeout: true       # Use fallback on timeout
+
+# Enhanced logging for debugging strategy selection
+logging:
+  level: "INFO"
+  log_strategy_selection: true
+  log_extraction_details: true
+  log_fallback_usage: true        # Track when fallbacks are used
+  log_performance_metrics: true
+  log_errors: true                # Log errors but continue
+
+# Output optimized for diverse content types
+output:
+  include_metadata: true
+  include_quality_scores: true
+  chunk_id_format: "enhanced_{strategy}_{type}_{index:04d}"
+  preserve_source_structure: true
+  include_fallback_info: true     # Show which fallbacks were used
+
+# Examples of enhanced auto-strategy usage:
+#
+# 1. Python file → python_code (specialized) → sentence_based (universal) → fixed_size
+# 2. C++ file → c_cpp_code (specialized) → universal_code → paragraph_based → fixed_size
+# 3. PDF file → pdf_chunker (specialized) → paragraph_based → sentence_based → fixed_size
+# 4. Unknown file → sentence_based → paragraph_based → fixed_size
+# 5. User override: orchestrator.chunk_file("any_file.py", strategy_override="fixed_size")
+#
+# Usage:
+#   orchestrator = ChunkerOrchestrator(config_path="config_examples/enhanced_auto_strategy.yaml")
+#   result = orchestrator.chunk_file("source_file.py")  # Auto-selects python_code
+#   result = orchestrator.chunk_file("source_file.py", strategy_override="sentence_based")  # User override

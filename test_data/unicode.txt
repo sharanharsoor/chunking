@@ -1,0 +1,3 @@
+这是中文句子。This is an English sentence. Ceci est une phrase française. これは日本語の文です。 هذه جملة باللغة العربية.
+
+Unicode symbols: α, β, γ, δ. Mathematical: ∑, ∏, ∫, ∞. Emojis: 🌍, 🚀, 💻, 📚.

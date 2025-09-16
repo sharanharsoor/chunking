@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Secret/sensitive files
+.env*
+secrets.py
+config/huggingface_token.py
+
+# Test artifacts and temporary files
+coverage.xml
+htmlcov/
+.coverage
+.pytest_cache/
+.tox/
+
+# Generated results and benchmarks
+benchmarks/results/
+benchmarks/reports/
+chunking_benchmarks/
+demo_results/
+test_streaming/
+
+# Temporary data and logs
+logs
+chunks_output.txt
+*.log
+
+# Development and example data
+test_data/large_files/
+test_data/video_files/
+test_data/audio_files/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg

@@ -1,0 +1,59 @@
+# HTML Chunking Configuration - Attribute-Based Strategy
+# Best for: CSS class/ID based content grouping
+# Use case: Extracting content by styling or structural classes
+
+chunking:
+  # Main strategy configuration
+  strategies:
+    primary: xml_html_chunker
+
+    # Strategy-specific configurations
+    configs:
+      xml_html_chunker:
+        # Attribute-based chunking
+        chunk_by: attribute_based
+
+        # Group by CSS class attribute
+        group_by_attribute: class
+
+        # Size constraints
+        min_chunk_size: 50
+        chunk_size: 1800
+        max_chunk_size: 4500
+        chunk_overlap: 180
+
+        # Content preservation
+        preserve_structure: true
+        include_attributes: true
+
+        # Parser configuration
+        parser: auto
+        encoding: utf-8
+
+  # Content filtering by attributes
+  filtering:
+    include_classes:
+      - content
+      - article-body
+      - post-content
+      - main-text
+      - paragraph
+    exclude_classes:
+      - advertisement
+      - sidebar
+      - footer
+      - navigation
+      - comments
+
+  # Processing options
+  processing:
+    parallel: true
+    batch_size: 8
+    group_similar: true
+
+  # Output configuration
+  output:
+    format: json
+    include_metadata: true
+    group_by_attribute: true
+    preserve_css_info: true

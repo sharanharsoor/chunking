@@ -1,0 +1,14 @@
+name,value,unit
+temperature,22.5,celsius
+humidity,45.0,percent
+pressure,1013.25,hPa
+
+SECTION_NAME,SECTION_VALUE,SECTION_UNIT
+flow_rate,150.5,L/min
+ph_level,7.2,pH
+dissolved_oxygen,8.5,mg/L
+
+device,reading,timestamp
+sensor_1,98.5,2023-01-01T10:00:00
+sensor_2,102.3,2023-01-01T10:01:00
+sensor_3,99.7,2023-01-01T10:02:00

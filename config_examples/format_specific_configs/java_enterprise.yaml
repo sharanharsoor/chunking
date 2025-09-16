@@ -1,0 +1,113 @@
+# Java Enterprise Application Chunking Configuration
+#
+# This configuration is optimized for enterprise Java applications with
+# complex class hierarchies, annotations, and architectural patterns.
+
+strategies:
+  primary: java_code
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# Java chunker configured for enterprise applications
+java_code:
+  chunk_by: method               # Chunk by individual methods
+  max_lines_per_chunk: 200       # Allow larger methods in enterprise code
+  include_package: true          # Critical for package structure
+  include_imports: true          # Import dependencies analysis
+  include_annotations: true      # Spring/JEE annotations
+  include_javadoc: true          # Enterprise documentation
+  group_inner_classes: true      # Keep inner classes with outer
+  preserve_access_modifiers: true # Access control is critical
+
+  # Enterprise-specific settings
+  min_chunk_size: 30             # Larger min for enterprise methods
+  max_chunk_size: 12000          # Larger max for complex business logic
+
+# Processing optimized for enterprise Java
+processing:
+  parallel: true
+  max_workers: 6                 # Java parsing can be CPU intensive
+  chunk_overlap: 0               # No overlap for code chunks
+  
+  # Java-specific preprocessing
+  normalize_generics: true       # Standardize generic syntax
+  extract_design_patterns: true  # Identify common patterns
+  analyze_dependencies: true     # Package dependency analysis
+
+# Enhanced metadata for enterprise development
+output:
+  include_metadata: true
+  metadata_fields:
+    - element_type               # method, class, interface, enum, field
+    - element_name               # Name of the element
+    - access_modifier            # public, private, protected, default
+    - modifiers                  # static, final, abstract, synchronized
+    - return_type                # Method return type
+    - field_type                 # Field type
+    - parameters                 # Method parameters
+    - extends                    # Class inheritance
+    - implements                 # Interface implementations
+    - members                    # Class members summary
+    - methods                    # Interface methods
+    - constants                  # Enum constants
+    - is_constructor             # Constructor detection
+    - is_static                  # Static member detection
+    - has_initializer            # Field initializer presence
+    - javadoc_tags              # JavaDoc tag extraction
+    
+  # Enterprise-specific metadata
+  java_metadata:
+    extract_annotations: true    # Spring, JEE, validation annotations
+    extract_design_patterns: true # Singleton, Factory, Observer, etc.
+    identify_frameworks: true    # Spring, Hibernate, JPA detection
+    extract_sql_queries: true    # Extract embedded SQL/JPQL
+    analyze_transactions: true   # @Transactional analysis
+    identify_rest_endpoints: true # @RestController, @RequestMapping
+
+# File filtering for enterprise Java projects
+file_filters:
+  extensions:
+    - .java                      # Java source files
+    
+  # Enterprise Java patterns
+  include_patterns:
+    - src/main/java/            # Maven structure
+    - src/test/java/            # Test code
+    - com/                      # Java package structure
+    - org/                      # Organization packages
+    - controller/               # Spring controllers
+    - service/                  # Service layer
+    - repository/               # Data access layer
+    - entity/                   # JPA entities
+    - dto/                      # Data transfer objects
+    - config/                   # Configuration classes
+    
+  exclude_patterns:
+    - target/                   # Maven build output
+    - .mvn/                     # Maven wrapper
+    - "*.class"                 # Compiled classes
+    - "*Test.java"              # Test files (optional)
+    - "*IT.java"               # Integration tests
+    
+# Quality settings for enterprise Java
+quality:
+  min_method_lines: 5           # Skip very small methods
+  preserve_java_structure: true # Maintain OOP structure
+  include_empty_methods: false  # Skip empty method bodies
+  detect_enterprise_patterns: true
+  
+  # Enterprise best practices
+  enforce_coding_standards: true # Check naming conventions
+  detect_security_patterns: true # Security annotations and patterns
+  validate_architecture: true   # Layered architecture validation
+  analyze_complexity: true      # Cyclomatic complexity hints
+
+# Enterprise development helpers
+enterprise:
+  spring_framework_analysis: true  # Spring-specific analysis
+  jpa_entity_analysis: true       # JPA entity relationships
+  rest_api_analysis: true         # REST endpoint documentation
+  security_analysis: true         # Security configuration detection
+  transaction_analysis: true      # Transaction boundary analysis
+  microservice_patterns: true     # Microservice pattern detection

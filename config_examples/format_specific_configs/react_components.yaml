@@ -1,0 +1,96 @@
+# React Component Chunking Configuration
+#
+# This configuration is optimized for React applications, chunking by
+# JSX components and preserving React-specific patterns.
+
+strategies:
+  primary: javascript_code
+  fallback:
+    - paragraph_based
+    - sentence_based
+
+# JavaScript chunker configured for React
+javascript_code:
+  chunk_by: component            # Chunk by React components
+  max_lines_per_chunk: 200       # Allow larger components
+  include_imports: true          # Critical for React imports
+  include_exports: true          # Component exports
+  handle_jsx: true              # Essential for React
+  handle_typescript: true       # Support TypeScript React
+  preserve_comments: true       # Keep JSDoc and component docs
+
+  # React-specific settings
+  min_chunk_size: 50            # Smaller min for component chunks
+  max_chunk_size: 12000         # Larger max for complex components
+
+# Processing optimized for React projects
+processing:
+  parallel: true
+  max_workers: 6                # React projects often have many files
+  chunk_overlap: 0
+
+  # React-specific preprocessing
+  normalize_jsx: true           # Standardize JSX formatting
+  extract_props: true           # Extract prop types/interfaces
+
+# Enhanced metadata for React development
+output:
+  include_metadata: true
+  metadata_fields:
+    - element_type
+    - element_name
+    - is_jsx_component          # Key for React components
+    - params                    # Props for components
+    - is_async                  # Async components
+    - language
+    - component_type            # functional vs class component
+    - hooks_used               # React hooks in component
+
+  # React-specific metadata
+  react_metadata:
+    extract_hooks: true         # List hooks used
+    extract_props: true         # Component prop types
+    extract_state: true         # State usage
+    extract_effects: true       # useEffect dependencies
+
+# File filtering for React projects
+file_filters:
+  extensions:
+    - .jsx
+    - .tsx                      # Prioritize React files
+    - .js
+    - .ts
+
+  # React-specific patterns
+  include_patterns:
+    - components/              # Component directories
+    - src/                     # Source code
+    - pages/                   # Next.js pages
+    - hooks/                   # Custom hooks
+
+  exclude_patterns:
+    - "*.test.jsx"            # Skip test files
+    - "*.spec.tsx"            # Skip spec files
+    - "*.stories.js"          # Skip Storybook files
+    - build/                  # Skip build output
+    - dist/                   # Skip distribution
+    - node_modules/
+
+# Quality settings for React code
+quality:
+  min_component_lines: 5        # Skip tiny components
+  preserve_jsx_structure: true  # Maintain JSX hierarchy
+  include_empty_components: false
+  detect_component_patterns: true
+
+  # React best practices
+  prefer_functional_components: true
+  detect_hooks: true
+  validate_jsx_syntax: true
+
+# Development helpers
+development:
+  generate_component_tree: true  # Map component relationships
+  extract_prop_interfaces: true  # TypeScript prop types
+  identify_performance_issues: true
+  suggest_optimizations: false   # Disabled by default

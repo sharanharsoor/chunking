@@ -1,0 +1,40 @@
+# JSON Lines (JSONL) Streaming Configuration
+# Optimized for streaming JSONL data processing
+
+strategies:
+  primary: "json_chunker"
+  fallbacks: ["fixed_size"]
+
+chunking_parameters:
+  json_chunker:
+    chunk_by: "objects"           # Object-based chunking
+    objects_per_chunk: 200        # Objects per chunk for streaming
+    preserve_structure: true      # Maintain valid JSON structure
+    encoding: "utf-8"
+    handle_jsonl: true            # Enable JSONL support
+    compact_output: true          # Compact for streaming efficiency
+
+strategy_selection:
+  ".jsonl":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+  ".ndjson":
+    primary: "json_chunker"
+    fallbacks: ["fixed_size"]
+
+# Optimized for:
+# - Log processing
+# - Event streams
+# - Real-time data ingestion
+# - Batch processing pipelines
+
+processing:
+  enable_parallel: true
+  max_workers: 8
+  enable_streaming: true
+  memory_limit_gb: 1
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 100
+  max_chunk_size: 5000000  # 5MB chunks for streaming

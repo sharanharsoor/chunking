@@ -1,0 +1,45 @@
+# CSV-Focused Chunking Configuration
+# Optimized for processing CSV data with various strategies
+
+strategies:
+  primary: "csv_chunker"
+  fallbacks: ["fixed_size", "paragraph_based"]
+
+# CSV-specific configuration
+chunking_parameters:
+  csv_chunker:
+    chunk_by: "rows"           # Options: rows, logical_groups, memory_size, header_sections
+    rows_per_chunk: 1000       # Number of rows per chunk
+    preserve_headers: true     # Include headers in each chunk
+    encoding: "utf-8"          # File encoding
+    dialect: "auto"            # CSV dialect detection
+    skip_empty_lines: true     # Skip empty lines
+    chunk_overlap_rows: 0      # Overlap between chunks
+
+# Strategy selection rules for different file types
+strategy_selection:
+  ".csv":
+    primary: "csv_chunker"
+    fallbacks: ["fixed_size"]
+  ".tsv":
+    primary: "csv_chunker"
+    fallbacks: ["fixed_size"]
+  ".tab":
+    primary: "csv_chunker"
+    fallbacks: ["fixed_size"]
+
+# Processing configuration
+processing:
+  enable_parallel: true
+  max_workers: 4
+  chunk_size_limit: 50  # MB per chunk
+
+quality_control:
+  enable_validation: true
+  min_chunk_size: 10      # Minimum characters per chunk
+  max_chunk_size: 100000  # Maximum characters per chunk
+
+# Output configuration
+output:
+  include_metadata: true
+  preserve_source_info: true
