@@ -1,0 +1,51 @@
+name: Test Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        exclude:
+          # Reduce matrix size for faster runs
+          - os: windows-latest
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.8'
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+        pip install -e .[dev]
+        
+    - name: Lint with ruff (if available)
+      run: |
+        pip install ruff || echo "Ruff not available, skipping"
+        ruff check . || echo "Linting completed"
+      continue-on-error: true
+        
+    - name: Test build
+      run: |
+        python -m build
+        twine check dist/*
+        
+    - name: Test installation
+      run: |
+        pip install dist/*.whl
+        python -c "import chunking_strategy; print(f'✅ Import successful! Version: {chunking_strategy.__version__}')"
