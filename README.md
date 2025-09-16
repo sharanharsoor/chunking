@@ -252,7 +252,7 @@ We're actively expanding format support. **Coming soon**:
 | **Archives** | `.zip`, `.tar`, `.7z` | Content-aware or specialized `archive_chunker` |
 | **CAD/Design** | `.dwg`, `.dxf`, `.svg` | Specialized `design_chunker` |
 
-**Request format support**: [Open an issue](https://github.com/your-org/chunking-strategy/issues) for priority formats!
+**Request format support**: [Open an issue](https://github.com/sharanharsoor/chunking/issues) for priority formats!
 
 ---
 
@@ -1498,13 +1498,17 @@ BatchProcessor().process_files(files, strategy, **options) -> BatchResult
 
 ## 🤝 **Contributing**
 
-We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please feel free to submit a Pull Request or open an issue for:
+- Bug fixes and improvements
+- New chunking strategies
+- Documentation improvements
+- Performance optimizations
 
 ### Development Setup
 
 ```bash
-git clone https://github.com/your-org/chunking-strategy.git
-cd chunking-strategy
+git clone https://github.com/sharanharsoor/chunking.git
+cd chunking
 pip install -e .[dev,all]
 pytest tests/
 ```
@@ -1519,10 +1523,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 **Links**
 
-- **Documentation**: [Full documentation and guides](https://chunking-strategy.readthedocs.io)
-- **Examples**: [Complete examples repository](examples/)
-- **Issues**: [Bug reports and feature requests](https://github.com/your-org/chunking-strategy/issues)
-- **PyPI**: [Package on PyPI](https://pypi.org/project/chunking-strategy/)
+- **Repository**: [GitHub repository](https://github.com/sharanharsoor/chunking)
+- **Examples**: [Example scripts and demos](examples/)
+- **Issues**: [Bug reports and feature requests](https://github.com/sharanharsoor/chunking/issues)
+- **PyPI**: Package will be available on PyPI soon
 
 ---
 

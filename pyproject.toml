@@ -110,11 +110,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/chunking-strategy/chunking-strategy"
-Documentation = "https://chunking-strategy.readthedocs.io"
-Repository = "https://github.com/chunking-strategy/chunking-strategy"
-Issues = "https://github.com/chunking-strategy/chunking-strategy/issues"
-Changelog = "https://github.com/chunking-strategy/chunking-strategy/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/sharanharsoor/chunking"
+Repository = "https://github.com/sharanharsoor/chunking"
+Issues = "https://github.com/sharanharsoor/chunking/issues"
+Changelog = "https://github.com/sharanharsoor/chunking/blob/main/CHANGELOG.md"
 
 [project.scripts]
 chunking-strategy = "chunking_strategy.cli:main"
