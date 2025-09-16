@@ -47,6 +47,7 @@ Thumbs.db
 # Secret/sensitive files
 .env*
 secrets.py
+config/huggingface_token.py
 !config/huggingface_token.py.template  # Allow template file
 
 # Test artifacts and temporary files
