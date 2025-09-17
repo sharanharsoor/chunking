@@ -11,7 +11,21 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Type, Callable, Union
 from enum import Enum
 import importlib
-import pkg_resources
+
+# Handle pkg_resources deprecation gracefully
+try:
+    import pkg_resources
+except ImportError:
+    # pkg_resources is deprecated and not available in newer Python versions
+    # We'll use importlib.metadata instead where needed
+    pkg_resources = None
+    try:
+        from importlib import metadata as importlib_metadata
+    except ImportError:
+        try:
+            import importlib_metadata
+        except ImportError:
+            importlib_metadata = None
 
 from chunking_strategy.core.base import BaseChunker, ModalityType
 
