@@ -514,7 +514,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
 
         return np.array(embeddings, dtype=float)
 
-    def _apply_dimension_reduction(self, embeddings: np.ndarray) -> np.ndarray:
+    def _apply_dimension_reduction(self, embeddings: "np.ndarray") -> "np.ndarray":
         """Apply PCA dimensionality reduction."""
         if not self.scaler or not self.pca:
             return embeddings
@@ -549,7 +549,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
             sentences_key in self.embedding_cache.embeddings
         )
 
-    def _cache_embeddings(self, sentences: List[str], embeddings: np.ndarray):
+    def _cache_embeddings(self, sentences: List[str], embeddings: "np.ndarray"):
         """Cache embeddings for future use."""
         sentences_key = str(sentences)
 
@@ -597,7 +597,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
         self.performance_stats["similarity_computation_time"] += time.time() - start_time
         return boundaries
 
-    def _threshold_based_boundaries(self, embeddings: np.ndarray) -> List[int]:
+    def _threshold_based_boundaries(self, embeddings: "np.ndarray") -> List[int]:
         """Determine boundaries using similarity thresholds."""
         if len(embeddings) < 2:
             return [0, len(embeddings)]
@@ -633,7 +633,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
 
         return boundaries
 
-    def _kmeans_boundaries(self, embeddings: np.ndarray) -> List[int]:
+    def _kmeans_boundaries(self, embeddings: "np.ndarray") -> List[int]:
         """Determine boundaries using K-means clustering."""
         if not SKLEARN_AVAILABLE:
             return self._threshold_based_boundaries(embeddings)
@@ -662,7 +662,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
         boundaries.append(len(embeddings))
         return sorted(set(boundaries))
 
-    def _hierarchical_boundaries(self, embeddings: np.ndarray) -> List[int]:
+    def _hierarchical_boundaries(self, embeddings: "np.ndarray") -> List[int]:
         """Determine boundaries using hierarchical clustering."""
         if not SKLEARN_AVAILABLE:
             return self._threshold_based_boundaries(embeddings)
@@ -690,7 +690,7 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
         boundaries.append(len(embeddings))
         return sorted(set(boundaries))
 
-    def _dbscan_boundaries(self, embeddings: np.ndarray) -> List[int]:
+    def _dbscan_boundaries(self, embeddings: "np.ndarray") -> List[int]:
         """Determine boundaries using DBSCAN clustering."""
         if not SKLEARN_AVAILABLE:
             return self._threshold_based_boundaries(embeddings)

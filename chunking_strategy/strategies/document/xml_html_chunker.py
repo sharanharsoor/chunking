@@ -13,7 +13,7 @@ import logging
 import re
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Union, Tuple, TYPE_CHECKING
 from xml.etree import ElementTree as ET
 from html.parser import HTMLParser
 
@@ -22,6 +22,11 @@ try:
     HAS_BS4 = True
 except ImportError:
     HAS_BS4 = False
+    # Create dummy classes for type hints
+    if TYPE_CHECKING:
+        from bs4 import BeautifulSoup, Tag, NavigableString
+    else:
+        BeautifulSoup = Tag = NavigableString = None
 
 try:
     from lxml import etree, html
@@ -356,7 +361,7 @@ class XMLHTMLChunker(StreamableChunker, AdaptableChunker):
         else:
             return self._analyze_builtin_structure(parsed_tree)
 
-    def _analyze_bs4_structure(self, soup: BeautifulSoup) -> Dict[str, Any]:
+    def _analyze_bs4_structure(self, soup: "BeautifulSoup") -> Dict[str, Any]:
         """Analyze structure using BeautifulSoup."""
         elements = soup.find_all()
         element_counts = {}

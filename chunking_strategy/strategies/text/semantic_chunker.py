@@ -421,7 +421,7 @@ class SemanticChunker(StreamableChunker, AdaptableChunker):
             dim = 384 if "MiniLM" in str(self.embedding_model) else 768
             return np.zeros((len(sentences), dim))
 
-    def _compute_similarity_scores(self, embeddings: np.ndarray) -> List[float]:
+    def _compute_similarity_scores(self, embeddings: "np.ndarray") -> List[float]:
         """Compute similarity scores between consecutive sentences."""
         if not SKLEARN_AVAILABLE:
             # Simple dot product similarity
