@@ -11,8 +11,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: ['3.10', '3.11']
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        exclude:
+          # Reduce some combinations to speed up CI
+          - os: windows-latest
+            python-version: '3.9'
+          - os: macos-latest
+            python-version: '3.9'
       fail-fast: false
 
     steps:
@@ -29,6 +35,8 @@ jobs:
         pip install build twine setuptools wheel
         # Install with basic dependencies first
         pip install -e .
+        # Install some common optional dependencies for better testing
+        pip install numpy scikit-learn || echo "Optional ML dependencies not available"
         # Install dev dependencies for testing
         pip install pytest ruff black isort mypy || echo "Some dev tools not available"
 

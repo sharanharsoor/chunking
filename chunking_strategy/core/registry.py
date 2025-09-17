@@ -433,9 +433,13 @@ class ChunkerRegistry:
         except ImportError:
             try:
                 # Try with pkg_resources for packages with different import names
-                pkg_resources.get_distribution(package_name)
-                return True
-            except (pkg_resources.DistributionNotFound, Exception):
+                if pkg_resources is not None:
+                    pkg_resources.get_distribution(package_name)
+                    return True
+                elif importlib_metadata is not None:
+                    importlib_metadata.distribution(package_name)
+                    return True
+            except Exception:
                 return False
 
     def get_recommendations(

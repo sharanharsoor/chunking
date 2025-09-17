@@ -51,7 +51,26 @@ try:
 except ImportError:
     SKLEARN_AVAILABLE = False
 
-import numpy as np
+# Optional numpy import - graceful fallback
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+    # Create a minimal numpy-like interface for basic operations
+    class MockNumpy:
+        @staticmethod
+        def array(x):
+            return list(x) if isinstance(x, (list, tuple)) else [x]
+        @staticmethod
+        def mean(x):
+            return sum(x) / len(x) if x else 0
+        @staticmethod
+        def std(x):
+            if not x: return 0
+            mean_val = sum(x) / len(x)
+            return (sum((val - mean_val) ** 2 for val in x) / len(x)) ** 0.5
+    np = MockNumpy()
 
 from chunking_strategy.core.base import BaseChunker, Chunk, ChunkingResult, ChunkMetadata, ModalityType
 from chunking_strategy.core.registry import register_chunker, ComplexityLevel, SpeedLevel, MemoryUsage
