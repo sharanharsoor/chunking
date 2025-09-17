@@ -1530,7 +1530,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Repository**: [GitHub repository](https://github.com/sharanharsoor/chunking)
 - **Examples**: [Example scripts and demos](examples/)
 - **Issues**: [Bug reports and feature requests](https://github.com/sharanharsoor/chunking/issues)
-- **PyPI**: Package will be available on PyPI soon
+- **PyPI**: [Package on PyPI](https://pypi.org/project/chunking-strategy/)
 
 ---
 
