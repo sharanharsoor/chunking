@@ -10,12 +10,17 @@ import io
 import time
 import logging
 from pathlib import Path
-from typing import Union, List, Optional, Dict, Any, Tuple
+from typing import Union, List, Optional, Dict, Any, Tuple, TYPE_CHECKING
 
 try:
     from PIL import Image
+    HAS_PIL = True
 except ImportError:
-    Image = None
+    HAS_PIL = False
+    if TYPE_CHECKING:
+        from PIL import Image
+    else:
+        Image = None
 
 try:
     import numpy as np
@@ -81,7 +86,7 @@ class GridBasedImageChunker(StreamableChunker):
             logger.warning(f"Invalid output format {self.output_format}, defaulting to PNG")
             self.output_format = "PNG"
 
-    def _load_image(self, content: Union[str, bytes, Path]) -> Image.Image:
+    def _load_image(self, content: Union[str, bytes, Path]) -> "Image.Image":
         """Load image from various input types."""
         if Image is None:
             raise ImportError("PIL (Pillow) is required for image processing. Install with: pip install Pillow")
@@ -105,7 +110,7 @@ class GridBasedImageChunker(StreamableChunker):
             # Re-raise the original exception from PIL for better error messages
             raise ValueError(f"Failed to load image: {e}")
 
-    def _extract_source_info(self, image: Image.Image, source_path: Optional[str] = None) -> Dict[str, Any]:
+    def _extract_source_info(self, image: "Image.Image", source_path: Optional[str] = None) -> Dict[str, Any]:
         """Extract metadata from the image."""
         return {
             "width": image.width,
@@ -115,7 +120,7 @@ class GridBasedImageChunker(StreamableChunker):
             "source_path": source_path or "Unknown"
         }
 
-    def _create_grid_tiles(self, image: Image.Image) -> List[Tuple[Image.Image, Dict[str, Any]]]:
+    def _create_grid_tiles(self, image: "Image.Image") -> List[Tuple["Image.Image", Dict[str, Any]]]:
         """
         Create grid tiles from the image.
 
@@ -172,7 +177,7 @@ class GridBasedImageChunker(StreamableChunker):
 
         return tiles
 
-    def _tile_to_bytes(self, tile: Image.Image) -> bytes:
+    def _tile_to_bytes(self, tile: "Image.Image") -> bytes:
         """Convert PIL Image tile to bytes."""
         buffer = io.BytesIO()
         save_format = self.output_format

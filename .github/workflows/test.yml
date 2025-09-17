@@ -36,7 +36,7 @@ jobs:
         # Install with basic dependencies first
         pip install -e .
         # Install some common optional dependencies for better testing
-        pip install numpy scikit-learn beautifulsoup4 lxml || echo "Optional ML dependencies not available"
+        pip install numpy scikit-learn beautifulsoup4 lxml Pillow opencv-python || echo "Optional ML dependencies not available"
         # Install dev dependencies for testing
         pip install pytest ruff black isort mypy || echo "Some dev tools not available"
 

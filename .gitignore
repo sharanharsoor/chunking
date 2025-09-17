@@ -54,6 +54,7 @@ config/huggingface_token.py
 coverage.xml
 htmlcov/
 .coverage
+.coverage.*
 .pytest_cache/
 .tox/
 
