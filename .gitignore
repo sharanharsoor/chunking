@@ -84,6 +84,16 @@ Thumbs.db
 .vscode/settings.json
 .idea/
 
+# Virtual environments
+venv/
+env/
+test_env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
 # Build artifacts
 build/
 dist/
