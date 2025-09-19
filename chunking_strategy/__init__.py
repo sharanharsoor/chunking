@@ -244,4 +244,12 @@ __all__ = [
 
     # Version
     "__version__",
+
+    # Strategy listing functions
+    "list_chunkers",
+    "list_strategies",  # Alias for list_chunkers
 ]
+
+# Add convenient alias for strategy listing
+from chunking_strategy.core.registry import list_chunkers
+list_strategies = list_chunkers  # Alias for backward compatibility
