@@ -1,16 +1,13 @@
 # Chunking Strategy Library
 
-[![PyPI version](https://badge.fury.io/py/chunking-strategy.svg)](https://badge.fury.io/py/chunking-strategy)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://img.shields.io/pypi/v/chunking-strategy.svg)](https://pypi.org/project/chunking-strategy/)
+[![Python versions](https://img.shields.io/pypi/pyversions/chunking-strategy.svg)](https://pypi.org/project/chunking-strategy/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://img.shields.io/pypi/dm/chunking-strategy.svg)](https://pypi.org/project/chunking-strategy/)
 
 **A comprehensive Python library for intelligent document chunking with extensive format support and streaming capabilities.**
 
 Transform your documents into perfectly sized chunks for RAG systems, vector databases, LLM processing, and content analysis with multi-core processing and memory-efficient streaming for large files.
-
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI version](https://badge.fury.io/py/chunking-strategy.svg)](https://badge.fury.io/py/chunking-strategy)
 
 ---
 

@@ -9,10 +9,10 @@ description = "A comprehensive chunking library for text, documents, audio, vide
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Chunking Strategy Team", email = "sharanharsoor@gmail.com"}
+    {name = "Sharan Harsoor", email = "sharanharsoor@gmail.com"}
 ]
 maintainers = [
-    {name = "Chunking Strategy Team", email = "sharanharsoor@gmail.com"}
+    {name = "Sharan Harsoor", email = "sharanharsoor@gmail.com"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
