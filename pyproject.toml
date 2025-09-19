@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chunking-strategy"
-version = "0.1.0"
+version = "0.2.0"
 description = "A comprehensive chunking library for text, documents, audio, video, and data streams"
 readme = "README.md"
 license = {text = "MIT"}
