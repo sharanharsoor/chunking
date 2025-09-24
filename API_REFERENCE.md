@@ -417,41 +417,28 @@ print(f"Recommended batch size: {hardware.recommended_batch_size}")
 ### File Type Detection
 
 ```python
-from chunking_strategy.utils import detect_file_type, get_file_info
+# File type is typically detected automatically by chunkers
+# For manual detection, you can check file extensions:
+import pathlib
 
-# Detect file type
-file_type = detect_file_type("document.pdf")
-
-# Get detailed file information
-info = get_file_info("document.pdf")
-print(f"Type: {info.file_type}")
-print(f"Size: {info.size_mb:.1f} MB")
-print(f"Encoding: {info.encoding}")
+file_path = pathlib.Path("document.pdf")
+file_extension = file_path.suffix  # ".pdf"
+file_size = file_path.stat().st_size  # size in bytes
 ```
 
 ### Preprocessing & Postprocessing
 
 ```python
-from chunking_strategy.utils.preprocessing import (
-    normalize_whitespace,
-    remove_empty_lines,
-    detect_language
-)
-from chunking_strategy.utils.postprocessing import (
-    merge_short_chunks,
-    remove_duplicate_chunks,
-    filter_chunks
-)
+from chunking_strategy.utils.preprocessing import PreprocessingPipeline
+from chunking_strategy.utils.postprocessing import PostprocessingPipeline
 
-# Preprocessing
-content = normalize_whitespace(raw_content)
-content = remove_empty_lines(content)
-language = detect_language(content)
+# Preprocessing pipeline
+preprocessor = PreprocessingPipeline()
+processed_content = preprocessor.process(raw_content)
 
-# Postprocessing
-chunks = merge_short_chunks(chunks, min_length=50)
-chunks = remove_duplicate_chunks(chunks)
-chunks = filter_chunks(chunks, min_word_count=10)
+# Postprocessing pipeline
+postprocessor = PostprocessingPipeline()
+processed_chunks = postprocessor.process(chunks)
 ```
 
 ## 🔗 Integration Helpers
@@ -459,34 +446,37 @@ chunks = filter_chunks(chunks, min_word_count=10)
 ### LangChain Integration
 
 ```python
-from chunking_strategy.integrations.langchain import (
-    to_langchain_documents,
-    from_langchain_documents
-)
+# Convert chunks to LangChain Document format manually
+from langchain.schema import Document
 
-# Convert to LangChain format
 result = chunker.chunk("document.pdf")
-langchain_docs = to_langchain_documents(result.chunks)
-
-# Convert from LangChain format
-chunks = from_langchain_documents(langchain_docs)
+langchain_docs = [
+    Document(
+        page_content=chunk.content,
+        metadata={
+            "source": chunk.metadata.source,
+            "chunk_id": chunk.id
+        }
+    )
+    for chunk in result.chunks
+]
 ```
 
 ### Vector Database Export
 
 ```python
-from chunking_strategy.integrations.vectordb import (
-    export_for_weaviate,
-    export_for_qdrant,
-    export_for_pinecone
-)
-
-# Export for different vector databases
+# Export chunks for vector databases manually
 result = chunker.chunk("document.pdf")
 
-weaviate_data = export_for_weaviate(result.chunks)
-qdrant_data = export_for_qdrant(result.chunks)
-pinecone_data = export_for_pinecone(result.chunks)
+# Format for vector database insertion
+vector_data = [
+    {
+        "id": chunk.id,
+        "content": chunk.content,
+        "metadata": chunk.metadata.to_dict()
+    }
+    for chunk in result.chunks
+]
 ```
 
 ### Universal Apply Strategy
@@ -596,25 +586,25 @@ good_results = quality_controlled_batch(file_list, min_quality=0.8)
 
 ```python
 from chunking_strategy.exceptions import (
-    ChunkingError,
-    StrategyNotFoundError,
-    InvalidConfigurationError,
-    ProcessingError
+    ChunkerError,
+    ChunkerNotFoundError,
+    ChunkingConfigurationError,
+    ChunkingProcessingError
 )
 
 try:
     chunker = create_chunker("invalid_strategy")
-except StrategyNotFoundError as e:
+except ChunkerNotFoundError as e:
     print(f"Strategy not found: {e}")
 
 try:
     result = chunker.chunk("invalid_file.xyz")
-except ProcessingError as e:
+except ChunkingProcessingError as e:
     print(f"Processing failed: {e}")
 
 try:
     orchestrator = ChunkerOrchestrator(config_path="invalid_config.yaml")
-except InvalidConfigurationError as e:
+except ChunkingConfigurationError as e:
     print(f"Configuration error: {e}")
 ```
 

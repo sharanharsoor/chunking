@@ -57,9 +57,9 @@ benchmark           # Benchmark strategies
 hardware            # Show hardware info
 init-config         # Generate config template
 custom              # Manage custom algorithms
-embed               # Generate embeddings
-embed-batch         # Batch embedding generation
-list-models         # List embedding models
+embed               # Generate embeddings from chunked content
+embed-batch         # Generate embeddings for multiple files
+list-models         # List available embedding models
 debug               # Debug utilities
 ```
 
@@ -189,11 +189,11 @@ python -m chunking_strategy list-strategies [OPTIONS]
 
 **Options:**
 ```bash
---category TEXT         # Filter by category (text|document|code|multimedia|data)
---complexity TEXT       # Filter by complexity (low|medium|high)
---format [table|json]   # Output format
---detailed             # Show detailed information
---help                 # Show help
+--category TEXT               # Filter by category
+--modality TEXT               # Filter by modality
+--format [table|json|simple]  # Output format
+--show-details                # Show detailed information
+--help                        # Show help
 ```
 
 **Examples:**
@@ -205,10 +205,10 @@ python -m chunking_strategy list-strategies
 python -m chunking_strategy list-strategies --category text
 
 # Detailed information in JSON format
-python -m chunking_strategy list-strategies --detailed --format json
+python -m chunking_strategy list-strategies --show-details --format json
 
-# Only low complexity strategies
-python -m chunking_strategy list-strategies --complexity low
+# Filter by modality
+python -m chunking_strategy list-strategies --modality text
 ```
 
 ### test-strategy - Test Strategy Performance
@@ -337,6 +337,18 @@ python -m chunking_strategy embed [OPTIONS] INPUT_FILE
 --help                         # Show help
 ```
 
+### embed-batch - Batch Embedding Generation
+
+```bash
+python -m chunking_strategy embed-batch [OPTIONS] INPUT_DIRECTORY
+```
+
+### list-models - List Available Models
+
+```bash
+python -m chunking_strategy list-models [OPTIONS]
+```
+
 **Examples:**
 ```bash
 # Generate embeddings
@@ -344,6 +356,9 @@ python -m chunking_strategy embed document.pdf --model all-MiniLM-L6-v2
 
 # Batch embeddings with normalization
 python -m chunking_strategy embed-batch documents/ --model all-mpnet-base-v2 --normalize
+
+# List available embedding models
+python -m chunking_strategy list-models
 ```
 
 ### custom - Custom Algorithm Management

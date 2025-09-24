@@ -116,12 +116,12 @@ cpp_chunker = create_chunker("c_cpp_code")        # C/C++ syntax understanding
 ### ⚡ **Performance & Scalability**
 - **True Streaming Processing**: Handle multi-gigabyte files with constant memory usage through memory-mapped streaming
 - **Parallel Processing**: Multi-core batch processing for multiple files
-- **40 Chunking Strategies**: Comprehensive variety of text, code, document, and multimedia chunkers
+- **40+ Chunking Strategies**: Comprehensive variety of text, code, document, and multimedia chunkers
 - **Quality Metrics**: Built-in evaluation and optimization
 
 ### 🔥 **Key Differentiators**
 - **Memory-Mapped Streaming**: Process massive documents (1GB+) that would crash other libraries
-- **Format Variety**: 40 specialized chunkers vs. 5-8 in most libraries
+- **Format Variety**: 40+ specialized chunkers vs. 5-8 in most libraries
 - **True Universal Framework**: Apply any strategy to any file type
 - **Token-Precise Control**: Advanced tokenizer integration (tiktoken, transformers, etc.) for LLM applications
 - **Comprehensive Testing**: Extensively tested with real-world files and edge cases
@@ -458,7 +458,7 @@ chunking-strategy chunk document.pdf --config config.yaml
 
 ---
 
-## 🎭 **Complete Chunking Algorithms Reference (40 Total)**
+## 🎭 **Complete Chunking Algorithms Reference (40+ Total)**
 
 ### 📝 **Text-Based Strategies** (9 strategies)
 - `sentence_based` - Semantic coherence with sentence boundaries (RAG, Q&A)
