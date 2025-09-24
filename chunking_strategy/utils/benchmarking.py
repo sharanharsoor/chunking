@@ -15,7 +15,13 @@ from dataclasses import dataclass, asdict
 
 from chunking_strategy.core.base import ChunkingResult, BaseChunker
 from chunking_strategy.core.metrics import ChunkingQualityEvaluator, QualityMetrics
-from chunking_strategy.core.registry import create_chunker, list_chunkers
+from chunking_strategy.core.registry import list_chunkers
+
+
+def _get_create_chunker():
+    """Get create_chunker with lazy loading support."""
+    from chunking_strategy import create_chunker
+    return create_chunker
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +114,7 @@ class BenchmarkRunner:
 
         try:
             # Create chunker
+            create_chunker = _get_create_chunker()
             chunker = create_chunker(strategy_name, **parameters)
             if not chunker:
                 return BenchmarkResult(

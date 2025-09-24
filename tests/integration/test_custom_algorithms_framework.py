@@ -31,6 +31,7 @@ from chunking_strategy.core.registry import (
     create_chunker,
     list_chunkers
 )
+from chunking_strategy import ChunkingConfigurationError
 from chunking_strategy.core.custom_algorithm_loader import (
     CustomAlgorithmLoader,
     CustomAlgorithmError,
@@ -495,7 +496,7 @@ class TestChunkerBeta(BaseChunker):
         assert chunker is not None
 
         # Invalid parameters should raise error
-        with pytest.raises(ValueError):
+        with pytest.raises((ChunkingConfigurationError, ValueError)):
             create_chunker("test_custom_chunker", chunk_size=-10)
 
     # Tests for Error Handling and Edge Cases

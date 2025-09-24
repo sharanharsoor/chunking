@@ -35,12 +35,15 @@ from chunking_strategy.core.base import (
 from chunking_strategy.core.registry import register_chunker, ComplexityLevel, SpeedLevel, MemoryUsage
 from chunking_strategy.core.adaptive import AdaptableChunker
 
-# Embedding and NLP infrastructure
-from chunking_strategy.core.embeddings import (
-    EmbeddingModel,
-    EmbeddingConfig,
-    create_embedder
-)
+# Lazy import embedding infrastructure to avoid heavy imports
+def _get_embedding_classes():
+    """Lazy import embedding classes to avoid loading sentence-transformers at module level."""
+    from chunking_strategy.core.embeddings import (
+        EmbeddingModel,
+        EmbeddingConfig,
+        create_embedder
+    )
+    return EmbeddingModel, EmbeddingConfig, create_embedder
 
 # Import with fallbacks
 try:
@@ -316,6 +319,9 @@ class SemanticChunker(StreamableChunker, AdaptableChunker):
     def _initialize_sentence_transformer(self):
         """Initialize sentence transformer embedder."""
         try:
+            # Lazy import embedding classes
+            EmbeddingModel, EmbeddingConfig, create_embedder = _get_embedding_classes()
+
             # Map embedding model names
             model_mapping = {
                 "all-MiniLM-L6-v2": EmbeddingModel.ALL_MINILM_L6_V2,

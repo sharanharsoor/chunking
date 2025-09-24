@@ -26,11 +26,11 @@ from chunking_strategy.core.base import (
     ModalityType
 )
 from chunking_strategy.core.registry import (
-    create_chunker,
     list_chunkers,
     get_chunker_metadata,
     get_registry
 )
+from chunking_strategy.exceptions import ChunkerNotFoundError
 from chunking_strategy.core.custom_config_integration import (
     CustomConfigProcessor,
     load_config_with_custom_algorithms,
@@ -107,6 +107,12 @@ from chunking_strategy.utils.postprocessing import PostprocessingPipeline
 from chunking_strategy.core.hardware import HardwareDetector, HardwareInfo
 
 logger = get_logger(__name__)
+
+
+def _get_create_chunker():
+    """Get create_chunker from main package with lazy loading support."""
+    from chunking_strategy import create_chunker
+    return create_chunker
 
 
 class ChunkerOrchestrator:
@@ -700,12 +706,12 @@ class ChunkerOrchestrator:
         # Validate strategies section
         strategies = self.config.get("strategies", {})
         primary = strategies.get("primary")
-        if primary and not create_chunker(primary):
+        if primary and not _get_create_chunker()(primary):
             issues.append(f"Primary strategy not available: {primary}")
 
         fallbacks = strategies.get("fallbacks", [])
         for fallback in fallbacks:
-            if not create_chunker(fallback):
+            if not _get_create_chunker()(fallback):
                 issues.append(f"Fallback strategy not available: {fallback}")
 
         return issues
@@ -1000,8 +1006,8 @@ class ChunkerOrchestrator:
         if file_extension in auto_strategy_map:
             primary, fallbacks = auto_strategy_map[file_extension]
         else:
-            # Default fallback
-            primary, fallbacks = "fixed_size", ["sentence_based", "paragraph_based"]
+            # Enhanced intelligent fallback based on content characteristics
+            primary, fallbacks = self._smart_fallback_selection(content_info)
 
         # Define multimedia and format-specific strategies that should be preserved regardless of file size
         multimedia_strategies = [
@@ -1051,7 +1057,6 @@ class ChunkerOrchestrator:
 
     def _create_chunker(self, strategy_name: str, file_extension: str):
         """Create a chunker instance with configuration parameters."""
-        from chunking_strategy.core.registry import create_chunker
 
         # Get strategy parameters from config
         strategy_params = {}
@@ -1114,7 +1119,7 @@ class ChunkerOrchestrator:
             strategy_params = converted_params
 
         # Create chunker with parameters - let validation errors bubble up
-        chunker = create_chunker(strategy_name, **strategy_params)
+        chunker = _get_create_chunker()(strategy_name, **strategy_params)
 
         if chunker is None:
             raise ValueError(f"Failed to create chunker for strategy: {strategy_name}")
@@ -1215,7 +1220,22 @@ class ChunkerOrchestrator:
         self.logger.error("All chunking strategies failed")
         from chunking_strategy.core.base import ChunkMetadata
 
-        # Create a single chunk with the content
+        # Prepare fallback content - if content is a Path, load the actual content
+        fallback_content = content
+        if isinstance(content, Path):
+            try:
+                # Use the orchestrator's content loading logic to extract text
+                file_info = source_info.get("file_info", {})
+                fallback_content = self._load_content(content, file_info)
+                # If we loaded bytes, try to decode to string for text modality
+                if isinstance(fallback_content, bytes) and source_info.get("detected_modality") == ModalityType.TEXT:
+                    fallback_content = fallback_content.decode('utf-8', errors='ignore')
+            except Exception as e:
+                self.logger.warning(f"Failed to load content from {content}: {e}")
+                # Fallback to just the path string if content loading fails
+                fallback_content = str(content)
+
+        # Create a single chunk with the properly loaded content
         metadata = ChunkMetadata(
             source=source_info.get("source", "unknown"),
             chunker_used="fallback_single_chunk"
@@ -1223,7 +1243,7 @@ class ChunkerOrchestrator:
 
         chunk = Chunk(
             id="fallback_chunk_0",
-            content=content,
+            content=fallback_content,
             modality=source_info.get("detected_modality", ModalityType.TEXT),
             metadata=metadata
         )
@@ -1377,7 +1397,7 @@ class ChunkerOrchestrator:
                 if normalized_name in parameters_section:
                     config.update(parameters_section[normalized_name])
 
-            chunker = create_chunker(normalized_name, **config)
+            chunker = _get_create_chunker()(normalized_name, **config)
             if chunker:
                 self._chunker_cache[normalized_name] = chunker
 
@@ -1425,7 +1445,11 @@ class ChunkerOrchestrator:
         }
 
         # Check if it's a traditional chunker
-        traditional_chunker = create_chunker(normalized_strategy)
+        try:
+            traditional_chunker = _get_create_chunker()(normalized_strategy)
+        except (ChunkerNotFoundError, Exception):
+            traditional_chunker = None
+
         if traditional_chunker:
             # Get supported formats from registration metadata
             metadata = get_chunker_metadata(normalized_strategy)
@@ -1757,3 +1781,71 @@ class ChunkerOrchestrator:
                 "preprocessing": {"enabled": False},
                 "postprocessing": {"enabled": True, "merge_short_chunks": True}
             }
+
+    def _smart_fallback_selection(self, content_info: Dict[str, Any]) -> Tuple[str, List[str]]:
+        """
+        Intelligent fallback selection based on content analysis.
+
+        This method analyzes content characteristics to select the most appropriate
+        chunking strategy when file extension matching fails.
+
+        Args:
+            content_info: Dictionary containing content metadata
+
+        Returns:
+            Tuple of (primary_strategy, fallback_strategies)
+        """
+        file_size = content_info.get("file_size", 0)
+        modality = content_info.get("modality", ModalityType.TEXT)
+
+        # Analyze content characteristics if available
+        content_analysis = content_info.get("content_analysis", {})
+        has_structure = content_analysis.get("has_structure", False)
+        text_ratio = content_analysis.get("text_ratio", 1.0)
+        estimated_entropy = content_analysis.get("entropy", 4.0)
+
+        # Strategy selection based on content analysis
+        if modality == ModalityType.TEXT and text_ratio > 0.8:
+            # High text content - use text-specific strategies
+            if has_structure:
+                # Structured text - prioritize paragraph-based for readability
+                primary = "paragraph_based"
+                fallbacks = ["sentence_based", "fixed_size"]
+            elif estimated_entropy > 6.0:
+                # High entropy content (code, technical) - use adaptive chunking
+                primary = "adaptive"
+                fallbacks = ["sentence_based", "paragraph_based", "fixed_size"]
+            else:
+                # Regular text - sentence-based is reliable
+                primary = "sentence_based"
+                fallbacks = ["paragraph_based", "fixed_size"]
+
+        elif modality in [ModalityType.IMAGE, ModalityType.AUDIO, ModalityType.VIDEO]:
+            # Binary/multimedia content - use size-based strategies
+            primary = "fixed_size"
+            fallbacks = ["rolling_hash", "sentence_based"]
+
+        elif text_ratio < 0.3:
+            # Low text ratio - likely binary or highly structured data
+            primary = "fixed_size"
+            fallbacks = ["overlapping_window", "sentence_based"]
+
+        else:
+            # Mixed, table, or unknown content - conservative approach
+            primary = "adaptive"  # Let adaptive chunker figure it out
+            fallbacks = ["sentence_based", "paragraph_based", "fixed_size"]
+
+        # Adjust for file size
+        if file_size > 50 * 1024 * 1024:  # > 50MB
+            # Large files - prioritize memory efficiency
+            if primary not in ["fixed_size", "overlapping_window", "rolling_hash"]:
+                fallbacks = [primary] + fallbacks
+                primary = "overlapping_window"  # Memory efficient for large files
+
+        elif file_size < 1024:  # < 1KB
+            # Very small files - simple strategies work best
+            if primary == "adaptive":
+                primary = "sentence_based"
+                fallbacks = ["paragraph_based", "fixed_size"]
+
+        return primary, fallbacks

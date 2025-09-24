@@ -310,6 +310,8 @@ class BatchProcessor:
     def _process_single_file(self, batch_file: BatchFile) -> ChunkingResult:
         """Process a single file."""
         chunker = create_chunker(batch_file.chunker_strategy, **batch_file.chunker_params)
+        if chunker is None:
+            raise ValueError(f"Chunker '{batch_file.chunker_strategy}' could not be created")
         return chunker.chunk(batch_file.path)
 
 
@@ -320,11 +322,26 @@ def _process_file_batch(batch_files: List[BatchFile]) -> List[Tuple[str, Optiona
     Returns:
         List of tuples: (file_path, chunk_result, error_message)
     """
+    # Ensure strategies are loaded in worker process
+    try:
+        from chunking_strategy import _ensure_strategies_loaded
+        _ensure_strategies_loaded()
+    except ImportError:
+        # Fallback: load light strategies directly
+        try:
+            import chunking_strategy.strategies.text  # noqa: F401
+            import chunking_strategy.strategies.general  # noqa: F401
+        except ImportError:
+            pass
+
     results = []
 
     for batch_file in batch_files:
         try:
             chunker = create_chunker(batch_file.chunker_strategy, **batch_file.chunker_params)
+            if chunker is None:
+                results.append((str(batch_file.path), None, f"Chunker '{batch_file.chunker_strategy}' could not be created"))
+                continue
             chunk_result = chunker.chunk(batch_file.path)
             results.append((str(batch_file.path), chunk_result, None))
         except Exception as e:

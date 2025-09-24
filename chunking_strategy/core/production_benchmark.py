@@ -27,7 +27,14 @@ import tempfile
 
 from chunking_strategy.core.base import ChunkingResult, BaseChunker
 from chunking_strategy.core.metrics import ChunkingQualityEvaluator, QualityMetrics
-from chunking_strategy.core.registry import create_chunker, list_chunkers
+from chunking_strategy.core.registry import list_chunkers
+
+# Import create_chunker for both usage and testing (allows mocking)
+from chunking_strategy import create_chunker
+
+def _get_create_chunker():
+    """Get create_chunker with lazy loading support."""
+    return create_chunker
 
 logger = logging.getLogger(__name__)
 
@@ -292,6 +299,7 @@ class ProductionBenchmarkRunner:
 
         try:
             # Create chunker
+            create_chunker = _get_create_chunker()
             chunker = create_chunker(strategy_name, **parameters)
             if not chunker:
                 return self._create_error_result(
@@ -421,7 +429,7 @@ class ProductionBenchmarkRunner:
 
         # Default strategies
         if strategies is None:
-            strategies = ["fixed_size", "sentence_based", "paragraph"]
+            strategies = ["fixed_size", "sentence_based", "paragraph_based"]
             # Add available custom algorithms
             strategies.extend(self.custom_algorithms.keys())
 
@@ -832,7 +840,7 @@ def run_custom_algorithm_benchmark(
     if compare_with:
         strategies.extend(compare_with)
     else:
-        strategies.extend(["fixed_size", "sentence_based", "paragraph"])
+        strategies.extend(["fixed_size", "sentence_based", "paragraph_based"])
 
     datasets = {"test_content": test_content or runner._get_default_test_content()}
 

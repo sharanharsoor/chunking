@@ -27,7 +27,18 @@ from chunking_strategy.core.base import (
     ModalityType,
     StreamableChunker
 )
-from chunking_strategy.core.registry import get_chunker, create_chunker
+from chunking_strategy.core.registry import get_chunker
+
+
+def _get_create_chunker():
+    """Get create_chunker with lazy loading support."""
+    try:
+        from chunking_strategy import create_chunker
+        return create_chunker
+    except ImportError:
+        # Fallback to registry version if main package import fails
+        from chunking_strategy.core.registry import create_chunker
+        return create_chunker
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +209,7 @@ class StreamingChunker:
 
         # Initialize chunker
         if isinstance(strategy, str):
+            create_chunker = _get_create_chunker()
             self.chunker = create_chunker(strategy, **chunker_kwargs)
             if not self.chunker:
                 raise ValueError(f"Unknown chunker strategy: {strategy}")
@@ -708,7 +720,7 @@ class StreamingChunker:
 
                             for chunk in result.chunks:
                                 chunk.id = f"stream_{chunk_counter}_{chunk.id}"
-                                chunk.metadata.stream_offset = f.tell() - len(buffer) + len(content_block)
+                                chunk.metadata.extra["stream_offset"] = f.tell() - len(buffer) + len(content_block)
                                 chunk_counter += 1
                                 self._chunks_generated = chunk_counter
                                 yield chunk
@@ -744,7 +756,7 @@ class StreamingChunker:
 
                         for chunk in result.chunks:
                             chunk.id = f"stream_{chunk_counter}_{chunk.id}"
-                            chunk.metadata.stream_offset = f.tell()
+                            chunk.metadata.extra["stream_offset"] = f.tell()
                             chunk_counter += 1
                             self._chunks_generated = chunk_counter
                             yield chunk
@@ -805,7 +817,7 @@ class StreamingChunker:
 
                         for chunk in result.chunks:
                             chunk.id = f"stream_{chunk_counter}_{chunk.id}"
-                            chunk.metadata.stream_offset = f.tell() - len(buffer) + len(content_block)
+                            chunk.metadata.extra["stream_offset"] = f.tell() - len(buffer) + len(content_block)
                             chunk_counter += 1
                             self._chunks_generated = chunk_counter
                             yield chunk
@@ -847,7 +859,7 @@ class StreamingChunker:
 
                     for chunk in result.chunks:
                         chunk.id = f"stream_{chunk_counter}_{chunk.id}"
-                        chunk.metadata.stream_offset = f.tell()
+                        chunk.metadata.extra["stream_offset"] = f.tell()
                         chunk_counter += 1
                         self._chunks_generated = chunk_counter
                         yield chunk

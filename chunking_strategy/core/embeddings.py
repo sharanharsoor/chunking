@@ -29,9 +29,20 @@ from ..core.base import Chunk, ChunkingResult
 
 logger = logging.getLogger(__name__)
 
-# Suppress some common warnings from transformers/torch
+# Suppress common warnings from ML libraries
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
+warnings.filterwarnings("ignore", category=UserWarning, module="torch")
+warnings.filterwarnings("ignore", category=FutureWarning, module="torch")
+
+# Suppress TensorFlow warnings
+import os
+os.environ.setdefault('TF_CPP_MIN_LOG_LEVEL', '2')  # Suppress INFO and WARNING
+os.environ.setdefault('TF_ENABLE_ONEDNN_OPTS', '0')  # Disable oneDNN optimizations
+
+# Suppress additional TensorFlow warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="tensorflow")
+warnings.filterwarnings("ignore", category=FutureWarning, module="tensorflow")
 
 
 def check_dependency(package_name: str, extra_name: str = None) -> Tuple[bool, str]:
@@ -469,6 +480,13 @@ class SentenceTransformerEmbedder(BaseEmbedder):
 
     def load_model(self) -> None:
         """Load the sentence-transformers model with better error handling."""
+        # Apply protobuf error suppression for the entire model loading process
+        from chunking_strategy import suppress_protobuf_errors
+        with suppress_protobuf_errors():
+            return self._load_model_impl()
+
+    def _load_model_impl(self) -> None:
+        """Internal implementation of model loading."""
         # Check dependencies first
         available, error_msg = check_dependency("sentence_transformers", "text")
         if not available:
@@ -501,6 +519,7 @@ class SentenceTransformerEmbedder(BaseEmbedder):
                 model_kwargs["token"] = token  # Updated API
 
             self.model = SentenceTransformer(model_name, **model_kwargs)
+
             self._is_loaded = True
             logger.info(f"Model loaded successfully on device: {device}")
 
@@ -518,7 +537,9 @@ class SentenceTransformerEmbedder(BaseEmbedder):
                     model_kwargs = {"device": "cpu"}
                     if token:
                         model_kwargs["token"] = token  # Updated API
+
                     self.model = SentenceTransformer(model_name, **model_kwargs)
+
                     self._device = "cpu"
                     self._is_loaded = True
                     logger.info("Model loaded successfully on CPU (fallback)")

@@ -18,7 +18,13 @@ import json
 import yaml
 
 from chunking_strategy.core.base import BaseChunker, ChunkingResult, ModalityType
-from chunking_strategy.core.registry import list_chunkers, create_chunker
+from chunking_strategy.core.registry import list_chunkers
+
+
+def _get_create_chunker():
+    """Get create_chunker with lazy loading support."""
+    from chunking_strategy import create_chunker
+    return create_chunker
 from chunking_strategy.orchestrator import ChunkerOrchestrator
 from chunking_strategy.enhanced_orchestrator import EnhancedOrchestrator
 
@@ -292,6 +298,7 @@ class ChunkingBenchmark:
 
         try:
             # Try to create chunker directly
+            create_chunker = _get_create_chunker()
             chunker = create_chunker(strategy_name)
 
             # Apply config if provided

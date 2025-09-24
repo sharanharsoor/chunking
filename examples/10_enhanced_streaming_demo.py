@@ -299,13 +299,13 @@ def demo_distributed_processing():
         print(f"   📁 File {i+1}: {file_path.name} ({file_size:,} bytes)")
 
     # Create distributed progress callback
-    def distributed_progress_callback(results):
-        total_files = len(test_files)
-        completed_files = len([r for r in results.file_results.values() if r is not None])
-        failed_files = len(results.errors)
+    def distributed_progress_callback(file_path, progress):
+        # Simple progress display for each file
+        throughput = f"{progress.throughput_mbps:.2f} MB/s" if progress.throughput_mbps else "calculating..."
+        status = progress.status or "processing"
 
-        print(f"\r🌐 Distributed Progress: {completed_files}/{total_files} files completed, "
-              f"{failed_files} errors", end='', flush=True)
+        print(f"\r🌐 Processing: {Path(file_path).name} - {progress.chunks_generated} chunks - {throughput} - {status}",
+              end='', flush=True)
 
     # Test different processing modes
     processing_modes = ["sequential", "thread", "process"]

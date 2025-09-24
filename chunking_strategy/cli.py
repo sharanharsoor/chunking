@@ -183,6 +183,10 @@ def chunk(
 
         # Override chunker configuration if parameters provided
         if strategy and strategy_params:
+            # Ensure strategies are loaded before creating chunker
+            from chunking_strategy import _ensure_strategies_loaded
+            _ensure_strategies_loaded()
+
             chunker = create_chunker(strategy, **strategy_params)
             if not chunker:
                 click.echo(f"Error: Strategy '{strategy}' not found", err=True)
@@ -346,6 +350,10 @@ def test_strategy(
             params['max_sentences'] = max_sentences
 
         # Create and test chunker
+        # Ensure strategies are loaded before creating chunker
+        from chunking_strategy import _ensure_strategies_loaded
+        _ensure_strategies_loaded()
+
         chunker = create_chunker(strategy_name, **params)
         if not chunker:
             click.echo(f"Error: Strategy '{strategy_name}' not found", err=True)

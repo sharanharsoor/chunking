@@ -41,13 +41,14 @@ from chunking_strategy.core.base import (
 from chunking_strategy.core.registry import register_chunker, ComplexityLevel, SpeedLevel, MemoryUsage
 from chunking_strategy.strategies.text.text_chunker_utils import TextChunkerUtils
 
-# Optional imports with fallbacks
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
-    SentenceTransformer = None
+# Lazy import heavy dependencies to avoid slow module loading
+def _get_sentence_transformers():
+    """Lazy import sentence_transformers to avoid loading at module level."""
+    try:
+        from sentence_transformers import SentenceTransformer
+        return SentenceTransformer, True
+    except ImportError:
+        return None, False
 
 try:
     from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
@@ -281,7 +282,8 @@ class EmbeddingBasedChunker(StreamableChunker, AdaptableChunker):
 
     def _initialize_sentence_transformer(self):
         """Initialize Sentence Transformer model."""
-        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+        SentenceTransformer, available = _get_sentence_transformers()
+        if not available:
             raise ImportError("sentence-transformers not available")
 
         self.encoder = SentenceTransformer(self.model_name)

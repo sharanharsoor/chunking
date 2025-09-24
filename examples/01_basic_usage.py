@@ -43,19 +43,37 @@ def example_2_different_strategies():
 
 
 def example_3_pdf_chunking():
-    """PDF chunking example."""
-    print("\n🎯 Example 3: PDF Chunking")
+    """Document chunking example (PDF or text)."""
+    print("\n🎯 Example 3: Document Chunking")
     print("=" * 50)
 
     orchestrator = ChunkerOrchestrator()
-    pdf_path = "test_data/example.pdf"
 
-    if Path(pdf_path).exists():
-        result = orchestrator.chunk_file(pdf_path)
-        print(f"📑 PDF chunks: {len(result.chunks)}")
-        print(f"📄 Sample chunk: {result.chunks[0].content[:100]}...")
-    else:
-        print("❌ PDF file not found - skipping PDF example")
+    # Try different document files
+    test_documents = [
+        "test_data/example.pdf",
+        "test_data/sample_article.txt",
+        "test_data/business_report.txt",
+        "test_data/technical_doc.txt"
+    ]
+
+    document_found = False
+    for doc_path in test_documents:
+        if Path(doc_path).exists():
+            try:
+                result = orchestrator.chunk_file(doc_path)
+                print(f"📑 Document: {Path(doc_path).name}")
+                print(f"📊 Strategy used: {result.strategy_used}")
+                print(f"📄 Chunks created: {len(result.chunks)}")
+                print(f"📝 Sample chunk: {result.chunks[0].content[:100]}...")
+                document_found = True
+                break
+            except Exception as e:
+                print(f"⚠️  Could not process {Path(doc_path).name}: {e}")
+                continue
+
+    if not document_found:
+        print("ℹ️  No suitable document files found for this example")
 
 
 def example_4_batch_processing():

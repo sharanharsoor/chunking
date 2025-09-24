@@ -202,6 +202,11 @@ class EnhancedPDFChunker(StreamableChunker):
                 raise FileNotFoundError(f"PDF file not found: {content}")
             return content
         elif isinstance(content, str):
+            # Check if it looks like a file path vs plain text content
+            if len(content) > 1000 or '\n' in content or not any(c in content.lower() for c in ['.pdf', '/', '\\']):
+                # This looks like text content, not a file path
+                raise DocumentProcessingError(f"Enhanced PDF chunker only accepts PDF files, not text content. Got {len(content)} characters of text.")
+
             # Assume it's a file path
             path = Path(content)
             if not path.exists():

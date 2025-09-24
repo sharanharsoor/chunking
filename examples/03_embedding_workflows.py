@@ -99,16 +99,37 @@ def example_2_multimodal_embeddings():
     print("\n🎯 Example 2: Multimodal Embeddings (CLIP)")
     print("=" * 50)
 
-    # Process a PDF that might contain both text and images
+    # Process a document that might contain both text and images
     orchestrator = ChunkerOrchestrator()
 
-    pdf_path = "test_data/example.pdf"
-    if not Path(pdf_path).exists():
-        print("❌ PDF file not found - skipping multimodal example")
+    # Try different document files
+    test_documents = [
+        "test_data/example.pdf",
+        "test_data/sample_article.txt",
+        "test_data/business_report.txt",
+        "test_data/technical_doc.txt"
+    ]
+
+    document_found = False
+    chunking_result = None
+    doc_name = ""
+
+    for doc_path in test_documents:
+        if Path(doc_path).exists():
+            try:
+                chunking_result = orchestrator.chunk_file(doc_path)
+                doc_name = Path(doc_path).name
+                document_found = True
+                break
+            except Exception as e:
+                print(f"⚠️  Could not process {Path(doc_path).name}: {e}")
+                continue
+
+    if not document_found or chunking_result is None:
+        print("ℹ️  No suitable document files found for multimodal example")
         return
 
-    chunking_result = orchestrator.chunk_file(pdf_path)
-    print(f"📑 Generated {len(chunking_result.chunks)} PDF chunks")
+    print(f"📑 Generated {len(chunking_result.chunks)} chunks from {doc_name}")
 
     # Configure for multimodal embeddings
     config = EmbeddingConfig(

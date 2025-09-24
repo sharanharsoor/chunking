@@ -343,11 +343,17 @@ def test_universal_strategies_on_python():
     print(f"📁 Created sample Python file: {python_file.name}")
     print(f"📊 File size: {python_file.stat().st_size:,} bytes")
 
-    # Get all universal strategies
+    # Get all universal strategies and filter out multimedia ones for Python files
     strategy_registry = get_universal_strategy_registry()
-    strategies = strategy_registry.list_strategies()
+    all_strategies = strategy_registry.list_strategies()
 
-    print(f"\n🚀 Testing {len(strategies)} Universal Strategies:")
+    # Filter out multimedia strategies that won't work on Python files
+    multimedia_strategies = ['grid_based_image', 'patch_based_image', 'scene_based_video',
+                           'time_based_video', 'silence_based_audio', 'time_based_audio']
+    strategies = [s for s in all_strategies if s not in multimedia_strategies]
+
+    print(f"\n🚀 Testing {len(strategies)} Universal Strategies (excluding multimedia):")
+    print(f"   Skipped multimedia strategies: {', '.join(multimedia_strategies)}")
     results = {}
 
     for strategy in strategies:
@@ -442,9 +448,14 @@ def test_traditional_strategies_on_python():
 
     python_file = create_sample_python_file()
 
-    # Get all traditional chunkers
-    traditional_strategies = list_chunkers()
-    print(f"📋 Available traditional strategies: {', '.join(traditional_strategies)}")
+    # Get all traditional chunkers and filter out multimedia ones
+    all_traditional = list_chunkers()
+    multimedia_chunkers = ['grid_based_image', 'patch_based_image', 'scene_based_video',
+                          'time_based_video', 'silence_based_audio', 'time_based_audio']
+    traditional_strategies = [s for s in all_traditional if s not in multimedia_chunkers]
+
+    print(f"📋 Testing {len(traditional_strategies)} traditional strategies (excluding multimedia):")
+    print(f"   Available strategies: {', '.join(traditional_strategies)}")
 
     results = {}
 
@@ -453,8 +464,8 @@ def test_traditional_strategies_on_python():
 
         # Use appropriate test file for each strategy
         test_file = python_file
-        if strategy == "pdf_chunker":
-            # Test PDF chunker on actual PDF file
+        if strategy in ["pdf_chunker", "enhanced_pdf_chunker"]:
+            # Test PDF chunkers on actual PDF file
             pdf_file = Path("test_data/example.pdf")
             if pdf_file.exists():
                 test_file = pdf_file

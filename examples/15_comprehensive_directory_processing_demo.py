@@ -244,7 +244,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-        '''),
+'''),
 
         # JavaScript code - will use javascript_code strategy
         ("code/frontend_utils.js", '''

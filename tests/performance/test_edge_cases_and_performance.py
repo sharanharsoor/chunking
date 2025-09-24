@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List
 import pytest
 
-from chunking_strategy import create_chunker
+from chunking_strategy import create_chunker, ChunkingConfigurationError
 from chunking_strategy.core.base import ModalityType
 
 
@@ -210,19 +210,19 @@ class TestEdgeCasesAndPerformance:
     def test_parameter_boundary_conditions(self):
         """Test boundary conditions for parameters."""
 
-        # Test zero and negative parameters - should raise ValueError for invalid parameters
-        with pytest.raises(ValueError, match="chunk_size must be positive"):
+        # Test zero and negative parameters - should raise ChunkingConfigurationError for invalid parameters
+        with pytest.raises((ChunkingConfigurationError, ValueError), match="chunk_size must be positive"):
             create_chunker("fixed_size", chunk_size=0)
 
-        with pytest.raises(ValueError, match="chunk_size must be positive"):
+        with pytest.raises((ChunkingConfigurationError, ValueError), match="chunk_size must be positive"):
             create_chunker("fixed_size", chunk_size=-100)
 
         # Test very large parameters
         chunker = create_chunker("fixed_size", chunk_size=1000000)
         assert chunker.chunk_size == 1000000
 
-        # Test sentence chunker boundaries - should raise ValueError for invalid parameters
-        with pytest.raises(ValueError, match="max_sentences must be positive"):
+        # Test sentence chunker boundaries - should raise ChunkingConfigurationError for invalid parameters
+        with pytest.raises((ChunkingConfigurationError, ValueError), match="max_sentences must be positive"):
             create_chunker("sentence_based", max_sentences=0)
 
         # Test overlap parameters

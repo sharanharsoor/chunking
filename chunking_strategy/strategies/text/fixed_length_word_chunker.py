@@ -220,19 +220,26 @@ class FixedLengthWordChunker(StreamableChunker):
         """
         start_time = time.time()
 
-        # Handle different input types - only accept strings
-        if isinstance(content, bytes):
-            raise ValueError(f"FixedLengthWordChunker only supports string content, got {type(content)}")
-        elif not isinstance(content, str):
-            # Reject Path objects and other non-string types as invalid input
-            from pathlib import Path
-            if isinstance(content, Path):
-                raise ValueError(f"FixedLengthWordChunker only supports string content, got {type(content)}")
-            # Convert other types to string as fallback
-            content = str(content)
-
-        if not isinstance(content, str):
-            content = str(content)
+        # Handle different input types
+        from pathlib import Path
+        if isinstance(content, Path):
+            # Handle Path objects by reading the file
+            try:
+                content = content.read_text(encoding='utf-8')
+            except Exception as e:
+                raise ValueError(f"Failed to read file {content}: {e}")
+        elif isinstance(content, bytes):
+            # Try to decode bytes as UTF-8
+            try:
+                content = content.decode('utf-8')
+            except UnicodeDecodeError:
+                raise ValueError(f"Cannot decode bytes as UTF-8 for fixed-length-word chunking")
+        elif isinstance(content, str):
+            # String content is fine as-is
+            pass
+        else:
+            # Reject any other types (int, None, list, etc.)
+            raise TypeError(f"FixedLengthWordChunker only supports string, bytes, or Path content, got {type(content).__name__}")
 
         # Basic validation
         if not content or not content.strip():

@@ -16,7 +16,7 @@ from chunking_strategy.core.base import ModalityType
 
 class ExtractedContent:
     """Container for extracted content with metadata."""
-    
+
     def __init__(
         self,
         text_content: str,
@@ -27,7 +27,7 @@ class ExtractedContent:
     ):
         """
         Initialize extracted content.
-        
+
         Args:
             text_content: Plain text extracted from the source
             modality: Primary modality of the content
@@ -44,11 +44,11 @@ class ExtractedContent:
 
 class BaseContentExtractor(ABC):
     """Base class for content extractors."""
-    
+
     def __init__(self, name: str, supported_extensions: List[str]):
         """
         Initialize base extractor.
-        
+
         Args:
             name: Extractor name
             supported_extensions: List of file extensions this extractor supports
@@ -56,25 +56,25 @@ class BaseContentExtractor(ABC):
         self.name = name
         self.supported_extensions = supported_extensions
         self.logger = logging.getLogger(f"{__name__}.{name}")
-    
+
     @abstractmethod
     def extract(
-        self, 
-        content: Union[str, bytes, Path], 
+        self,
+        content: Union[str, bytes, Path],
         **kwargs
     ) -> ExtractedContent:
         """
         Extract content from input.
-        
+
         Args:
             content: Input content (file path, text, or bytes)
             **kwargs: Extractor-specific options
-            
+
         Returns:
             ExtractedContent with extracted text and metadata
         """
         pass
-    
+
     def supports_extension(self, extension: str) -> bool:
         """Check if this extractor supports the given file extension."""
         return extension.lower() in [ext.lower() for ext in self.supported_extensions]
@@ -82,22 +82,22 @@ class BaseContentExtractor(ABC):
 
 class TextContentExtractor(BaseContentExtractor):
     """Extractor for plain text files."""
-    
+
     def __init__(self):
         super().__init__(
             name="text_extractor",
             supported_extensions=[".txt", ".md", ".rst", ".log"]
         )
-    
+
     def extract(
-        self, 
-        content: Union[str, bytes, Path], 
+        self,
+        content: Union[str, bytes, Path],
         encoding: str = "utf-8",
         **kwargs
     ) -> ExtractedContent:
         """Extract content from text files."""
         start_time = time.time()
-        
+
         if isinstance(content, Path):
             # Read from file
             with open(content, 'r', encoding=encoding) as f:
@@ -111,7 +111,7 @@ class TextContentExtractor(BaseContentExtractor):
             # Direct string content
             text_content = str(content)
             source_info = "string_input"
-        
+
         metadata = {
             "extractor": self.name,
             "source": source_info,
@@ -120,7 +120,7 @@ class TextContentExtractor(BaseContentExtractor):
             "content_length": len(text_content),
             "line_count": len(text_content.split('\n'))
         }
-        
+
         return ExtractedContent(
             text_content=text_content,
             modality=ModalityType.TEXT,
@@ -130,18 +130,39 @@ class TextContentExtractor(BaseContentExtractor):
 
 class PDFContentExtractor(BaseContentExtractor):
     """Extractor for PDF files."""
-    
+
     def __init__(self):
         super().__init__(
-            name="pdf_extractor", 
+            name="pdf_extractor",
             supported_extensions=[".pdf"]
         )
-        
-        # Check for PDF libraries
-        self.has_pymupdf = self._check_import("fitz")
-        self.has_pypdf2 = self._check_import("PyPDF2")
-        self.has_pdfminer = self._check_import("pdfminer.high_level")
-    
+
+        # Initialize dependency flags as None (lazy check)
+        self._has_pymupdf = None
+        self._has_pypdf2 = None
+        self._has_pdfminer = None
+
+    @property
+    def has_pymupdf(self) -> bool:
+        """Check if PyMuPDF is available (lazy)."""
+        if self._has_pymupdf is None:
+            self._has_pymupdf = self._check_import("fitz")
+        return self._has_pymupdf
+
+    @property
+    def has_pypdf2(self) -> bool:
+        """Check if PyPDF2 is available (lazy)."""
+        if self._has_pypdf2 is None:
+            self._has_pypdf2 = self._check_import("PyPDF2")
+        return self._has_pypdf2
+
+    @property
+    def has_pdfminer(self) -> bool:
+        """Check if pdfminer is available (lazy)."""
+        if self._has_pdfminer is None:
+            self._has_pdfminer = self._check_import("pdfminer.high_level")
+        return self._has_pdfminer
+
     def _check_import(self, module_name: str) -> bool:
         """Check if a module is available."""
         try:
@@ -149,10 +170,10 @@ class PDFContentExtractor(BaseContentExtractor):
             return True
         except ImportError:
             return False
-    
+
     def extract(
-        self, 
-        content: Union[str, bytes, Path], 
+        self,
+        content: Union[str, bytes, Path],
         extract_images: bool = False,
         extract_tables: bool = False,
         backend: str = "auto",
@@ -160,7 +181,7 @@ class PDFContentExtractor(BaseContentExtractor):
     ) -> ExtractedContent:
         """Extract content from PDF files."""
         start_time = time.time()
-        
+
         # Determine the backend to use
         if backend == "auto":
             if self.has_pymupdf:
@@ -171,7 +192,7 @@ class PDFContentExtractor(BaseContentExtractor):
                 backend = "pdfminer"
             else:
                 raise ImportError("No PDF processing library available. Install PyMuPDF, PyPDF2, or pdfminer.six")
-        
+
         # Extract text based on backend
         if backend == "pymupdf" and self.has_pymupdf:
             text_content, structured_content = self._extract_with_pymupdf(content, extract_images, extract_tables)
@@ -181,7 +202,7 @@ class PDFContentExtractor(BaseContentExtractor):
             text_content, structured_content = self._extract_with_pdfminer(content)
         else:
             raise ValueError(f"Backend '{backend}' not available or not supported")
-        
+
         # Prepare metadata
         metadata = {
             "extractor": self.name,
@@ -193,40 +214,40 @@ class PDFContentExtractor(BaseContentExtractor):
             "extract_images": extract_images,
             "extract_tables": extract_tables
         }
-        
+
         return ExtractedContent(
             text_content=text_content,
             modality=ModalityType.TEXT,
             metadata=metadata,
             structured_content=structured_content
         )
-    
+
     def _extract_with_pymupdf(
-        self, 
-        content: Union[str, bytes, Path], 
-        extract_images: bool, 
+        self,
+        content: Union[str, bytes, Path],
+        extract_images: bool,
         extract_tables: bool
     ) -> Tuple[str, List[Dict[str, Any]]]:
         """Extract using PyMuPDF."""
         import fitz
-        
+
         # Open document
         if isinstance(content, Path):
             doc = fitz.open(str(content))
         else:
             # Handle bytes or string content
             doc = fitz.open(stream=content if isinstance(content, bytes) else content.encode())
-        
+
         text_parts = []
         structured_content = []
-        
+
         for page_num in range(doc.page_count):
             page = doc.load_page(page_num)
-            
+
             # Extract text
             page_text = page.get_text()
             text_parts.append(page_text)
-            
+
             # Extract images if requested
             if extract_images:
                 images = page.get_images()
@@ -238,7 +259,7 @@ class PDFContentExtractor(BaseContentExtractor):
                         "bbox": None,  # Could extract bbox if needed
                         "content": f"[Image {img_index + 1} on page {page_num + 1}]"
                     })
-            
+
             # Extract tables if requested (basic implementation)
             if extract_tables:
                 tables = page.find_tables()
@@ -260,14 +281,14 @@ class PDFContentExtractor(BaseContentExtractor):
                             "index": table_index,
                             "content": f"[Table {table_index + 1} on page {page_num + 1}]"
                         })
-        
+
         doc.close()
         return "\n\n".join(text_parts), structured_content
-    
+
     def _extract_with_pypdf2(self, content: Union[str, bytes, Path]) -> Tuple[str, List[Dict[str, Any]]]:
         """Extract using PyPDF2."""
         from PyPDF2 import PdfReader
-        
+
         if isinstance(content, Path):
             reader = PdfReader(str(content))
         else:
@@ -275,18 +296,18 @@ class PDFContentExtractor(BaseContentExtractor):
             from io import BytesIO
             content_bytes = content if isinstance(content, bytes) else content.encode()
             reader = PdfReader(BytesIO(content_bytes))
-        
+
         text_parts = []
         for page_num, page in enumerate(reader.pages):
             page_text = page.extract_text()
             text_parts.append(page_text)
-        
+
         return "\n\n".join(text_parts), []
-    
+
     def _extract_with_pdfminer(self, content: Union[str, bytes, Path]) -> Tuple[str, List[Dict[str, Any]]]:
         """Extract using pdfminer."""
         from pdfminer.high_level import extract_text
-        
+
         if isinstance(content, Path):
             text_content = extract_text(str(content))
         else:
@@ -294,13 +315,13 @@ class PDFContentExtractor(BaseContentExtractor):
             from io import BytesIO
             content_bytes = content if isinstance(content, bytes) else content.encode()
             text_content = extract_text(BytesIO(content_bytes))
-        
+
         return text_content, []
 
 
 class CodeContentExtractor(BaseContentExtractor):
     """Extractor for source code files."""
-    
+
     def __init__(self):
         super().__init__(
             name="code_extractor",
@@ -325,10 +346,10 @@ class CodeContentExtractor(BaseContentExtractor):
                 ".json", ".yaml", ".yml",  # Data formats
             ]
         )
-    
+
     def extract(
-        self, 
-        content: Union[str, bytes, Path], 
+        self,
+        content: Union[str, bytes, Path],
         preserve_structure: bool = True,
         include_comments: bool = True,
         encoding: str = "utf-8",
@@ -336,7 +357,7 @@ class CodeContentExtractor(BaseContentExtractor):
     ) -> ExtractedContent:
         """Extract content from source code files."""
         start_time = time.time()
-        
+
         # Get the text content
         if isinstance(content, Path):
             with open(content, 'r', encoding=encoding) as f:
@@ -351,17 +372,17 @@ class CodeContentExtractor(BaseContentExtractor):
             text_content = str(content)
             source_info = "string_input"
             file_extension = kwargs.get('extension', '.txt')
-        
+
         structured_content = []
-        
+
         # Basic structure extraction (can be enhanced)
         if preserve_structure:
             lines = text_content.split('\n')
-            
+
             # Detect functions, classes, etc. (basic patterns)
             for i, line in enumerate(lines):
                 line_stripped = line.strip()
-                
+
                 # Function patterns for different languages
                 if any(pattern in line_stripped for pattern in [
                     'def ', 'function ', 'func ', 'fn ', 'sub ', 'procedure '
@@ -372,7 +393,7 @@ class CodeContentExtractor(BaseContentExtractor):
                         "content": line_stripped,
                         "language": self._detect_language(file_extension)
                     })
-                
+
                 # Class patterns
                 elif any(pattern in line_stripped for pattern in [
                     'class ', 'interface ', 'struct ', 'type ', 'enum '
@@ -383,11 +404,11 @@ class CodeContentExtractor(BaseContentExtractor):
                         "content": line_stripped,
                         "language": self._detect_language(file_extension)
                     })
-        
+
         # Remove comments if requested
         if not include_comments:
             text_content = self._remove_comments(text_content, file_extension)
-        
+
         metadata = {
             "extractor": self.name,
             "source": source_info,
@@ -401,14 +422,14 @@ class CodeContentExtractor(BaseContentExtractor):
             "preserve_structure": preserve_structure,
             "include_comments": include_comments
         }
-        
+
         return ExtractedContent(
             text_content=text_content,
             modality=ModalityType.TEXT,
             metadata=metadata,
             structured_content=structured_content
         )
-    
+
     def _detect_language(self, extension: str) -> str:
         """Detect programming language from file extension."""
         language_map = {
@@ -433,11 +454,11 @@ class CodeContentExtractor(BaseContentExtractor):
             '.json': 'json', '.yaml': 'yaml', '.yml': 'yaml'
         }
         return language_map.get(extension.lower(), 'unknown')
-    
+
     def _remove_comments(self, text: str, extension: str) -> str:
         """Remove comments from code (basic implementation)."""
         import re
-        
+
         if extension in ['.py', '.rb', '.sh', '.bash']:
             # Remove # comments
             lines = text.split('\n')
@@ -448,59 +469,59 @@ class CodeContentExtractor(BaseContentExtractor):
                     line = line.split('#')[0]
                 cleaned_lines.append(line)
             return '\n'.join(cleaned_lines)
-        
+
         elif extension in ['.js', '.java', '.c', '.cpp', '.go', '.rs', '.cs']:
             # Remove // and /* */ comments (basic)
             text = re.sub(r'//.*?$', '', text, flags=re.MULTILINE)
             text = re.sub(r'/\*.*?\*/', '', text, flags=re.DOTALL)
             return text
-        
+
         return text  # No comment removal for unknown formats
 
 
 class ExtractorRegistry:
     """Registry for content extractors."""
-    
+
     def __init__(self):
         self.extractors: List[BaseContentExtractor] = []
         self.logger = logging.getLogger(__name__)
-        
+
         # Register default extractors
         self._register_default_extractors()
-    
+
     def _register_default_extractors(self):
         """Register default content extractors."""
         self.register(TextContentExtractor())
         self.register(CodeContentExtractor())
-        
+
         # Register PDF extractor if dependencies are available
         pdf_extractor = PDFContentExtractor()
         if pdf_extractor.has_pymupdf or pdf_extractor.has_pypdf2 or pdf_extractor.has_pdfminer:
             self.register(pdf_extractor)
-    
+
     def register(self, extractor: BaseContentExtractor):
         """Register a content extractor."""
         self.extractors.append(extractor)
         self.logger.info(f"Registered extractor: {extractor.name}")
-    
+
     def get_extractor(self, extension: str) -> Optional[BaseContentExtractor]:
         """Get the appropriate extractor for a file extension."""
         for extractor in self.extractors:
             if extractor.supports_extension(extension):
                 return extractor
         return None
-    
+
     def get_extractor_by_name(self, name: str) -> Optional[BaseContentExtractor]:
         """Get extractor by name."""
         for extractor in self.extractors:
             if extractor.name == name:
                 return extractor
         return None
-    
+
     def list_extractors(self) -> List[str]:
         """List all registered extractor names."""
         return [extractor.name for extractor in self.extractors]
-    
+
     def list_supported_extensions(self) -> List[str]:
         """List all supported file extensions."""
         extensions = set()
@@ -509,33 +530,40 @@ class ExtractorRegistry:
         return sorted(list(extensions))
 
 
-# Global extractor registry instance
-_global_extractor_registry = ExtractorRegistry()
+# Lazy global extractor registry instance to avoid loading heavy dependencies
+_global_extractor_registry = None
+
+def _ensure_extractor_registry():
+    """Initialize extractor registry lazily."""
+    global _global_extractor_registry
+    if _global_extractor_registry is None:
+        _global_extractor_registry = ExtractorRegistry()
 
 
 def get_extractor_registry() -> ExtractorRegistry:
-    """Get the global extractor registry."""
+    """Get the global extractor registry (lazy initialization)."""
+    _ensure_extractor_registry()
     return _global_extractor_registry
 
 
 def extract_content(
-    content: Union[str, bytes, Path], 
+    content: Union[str, bytes, Path],
     extractor_name: Optional[str] = None,
     **kwargs
 ) -> ExtractedContent:
     """
     Extract content using the appropriate extractor.
-    
+
     Args:
         content: Input content (file path, text, or bytes)
         extractor_name: Specific extractor to use (auto-detect if None)
         **kwargs: Extractor-specific options
-        
+
     Returns:
         ExtractedContent with extracted text and metadata
     """
     registry = get_extractor_registry()
-    
+
     if extractor_name:
         # Use specific extractor
         extractor = registry.get_extractor_by_name(extractor_name)
@@ -547,13 +575,13 @@ def extract_content(
             extension = content.suffix
         else:
             extension = kwargs.get('extension', '.txt')
-        
+
         extractor = registry.get_extractor(extension)
         if not extractor:
             # Fallback to text extractor
             extractor = registry.get_extractor_by_name('text_extractor')
-    
+
     if not extractor:
         raise ValueError("No suitable extractor found")
-    
+
     return extractor.extract(content, **kwargs)

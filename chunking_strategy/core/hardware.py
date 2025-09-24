@@ -43,6 +43,16 @@ class HardwareInfo:
     cpu_freq: Optional[float]
     cpu_usage: Optional[float]
 
+    @property
+    def cpu_cores(self) -> int:
+        """Alias for cpu_count for backwards compatibility."""
+        return self.cpu_count
+
+    @property
+    def cores(self) -> int:
+        """Alias for cpu_count for backwards compatibility."""
+        return self.cpu_count
+
     # Memory Information
     memory_total_gb: Optional[float]
     memory_available_gb: Optional[float]

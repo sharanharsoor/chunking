@@ -236,43 +236,55 @@ class AdaptiveChunker:
     def __init__(
         self,
         base_strategy: Union[str, BaseChunker],
+        base_config: Optional[Dict[str, Any]] = None,
         adaptation_policy: Optional[AdaptationPolicy] = None,
         fallback_strategies: Optional[List[str]] = None,
         max_adaptations: int = 5,
-        adaptation_cooldown: float = 10.0,  # seconds
-        **base_config
+        adaptation_cooldown: float = 10.0  # seconds
     ):
         """
         Initialize adaptive chunker.
 
         Args:
             base_strategy: Initial chunking strategy
+            base_config: Base configuration dict for chunker
             adaptation_policy: Policy for when/how to adapt
             fallback_strategies: Strategies to try if base fails
             max_adaptations: Maximum adaptations per session
             adaptation_cooldown: Minimum time between adaptations
-            **base_config: Base configuration for chunker
         """
         self.base_strategy_name = base_strategy if isinstance(base_strategy, str) else base_strategy.name
-        self.base_config = base_config
+        self.base_config = base_config or {}
         self.adaptation_policy = adaptation_policy or ThresholdPolicy()
         self.fallback_strategies = fallback_strategies or []
         self.max_adaptations = max_adaptations
         self.adaptation_cooldown = adaptation_cooldown
 
+        # Initialize logger first
+        self.logger = logging.getLogger(f"{__name__}.AdaptiveChunker")
+
         # State tracking
         self.feedback_history: List[FeedbackSignal] = []
         self.adaptation_history: List[AdaptationRecord] = []
         self.current_strategy_name = self.base_strategy_name
-        self.current_config = base_config.copy()
+        self.current_config = self.base_config.copy()
         self.last_adaptation_time = 0.0
         self.adaptation_count = 0
 
-        # Initialize current chunker
-        self.current_chunker = self._create_chunker(self.current_strategy_name, self.current_config)
+        # Initialize current chunker to None - will be created lazily
+        self.current_chunker = None
 
-        self.logger = logging.getLogger(f"{__name__}.AdaptiveChunker")
         self.logger.info(f"Initialized with base strategy: {self.base_strategy_name}")
+
+    def _create_chunker(self, strategy_name: str, config: Dict[str, Any]):
+        """Create chunker instance safely with error handling."""
+        try:
+            # Use the registry directly that's already imported at module level
+            chunker = create_chunker(strategy_name, **config)
+            return chunker
+        except Exception as e:
+            self.logger.error(f"Failed to create chunker {strategy_name}: {e}")
+            return None
 
     def chunk(
         self,
@@ -297,7 +309,35 @@ class AdaptiveChunker:
         if auto_adapt:
             self._check_and_adapt()
 
-        # Perform chunking
+        # Ensure chunker is available (lazy initialization)
+        if self.current_chunker is None:
+            self.logger.info(f"Creating chunker lazily for strategy: {self.current_strategy_name}")
+
+            # Import the working create_chunker function
+            from chunking_strategy import create_chunker as main_create_chunker
+
+            try:
+                self.current_chunker = main_create_chunker(self.current_strategy_name, **self.current_config)
+            except Exception as e:
+                self.logger.warning(f"Failed to create {self.current_strategy_name} with config, trying without config: {e}")
+                try:
+                    self.current_chunker = main_create_chunker(self.current_strategy_name)
+                except Exception as e2:
+                    self.logger.warning(f"Failed to create {self.current_strategy_name}, trying sentence_based fallback: {e2}")
+                    try:
+                        self.current_chunker = main_create_chunker('sentence_based')
+                        self.current_strategy_name = 'sentence_based'
+                        self.current_config = {}
+                    except Exception as e3:
+                        error_msg = f"Failed to create any chunker: {e3}"
+                        self.logger.error(error_msg)
+                        raise RuntimeError(error_msg)
+
+        if self.current_chunker is None:
+            error_msg = f"No chunker available for strategy {self.current_strategy_name}"
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg)
+
         try:
             result = self.current_chunker.chunk(content, source_info, **kwargs)
 
@@ -581,6 +621,50 @@ class AdaptiveChunker:
         except Exception as e:
             self.logger.error(f"Failed to create chunker {strategy_name}: {e}")
             return None
+
+    def learn_from_feedback(
+        self,
+        score: float,
+        feedback_type: Union[FeedbackType, str] = FeedbackType.QUALITY,
+        content_sample: Optional[str] = None,
+        **metadata
+    ):
+        """
+        Learn from user feedback to improve chunking quality.
+
+        This is an alias for add_feedback() to provide a more intuitive API
+        as mentioned in documentation expectations.
+
+        Args:
+            score: Quality score (0.0 to 1.0)
+            feedback_type: Type of feedback being provided (FeedbackType enum or string)
+            content_sample: Sample of content for context
+            **metadata: Additional feedback metadata
+        """
+        # Convert string feedback_type to FeedbackType enum if needed
+        if isinstance(feedback_type, str):
+            # Map common string values to FeedbackType enum values
+            string_to_enum = {
+                'quality': FeedbackType.QUALITY,
+                'performance': FeedbackType.PERFORMANCE,
+                'relevance': FeedbackType.RELEVANCE,
+                'coverage': FeedbackType.COVERAGE,
+                'coherence': FeedbackType.COHERENCE,
+                'user_rating': FeedbackType.USER_RATING,
+                'custom': FeedbackType.CUSTOM,
+                # Common aliases that users might use
+                'good_balance': FeedbackType.QUALITY,
+                'good_size': FeedbackType.QUALITY,
+                'good_quality': FeedbackType.QUALITY,
+                'poor_quality': FeedbackType.QUALITY,
+                'too_large': FeedbackType.QUALITY,
+                'too_small': FeedbackType.QUALITY,
+                'speed': FeedbackType.PERFORMANCE,
+                'memory': FeedbackType.PERFORMANCE,
+            }
+            feedback_type = string_to_enum.get(feedback_type.lower(), FeedbackType.CUSTOM)
+
+        return self.add_feedback(score, feedback_type, content_sample, **metadata)
 
     def __repr__(self) -> str:
         return (

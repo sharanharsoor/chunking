@@ -39,19 +39,22 @@ def create_test_files():
         f.write("This is a medium-sized text file with more content. " * 2000)  # ~110KB
     files['medium_text'] = medium_file
 
-    # Mock PDF file (will use Tika if available)
-    pdf_file = Path(tempfile.mktemp(suffix='.pdf'))
-    with open(pdf_file, 'wb') as f:
-        f.write(b'%PDF-1.4\n')  # Minimal PDF header
-        f.write(b'Mock PDF content for demonstration. ' * 1000)
-    files['mock_pdf'] = pdf_file
+    # Use real PDF file (will use Tika if available)
+    real_pdf = Path("test_data/example.pdf")
+    if real_pdf.exists():
+        files['mock_pdf'] = real_pdf
+    else:
+        # Create a simple text file as fallback if no PDF available
+        pdf_fallback = Path(tempfile.mktemp(suffix='.txt'))
+        with open(pdf_fallback, 'w') as f:
+            f.write("This is fallback content when no real PDF is available. " * 100)
+        files['mock_pdf'] = pdf_fallback
 
-    # Mock Word document (will use Tika if available)
-    docx_file = Path(tempfile.mktemp(suffix='.docx'))
-    with open(docx_file, 'wb') as f:
-        f.write(b'PK\x03\x04')  # Minimal DOCX/ZIP header
-        f.write(b'Mock DOCX content for demonstration. ' * 800)
-    files['mock_docx'] = docx_file
+    # Create text file as DOCX fallback (since creating valid DOCX is complex)
+    docx_fallback = Path(tempfile.mktemp(suffix='.txt'))
+    with open(docx_fallback, 'w') as f:
+        f.write("This simulates DOCX content for Tika integration demonstration. " * 800)
+    files['mock_docx'] = docx_fallback
 
     return files
 
@@ -86,8 +89,9 @@ def demo_smart_streaming_decisions():
         if result.source_info.get('tika_available'):
             print(f"   Tika available: ✅ YES")
 
-        # Cleanup
-        file_path.unlink()
+        # Cleanup - but don't delete real test files
+        if 'tmp' in str(file_path):  # Only delete temporary files
+            file_path.unlink()
 
 
 def demo_tika_integration():
@@ -124,8 +128,9 @@ def demo_tika_integration():
         print(f"   Chunks created: {len(result.chunks)}")
         print(f"   Strategy used: {result.strategy_used}")
 
-        # Cleanup
-        file_path.unlink()
+        # Cleanup - but don't delete real test files
+        if 'tmp' in str(file_path):  # Only delete temporary files
+            file_path.unlink()
 
 
 def demo_force_streaming():

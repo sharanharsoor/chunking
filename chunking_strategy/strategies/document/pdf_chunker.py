@@ -36,6 +36,7 @@ from chunking_strategy.core.base import BaseChunker, Chunk, ChunkingResult, Chun
 from chunking_strategy.core.registry import register_chunker, ComplexityLevel, SpeedLevel, MemoryUsage
 from chunking_strategy.core.streaming import StreamableChunker
 
+logger = logging.getLogger(__name__)
 
 class PDFChunker(StreamableChunker):
     """
@@ -56,7 +57,7 @@ class PDFChunker(StreamableChunker):
         backend: str = "auto",  # auto, pymupdf, pypdf2, pdfminer
         image_quality: int = 95,
         table_detection_threshold: float = 0.7,
-        min_text_length: int = 50,
+        min_text_length: int = 10,
         **kwargs
     ):
         """

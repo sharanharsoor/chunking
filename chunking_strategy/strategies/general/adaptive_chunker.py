@@ -665,11 +665,24 @@ class AdaptiveChunker(StreamableChunker, AdaptableChunker):
             if result.source_info is None:
                 result.source_info = {}
 
+            # Safely serialize dataclass objects
+            try:
+                content_profile_dict = asdict(content_profile) if hasattr(content_profile, '__dataclass_fields__') else str(content_profile)
+            except Exception as e:
+                self.logger.warning(f"Failed to serialize content_profile: {e}")
+                content_profile_dict = {"error": "serialization_failed", "type": type(content_profile).__name__}
+            
+            try:
+                performance_dict = asdict(performance) if hasattr(performance, '__dataclass_fields__') else str(performance)
+            except Exception as e:
+                self.logger.warning(f"Failed to serialize performance: {e}")
+                performance_dict = {"error": "serialization_failed", "type": type(performance).__name__}
+
             result.source_info.update({
                 "adaptive_strategy": selected_strategy,
-                "content_profile": asdict(content_profile),
+                "content_profile": content_profile_dict,
                 "optimized_parameters": optimized_params,
-                "performance_metrics": asdict(performance),
+                "performance_metrics": performance_dict,
                 "operation_count": self.operation_count,
                 "adaptation_enabled": self.enable_performance_learning
             })
@@ -818,6 +831,42 @@ class AdaptiveChunker(StreamableChunker, AdaptableChunker):
         """Get history of parameter adaptations."""
         return [dict(record) for record in self.adaptation_history]
 
+    def learn_from_feedback(
+        self,
+        feedback_score: float,
+        feedback_type: str = "quality",
+        context: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ) -> None:
+        """
+        Learn from user feedback and adapt chunking behavior.
+
+        This method provides a user-friendly interface for providing feedback
+        to the adaptive chunker. It's an alias for adapt_parameters with
+        enhanced functionality.
+
+        Args:
+            feedback_score: Score from 0.0 (poor) to 1.0 (excellent)
+            feedback_type: Type of feedback ("quality", "performance", "relevance")
+            context: Additional context about the feedback
+            **kwargs: Additional parameters for adaptation
+        """
+        # Store additional context if provided
+        if context:
+            self.adaptation_history.append({
+                "timestamp": time.time(),
+                "feedback_context": context,
+                "feedback_type": feedback_type,
+                "operation_count": self.operation_count
+            })
+
+        # Call the main adaptation method
+        self.adapt_parameters(feedback_score, feedback_type, **kwargs)
+
+        # Log the learning event
+        self.logger.info(f"Learning from {feedback_type} feedback: {feedback_score} "
+                        f"(context: {context is not None})")
+
     def get_performance_summary(self) -> Dict[str, Any]:
         """Get a summary of performance across all strategies."""
         summary = {
@@ -846,12 +895,24 @@ class AdaptiveChunker(StreamableChunker, AdaptableChunker):
             return
 
         try:
+            # Safely serialize adaptation history
+            adaptation_history_serialized = []
+            for record in self.adaptation_history:
+                try:
+                    if hasattr(record, '__dataclass_fields__'):
+                        adaptation_history_serialized.append(asdict(record))
+                    else:
+                        adaptation_history_serialized.append(str(record))
+                except Exception as e:
+                    self.logger.warning(f"Failed to serialize adaptation record: {e}")
+                    adaptation_history_serialized.append({"error": "serialization_failed", "type": type(record).__name__})
+
             history_data = {
                 "operation_count": self.operation_count,
                 "current_strategy": self.current_strategy,
                 "parameter_cache": self.parameter_cache,
                 "content_strategy_map": self.content_strategy_map,
-                "adaptation_history": [asdict(record) for record in self.adaptation_history],
+                "adaptation_history": adaptation_history_serialized,
                 "performance_summary": self.get_performance_summary()
             }
 

@@ -22,11 +22,11 @@ def example_1_custom_configuration():
     print("\n🎯 Example 1: Custom Configuration")
     print("=" * 50)
 
-    config_path = "config_examples/quality_focused.yaml"
+    config_path = "config_examples/basic_configs/semantic_analysis.yaml"
     if Path(config_path).exists():
         orchestrator = ChunkerOrchestrator(config_path=config_path)
         result = orchestrator.chunk_file("test_data/technical_doc.txt")
-        print(f"📊 Quality-focused chunking: {len(result.chunks)} chunks")
+        print(f"📊 Semantic analysis chunking: {len(result.chunks)} chunks using {result.strategy_used}")
     else:
         print("❌ Config file not found")
 
@@ -86,7 +86,8 @@ def example_4_auto_strategy_selection():
 
     for file_path in test_files:
         if Path(file_path).exists():
-            result = orchestrator.chunk_file(file_path, strategy="auto")
+            # Let orchestrator automatically select the best strategy for each file type
+            result = orchestrator.chunk_file(file_path)
             print(f"🤖 {Path(file_path).name}: {result.strategy_used} → {len(result.chunks)} chunks")
 
 

@@ -248,8 +248,7 @@ def demo_custom_retrieval_workflow():
             Conclusion: The proposed approach demonstrates significant improvements in text understanding tasks.
             """,
 
-            "code_documentation.py": '''
-            def transformer_attention(query, key, value, mask=None):
+            "code_documentation.py": '''def transformer_attention(query, key, value, mask=None):
                 """
                 Implements scaled dot-product attention mechanism.
 
@@ -409,8 +408,7 @@ def demo_question_answering():
         from chunking_strategy import create_chunker
 
         # Create a knowledge base
-        knowledge_text = """
-        Python Programming Language
+        knowledge_text = """Python Programming Language
 
         Python is a high-level, interpreted programming language with dynamic semantics. Its high-level built-in data structures, combined with dynamic typing and dynamic binding, make it very attractive for Rapid Application Development, as well as for use as a scripting or glue language to connect existing components together.
 

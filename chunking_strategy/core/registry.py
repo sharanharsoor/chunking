@@ -12,20 +12,28 @@ from typing import Any, Dict, List, Optional, Type, Callable, Union
 from enum import Enum
 import importlib
 
+from chunking_strategy.exceptions import ChunkerNotFoundError, ChunkingConfigurationError, StrategyUnavailableError
+
 # Handle pkg_resources deprecation gracefully
+pkg_resources = None
+importlib_metadata = None
+
+# Prefer importlib.metadata over deprecated pkg_resources
 try:
-    import pkg_resources
+    from importlib import metadata as importlib_metadata
 except ImportError:
-    # pkg_resources is deprecated and not available in newer Python versions
-    # We'll use importlib.metadata instead where needed
-    pkg_resources = None
     try:
-        from importlib import metadata as importlib_metadata
+        import importlib_metadata
     except ImportError:
+        # Only fall back to pkg_resources if absolutely necessary
         try:
-            import importlib_metadata
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                warnings.simplefilter("ignore", UserWarning)
+                import pkg_resources
         except ImportError:
-            importlib_metadata = None
+            pkg_resources = None
 
 from chunking_strategy.core.base import BaseChunker, ModalityType
 
@@ -343,7 +351,7 @@ class ChunkerRegistry:
         self,
         name: str,
         **kwargs
-    ) -> Optional[BaseChunker]:
+    ) -> 'BaseChunker':
         """
         Create an instance of a chunker.
 
@@ -352,12 +360,21 @@ class ChunkerRegistry:
             **kwargs: Parameters to pass to chunker constructor
 
         Returns:
-            Chunker instance or None if not found/failed
+            Chunker instance
+
+        Raises:
+            ChunkerNotFoundError: If the chunker strategy is not found
+            ChunkingConfigurationError: If the chunker configuration is invalid
+            StrategyUnavailableError: If the chunker dependencies are not available
         """
+        # NOTE: Removed automatic strategy loading to support true lazy loading
+        # Strategies are now loaded on-demand by the main package when needed
+
         chunker_class = self.get(name)
         if not chunker_class:
-            logger.error(f"Chunker not found: {name}")
-            return None
+            error_msg = f"Chunker not found: {name}. Available strategies: {list(self._strategies.keys())}"
+            logger.error(error_msg)
+            raise ChunkerNotFoundError(error_msg)
 
         try:
             metadata = self._metadata[name]
@@ -377,17 +394,26 @@ class ChunkerRegistry:
                     params['name'] = name
                     return chunker_class(**params)
                 else:
-                    # Some other TypeError, re-raise
-                    raise
+                    # Some other TypeError - likely invalid configuration
+                    error_msg = f"Invalid configuration for chunker {name}: {e}"
+                    logger.error(error_msg)
+                    raise ChunkingConfigurationError(error_msg) from e
 
         except ValueError as e:
             # Re-raise validation errors (like invalid parameter values)
-            logger.error(f"Failed to create chunker {name}: {e}")
-            raise e
+            error_msg = f"Invalid parameters for chunker {name}: {e}"
+            logger.error(error_msg)
+            raise ChunkingConfigurationError(error_msg) from e
+        except ImportError as e:
+            # Missing dependencies
+            error_msg = f"Strategy {name} is not available due to missing dependencies: {e}"
+            logger.error(error_msg)
+            raise StrategyUnavailableError(error_msg) from e
         except Exception as e:
-            # Log and return None for other errors (missing dependencies, etc.)
-            logger.error(f"Failed to create chunker {name}: {e}")
-            return None
+            # Other errors - convert to StrategyUnavailableError for consistency
+            error_msg = f"Failed to create chunker {name}: {e}"
+            logger.error(error_msg)
+            raise StrategyUnavailableError(error_msg) from e
 
     def check_dependencies(self, name: str) -> Dict[str, bool]:
         """
@@ -432,15 +458,17 @@ class ChunkerRegistry:
             return True
         except ImportError:
             try:
-                # Try with pkg_resources for packages with different import names
-                if pkg_resources is not None:
-                    pkg_resources.get_distribution(package_name)
-                    return True
-                elif importlib_metadata is not None:
+                # Prefer importlib.metadata over deprecated pkg_resources
+                if importlib_metadata is not None:
                     importlib_metadata.distribution(package_name)
+                    return True
+                elif pkg_resources is not None:
+                    pkg_resources.get_distribution(package_name)
                     return True
             except Exception:
                 return False
+
+        return False
 
     def get_recommendations(
         self,
@@ -623,6 +651,18 @@ def get_chunker(name: str) -> Optional[Type[BaseChunker]]:
 
 def list_chunkers(**kwargs) -> List[str]:
     """List available chunkers with optional filtering."""
+    # Trigger lazy loading of strategies if not already loaded
+    try:
+        from chunking_strategy import _ensure_strategies_loaded
+        _ensure_strategies_loaded()
+    except ImportError:
+        # If we can't import from main package, directly load heavy strategies
+        try:
+            import chunking_strategy.strategies.text.semantic_chunker  # noqa: F401
+            import chunking_strategy.strategies.text.embedding_based_chunker  # noqa: F401
+        except ImportError:
+            pass  # Heavy strategies have optional dependencies
+
     return _global_registry.list_chunkers(**kwargs)
 
 

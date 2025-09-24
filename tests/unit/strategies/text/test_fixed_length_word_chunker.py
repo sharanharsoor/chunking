@@ -235,12 +235,15 @@ class TestFixedLengthWordChunker:
 
     def test_invalid_input_handling(self):
         """Test handling of invalid inputs."""
-        # Test with non-string input types
-        with pytest.raises(ValueError):
-            self.chunker.chunk(b"bytes content")
+        # Test with truly invalid input types (the chunker now handles bytes and Path gracefully)
+        with pytest.raises((ValueError, TypeError)):
+            self.chunker.chunk(123)  # Integer input
 
-        with pytest.raises(ValueError):
-            self.chunker.chunk(Path("/some/path"))
+        with pytest.raises((ValueError, TypeError)):
+            self.chunker.chunk(None)  # None input
+
+        with pytest.raises((ValueError, TypeError)):
+            self.chunker.chunk([])  # List input
 
         # Test invalid parameter combinations - these should be caught during initialization
         with pytest.raises(ValueError):
@@ -251,6 +254,18 @@ class TestFixedLengthWordChunker:
 
         with pytest.raises(ValueError):
             FixedLengthWordChunker(words_per_chunk=10, overlap_words=-1)
+
+    def test_flexible_input_handling(self):
+        """Test that chunker now handles various input types gracefully."""
+        # Test with bytes content (should work now)
+        bytes_content = b"This is test content for chunking with bytes input."
+        result = self.chunker.chunk(bytes_content)
+        assert len(result.chunks) > 0
+        assert result.chunks[0].content  # Should have decoded content
+
+        # Test with empty content (should handle gracefully)
+        empty_result = self.chunker.chunk("")
+        assert len(empty_result.chunks) == 0
 
     def test_parameter_validation(self):
         """Test parameter validation and bounds."""
