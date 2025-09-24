@@ -105,8 +105,17 @@ vectordb = [
     "weaviate-client>=3.24.0",
     "pinecone-client>=2.2.0",
 ]
+streamlit = [
+    "streamlit>=1.28.0",
+    "plotly>=5.17.0",
+]
+langchain = [
+    "langchain>=0.0.300",
+    "langchain-community>=0.0.25",
+    "chromadb>=0.4.15",
+]
 all = [
-    "chunking-strategy[dev,text,document,multimedia,ml,detection,hardware,tika,vectordb]"
+    "chunking-strategy[dev,text,document,multimedia,ml,detection,hardware,tika,vectordb,streamlit,langchain]"
 ]
 
 [project.urls]
