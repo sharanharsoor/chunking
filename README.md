@@ -1721,8 +1721,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🚀 Quick Start with Demos:**
 ```bash
-# Install with integration dependencies
-pip install chunking-strategy[all] streamlit plotly langchain
+# Install with all integration dependencies
+pip install chunking-strategy[all]
+
+# Or install specific integrations only:
+# pip install chunking-strategy[streamlit]    # For Streamlit app
+# pip install chunking-strategy[langchain]    # For LangChain integration
+# pip install chunking-strategy[text,document] # For basic functionality
 
 # Run the interactive Streamlit app
 streamlit run examples/19_streamlit_app_demo.py
