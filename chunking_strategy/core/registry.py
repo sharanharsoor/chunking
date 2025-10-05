@@ -4,6 +4,40 @@ Registry system for chunking strategies.
 This module provides a decorator-based registry system that allows chunking
 strategies to register themselves with metadata including capabilities,
 dependencies, performance characteristics, and usage information.
+
+The registry system enables:
+- Automatic discovery of chunking strategies
+- Metadata-driven strategy selection
+- Dependency management and validation
+- Performance-based recommendations
+- Plugin architecture for extensibility
+
+Key Components:
+- ChunkerRegistry: Global registry for managing strategies
+- ChunkerMetadata: Comprehensive metadata for strategies
+- register_chunker: Decorator for strategy registration
+- ComplexityLevel, SpeedLevel, MemoryUsage: Performance classifications
+
+Architecture:
+The registry follows a plugin pattern where:
+1. Strategies register themselves using the @register_chunker decorator
+2. Metadata includes performance characteristics and dependencies
+3. The registry provides discovery and recommendation services
+4. Strategies can be filtered by category, complexity, and capabilities
+
+Example Usage:
+    from chunking_strategy.core.registry import register_chunker, ComplexityLevel
+    
+    @register_chunker(
+        name="my_chunker",
+        category="text",
+        complexity=ComplexityLevel.LOW,
+        dependencies=["nltk"]
+    )
+    class MyChunker(BaseChunker):
+        def chunk(self, content, **kwargs):
+            # Implementation here
+            pass
 """
 
 import logging

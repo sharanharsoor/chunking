@@ -4,6 +4,38 @@ Base classes and universal chunk schema for the chunking strategy library.
 This module defines the fundamental interfaces and data structures used throughout
 the library, including the universal chunk schema that supports text, images,
 audio, video, tables, and mixed content.
+
+The base classes provide:
+- Abstract interfaces for all chunking strategies
+- Universal chunk representation supporting multiple modalities
+- Metadata schema for rich content information
+- Streaming and adaptive chunking capabilities
+- Hierarchical chunking support
+
+Key Components:
+- ModalityType: Enumeration of supported content types
+- ChunkMetadata: Rich metadata schema for chunks
+- Chunk: Universal chunk representation
+- ChunkingResult: Complete result from chunking operations
+- BaseChunker: Abstract base class for all chunkers
+- StreamableChunker: Base class for streaming chunkers
+- AdaptableChunker: Base class for adaptive chunkers
+- HierarchicalChunker: Base class for hierarchical chunkers
+
+Architecture:
+The base classes follow a plugin architecture where:
+1. All chunkers inherit from BaseChunker
+2. Chunkers can implement additional interfaces (Streamable, Adaptable, etc.)
+3. The universal chunk schema ensures compatibility across all strategies
+4. Metadata is extensible to support domain-specific information
+
+Example Usage:
+    from chunking_strategy.core.base import BaseChunker, Chunk, ChunkMetadata, ModalityType
+    
+    class MyChunker(BaseChunker):
+        def chunk(self, content, **kwargs):
+            # Implementation here
+            return ChunkingResult(chunks=[...])
 """
 
 import uuid
