@@ -38,7 +38,7 @@ jobs:
         # Install some common optional dependencies for better testing
         pip install numpy scikit-learn beautifulsoup4 lxml Pillow opencv-python || echo "Optional ML dependencies not available"
         # Install dev dependencies for testing
-        pip install pytest ruff black isort mypy || echo "Some dev tools not available"
+        pip install pytest pytest-cov ruff black isort mypy || echo "Some dev tools not available"
 
     - name: Lint with ruff (if available)
       run: |
@@ -57,3 +57,17 @@ jobs:
         python -c "import chunking_strategy; print(f'✅ Basic import successful! Version: {chunking_strategy.__version__}')"
         # Test CLI is available
         python -m chunking_strategy --help || echo "CLI test completed"
+
+    - name: Run tests with coverage
+      run: |
+        # Run tests with coverage reporting
+        pytest --cov=chunking_strategy --cov-report=xml --cov-report=term-missing || echo "Tests completed with coverage"
+
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false

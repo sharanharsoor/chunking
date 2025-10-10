@@ -4,6 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/chunking-strategy.svg)](https://pypi.org/project/chunking-strategy/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/pypi/dm/chunking-strategy.svg)](https://pypi.org/project/chunking-strategy/)
+[![codecov](https://codecov.io/gh/sharanharsoor/chunking/branch/main/graph/badge.svg)](https://codecov.io/gh/sharanharsoor/chunking)
 
 **A comprehensive Python library for intelligent document chunking with extensive format support and streaming capabilities.**
 
