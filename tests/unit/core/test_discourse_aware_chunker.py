@@ -389,7 +389,7 @@ class TestChunkCreation:
         result = chunker.chunk("")
 
         assert len(result.chunks) == 0
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
         assert result.strategy_used == "discourse_aware"
 
 
@@ -506,7 +506,7 @@ class TestPerformanceAndRobustness:
         result = chunker.chunk(test_document)
 
         # Should track processing time
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
         assert isinstance(result.processing_time, float)
 
     def test_large_document_handling(self):

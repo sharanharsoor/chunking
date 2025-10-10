@@ -336,12 +336,12 @@ Finally, we conclude with a summary of key points and recommendations for future
         chunker = create_chunker("fastcdc")
 
         # Test with text file
-        text_file = "test_data/sample_text_for_cdc.txt"
-        if os.path.exists(text_file):
+        text_file = Path("test_data/sample_text_for_cdc.txt")
+        if text_file.exists():
             result = chunker.chunk(text_file)
 
             assert result.total_chunks > 0
-            assert result.source_info["source_file"] == text_file
+            assert str(result.source_info["source_file"]) == str(text_file)
 
             # Verify content analysis
             for chunk in result.chunks:

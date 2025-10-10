@@ -14,6 +14,7 @@ This test suite covers embedding-based chunking functionality including:
 import pytest
 import numpy as np
 import time
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -281,9 +282,10 @@ class TestEmbeddingBasedChunker:
 
     def test_file_input_handling(self):
         """Test handling of file path inputs."""
-        # Create a temporary test file
-        test_file = Path("/tmp/test_embedding_chunker.txt")
-        test_file.write_text(self.technical_text)
+        # Create a temporary test file using cross-platform temp directory
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tmp_file:
+            tmp_file.write(self.technical_text)
+            test_file = Path(tmp_file.name)
 
         try:
             result = self.chunker.chunk(test_file)

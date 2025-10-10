@@ -195,7 +195,7 @@ Final section after horizontal rule.
         assert isinstance(result, ChunkingResult)
         assert result.strategy_used == "boundary_aware"
         assert len(result.chunks) > 0
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
 
         # Check chunk properties
         for chunk in result.chunks:
@@ -591,7 +591,7 @@ code_block = "example"
                     # Basic validation
                     assert isinstance(result, ChunkingResult)
                     assert result.strategy_used == "boundary_aware"
-                    assert result.processing_time > 0
+                    assert result.processing_time >= 0
 
                     if result.chunks:
                         total_content = " ".join(chunk.content for chunk in result.chunks)

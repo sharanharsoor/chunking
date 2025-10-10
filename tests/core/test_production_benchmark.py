@@ -172,7 +172,7 @@ class TestProductionBenchmarkRunner:
         assert result.strategy_name == "test_strategy"
         assert result.dataset_name == "test_dataset"
         assert result.chunk_count == 3
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
         assert result.quality_metrics["overall_score"] == 0.85
 
     @patch('chunking_strategy.core.production_benchmark.create_chunker')

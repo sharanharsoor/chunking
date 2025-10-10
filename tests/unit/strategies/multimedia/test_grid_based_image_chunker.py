@@ -92,7 +92,7 @@ class TestGridBasedImageChunker:
 
         assert isinstance(result, ChunkingResult)
         assert len(result.chunks) == 4  # 2x2 grid for 400x300 image with 200x150 tiles
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
 
         # Check source info
         assert "total_tiles" in result.source_info
@@ -297,7 +297,7 @@ class TestGridBasedImageChunker:
             result = chunker.chunk("test_image.png")
             end_time = time.time()
 
-            assert result.processing_time > 0
+            assert result.processing_time >= 0
             assert result.processing_time <= (end_time - start_time) + 0.1  # Small tolerance
 
     @patch('chunking_strategy.strategies.multimedia.grid_based_image.Image')

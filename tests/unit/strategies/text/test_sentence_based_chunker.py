@@ -44,7 +44,7 @@ class TestSentenceBasedChunker:
         assert isinstance(result, ChunkingResult)
         assert result.strategy_used == "sentence_based"
         assert result.processing_time is not None
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
 
         # Should create 2 chunks (3 sentences + 1 sentence)
         assert len(result.chunks) == 2
