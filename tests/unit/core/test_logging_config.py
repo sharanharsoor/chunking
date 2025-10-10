@@ -355,8 +355,13 @@ class TestDebugCollection:
             assert isinstance(debug_dir, Path)
 
         finally:
-            if log_file.exists():
-                log_file.unlink()
+            # Clean up log file with error handling for Windows
+            try:
+                if log_file.exists():
+                    log_file.unlink()
+            except (PermissionError, OSError):
+                # File might be locked on Windows, ignore cleanup errors
+                pass
 
     def test_collect_debug_info(self):
         """Test debug information collection."""
@@ -508,8 +513,13 @@ class TestFileLogging:
             assert "Test file logging" in content
 
         finally:
-            if log_file.exists():
-                log_file.unlink()
+            # Clean up log file with error handling for Windows
+            try:
+                if log_file.exists():
+                    log_file.unlink()
+            except (PermissionError, OSError):
+                # File might be locked on Windows, ignore cleanup errors
+                pass
 
 
 class TestSystemIntegration:

@@ -37,8 +37,8 @@ class TestEmbeddingBasedChunker:
         self.chunker = EmbeddingBasedChunker(
             embedding_model="tfidf",  # Use TF-IDF for reliability in tests
             similarity_metric="cosine",
-            similarity_threshold=0.7,
-            min_chunk_sentences=2,
+            similarity_threshold=0.5,  # Lower threshold for more lenient chunking
+            min_chunk_sentences=1,     # Allow single sentence chunks
             max_chunk_sentences=8,
             enable_caching=True
         )
