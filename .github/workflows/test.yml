@@ -11,12 +11,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
         exclude:
           # Reduce some combinations to speed up CI
-          - os: windows-latest
-            python-version: '3.9'
           - os: macos-latest
             python-version: '3.9'
       fail-fast: false

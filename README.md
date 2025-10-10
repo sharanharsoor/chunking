@@ -10,6 +10,8 @@
 
 Transform your documents into perfectly sized chunks for RAG systems, vector databases, LLM processing, and content analysis with multi-core processing and memory-efficient streaming for large files.
 
+> **Platform Support**: Linux and macOS only. Windows support is not currently available.
+
 ---
 
 ## 🚀 **Quick Start**

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chunking-strategy"
 version = "0.4.0"
-description = "A comprehensive chunking library for text, documents, audio, video, and data streams"
+description = "A comprehensive chunking library for text, documents, audio, video, and data streams (Linux and macOS only)"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -18,6 +18,8 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
