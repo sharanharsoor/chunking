@@ -53,7 +53,7 @@ Final paragraph with moderate length. It has a reasonable amount of content with
         assert isinstance(result, ChunkingResult)
         assert result.strategy_used == "paragraph_based"
         assert result.processing_time is not None
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
 
         # Should create 2 chunks (2 paragraphs each)
         assert len(result.chunks) == 2

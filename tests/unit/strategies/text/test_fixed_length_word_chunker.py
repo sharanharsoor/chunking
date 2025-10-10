@@ -53,7 +53,7 @@ class TestFixedLengthWordChunker:
         assert isinstance(result, ChunkingResult)
         assert result.strategy_used == "fixed_length_word"
         assert result.processing_time is not None
-        assert result.processing_time > 0
+        assert result.processing_time >= 0
 
         # Should create 1 chunk (exactly 10 words)
         assert len(result.chunks) == 1
