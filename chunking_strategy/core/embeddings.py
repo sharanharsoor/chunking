@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..core.base import Chunk, ChunkingResult
 
@@ -225,9 +225,10 @@ class EmbeddedChunk(BaseModel):
     model_used: str
     embedding_dim: int
 
-    class Config:
+    model_config = ConfigDict(
         # Allow for better memory efficiency
-        arbitrary_types_allowed = True
+        arbitrary_types_allowed=True
+    )
 
 
 class EmbeddingResult(BaseModel):
