@@ -22,7 +22,14 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
+# Conditional numpy import
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+    np = None
+
 from pydantic import BaseModel, Field, ConfigDict
 
 from ..core.base import Chunk, ChunkingResult
@@ -43,6 +50,15 @@ os.environ.setdefault('TF_ENABLE_ONEDNN_OPTS', '0')  # Disable oneDNN optimizati
 # Suppress additional TensorFlow warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="tensorflow")
 warnings.filterwarnings("ignore", category=FutureWarning, module="tensorflow")
+
+
+def _check_numpy_available() -> None:
+    """Check if numpy is available and raise ImportError if not."""
+    if not NUMPY_AVAILABLE:
+        raise ImportError(
+            "numpy is required for embedding functionality. "
+            "Install it with: pip install chunking-strategy[ml]"
+        )
 
 
 def check_dependency(package_name: str, extra_name: str = None) -> Tuple[bool, str]:
@@ -264,6 +280,7 @@ class BaseEmbedder(ABC):
     @abstractmethod
     def embed_text(self, texts: List[str]) -> np.ndarray:
         """Generate embeddings for text content."""
+        _check_numpy_available()
         pass
 
     def _get_device(self) -> str:
@@ -361,6 +378,7 @@ class BaseEmbedder(ABC):
                 return self._create_empty_result(failed_chunks, "All batches failed")
 
             # Combine all embeddings
+            _check_numpy_available()
             embeddings = np.vstack(all_embeddings)
 
             if self.config.normalize_embeddings:
@@ -552,6 +570,7 @@ class SentenceTransformerEmbedder(BaseEmbedder):
 
     def embed_text(self, texts: List[str]) -> np.ndarray:
         """Generate embeddings for text content with better error handling."""
+        _check_numpy_available()
         if not self._is_loaded:
             self.load_model()
 
@@ -647,6 +666,7 @@ class CLIPEmbedder(BaseEmbedder):
 
     def embed_text(self, texts: List[str]) -> np.ndarray:
         """Generate embeddings for text content using CLIP."""
+        _check_numpy_available()
         if not self._is_loaded:
             self.load_model()
 
@@ -779,9 +799,12 @@ def print_embedding_summary(result: EmbeddingResult, max_chunks: int = 5) -> Non
             print(f"    Embedding dim: {chunk.embedding_dim}")
 
             # Show embedding statistics
-            embedding_array = np.array(chunk.embedding)
-            print(f"    Embedding stats: mean={embedding_array.mean():.4f}, std={embedding_array.std():.4f}")
-            print(f"    Embedding preview: [{chunk.embedding[0]:.4f}, {chunk.embedding[1]:.4f}, ...]")
+            if NUMPY_AVAILABLE:
+                embedding_array = np.array(chunk.embedding)
+                print(f"    Embedding stats: mean={embedding_array.mean():.4f}, std={embedding_array.std():.4f}")
+                print(f"    Embedding preview: [{chunk.embedding[0]:.4f}, {chunk.embedding[1]:.4f}, ...]")
+            else:
+                print(f"    Embedding preview: [{chunk.embedding[0]:.4f}, {chunk.embedding[1]:.4f}, ...]")
 
             if chunk.content:
                 content_preview = chunk.content[:100] + "..." if len(chunk.content) > 100 else chunk.content

@@ -470,17 +470,17 @@ def benchmark(
             )
 
         # Success message
-        click.echo(f"✅ Benchmark completed successfully!")
-        click.echo(f"📁 Results saved to: {config.output_dir}")
-        click.echo(f"📊 Total strategies tested: {suite.summary_stats.get('strategies_tested', 0)}")
-        click.echo(f"🎯 Success rate: {suite.summary_stats.get('success_rate', 0):.1%}")
+        click.echo(f"[SUCCESS] Benchmark completed successfully!")
+        click.echo(f"[INFO] Results saved to: {config.output_dir}")
+        click.echo(f"[INFO] Total strategies tested: {suite.summary_stats.get('strategies_tested', 0)}")
+        click.echo(f"[RESULT] Success rate: {suite.summary_stats.get('success_rate', 0):.1%}")
 
         if custom_algorithms:
             custom_count = suite.summary_stats.get('custom_algorithm_count', 0)
-            click.echo(f"🔧 Custom algorithms included: {custom_count}")
+            click.echo(f"[TOOL] Custom algorithms included: {custom_count}")
 
     except Exception as e:
-        click.echo(f"❌ Benchmark failed: {e}", err=True)
+        click.echo(f"[ERROR] Benchmark failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -652,7 +652,7 @@ def process_directory(
                 files = [f for f in directory.glob("*") if f.is_file()]
 
         if not files:
-            click.echo("❌ No files found matching the criteria.")
+            click.echo("[ERROR] No files found matching the criteria.")
             return
 
         click.echo(f"📋 Found {len(files)} files to process:")
@@ -672,15 +672,15 @@ def process_directory(
         # Create orchestrator
         if config:
             orchestrator = ChunkerOrchestrator(config_path=config)
-            click.echo(f"✅ Using configuration: {config}")
+            click.echo(f"[SUCCESS] Using configuration: {config}")
         else:
             orchestrator = ChunkerOrchestrator()
-            click.echo("✅ Using default configuration")
+            click.echo("[SUCCESS] Using default configuration")
 
         # Setup output directory
         if output_dir:
             output_dir.mkdir(parents=True, exist_ok=True)
-            click.echo(f"📁 Output directory: {output_dir}")
+            click.echo(f"[INFO] Output directory: {output_dir}")
         else:
             click.echo("📄 Output: Console only (no files will be saved)")
 
@@ -717,7 +717,7 @@ def process_directory(
                     chunk_count = len(result.chunks)
                     total_chunks += chunk_count
 
-                    click.echo(f"✅ {file_path}")
+                    click.echo(f"[SUCCESS] {file_path}")
                     click.echo(f"   └─ {chunk_count} chunks using {result.strategy_used}")
 
                     # Show preview if requested
@@ -737,12 +737,12 @@ def process_directory(
 
                 else:
                     failed += 1
-                    click.echo(f"❌ {file_path}: No chunks generated")
+                    click.echo(f"[ERROR] {file_path}: No chunks generated")
 
                 click.echo()
 
             # Final summary
-            click.echo(f"📊 SUMMARY:")
+            click.echo(f"[STATS] SUMMARY:")
             click.echo(f"   Total files: {len(files)}")
             click.echo(f"   Successful: {successful}")
             click.echo(f"   Failed: {failed}")
@@ -751,14 +751,14 @@ def process_directory(
             click.echo(f"   Average: {len(files)/(end_time - start_time):.1f} files/sec")
 
         except Exception as processing_error:
-            click.echo(f"❌ Processing failed: {processing_error}", err=True)
+            click.echo(f"[ERROR] Processing failed: {processing_error}", err=True)
             if ctx.obj.get('verbose'):
                 import traceback
                 traceback.print_exc()
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"❌ Error: {e}", err=True)
+        click.echo(f"[ERROR] Error: {e}", err=True)
         sys.exit(1)
 
 
@@ -963,7 +963,7 @@ def hardware(detailed: bool, recommendations: bool) -> None:
         click.echo()
 
         # CPU info
-        click.echo("🔧 CPU Information:")
+        click.echo("[TOOL] CPU Information:")
         click.echo(f"  Logical cores: {hardware_info.cpu_count}")
         if hardware_info.cpu_count_physical:
             click.echo(f"  Physical cores: {hardware_info.cpu_count_physical}")
@@ -1082,7 +1082,7 @@ def batch(
                 user_workers=workers,
                 force_cpu=no_gpu
             )
-            click.echo(f"🔧 Batch Configuration:")
+            click.echo(f"[TOOL] Batch Configuration:")
             click.echo(f"  Files: {len(files)}")
             click.echo(f"  Batch size: {config_info['batch_size']}")
             click.echo(f"  Workers: {config_info['workers']}")
@@ -1127,10 +1127,10 @@ def batch(
                 click.echo(f"  Processing time: {chunk_result.processing_time:.3f}s")
 
         else:  # summary
-            click.echo("\n📊 Batch Processing Summary:")
+            click.echo("\n[STATS] Batch Processing Summary:")
             click.echo("=" * 50)
-            click.echo(f"✅ Successful files: {len(result.successful_files)}")
-            click.echo(f"❌ Failed files: {len(result.failed_files)}")
+            click.echo(f"[SUCCESS] Successful files: {len(result.successful_files)}")
+            click.echo(f"[ERROR] Failed files: {len(result.failed_files)}")
             click.echo(f"📦 Total chunks: {result.total_chunks}")
             click.echo(f"⏱️  Processing time: {result.total_processing_time:.2f}s")
             click.echo(f"🚀 Performance:")
@@ -1139,7 +1139,7 @@ def batch(
             click.echo(f"   MB/sec: {result.mb_per_second:.1f}")
 
             if result.failed_files:
-                click.echo("\n❌ Failed files:")
+                click.echo("\n[ERROR] Failed files:")
                 for file_path, error in result.failed_files:
                     click.echo(f"   {file_path}: {error}")
 
@@ -1224,7 +1224,7 @@ def embed(
             orchestrator = ChunkerOrchestrator()
 
         chunking_result = orchestrator.chunk_file(input_file, strategy_override=strategy)
-        click.echo(f"✅ Generated {len(chunking_result.chunks)} chunks using {chunking_result.strategy_used}")
+        click.echo(f"[SUCCESS] Generated {len(chunking_result.chunks)} chunks using {chunking_result.strategy_used}")
 
         # Step 2: Configure embedding generation
         embedding_model = EmbeddingModel(model)
@@ -1266,9 +1266,9 @@ def embed(
                 import json
                 output.write_text(json.dumps(vector_db_data, indent=2))
 
-            click.echo(f"✅ Embeddings saved successfully")
+            click.echo(f"[SUCCESS] Embeddings saved successfully")
         else:
-            click.echo(f"📊 Generated {len(vector_db_data)} embedding entries")
+            click.echo(f"[STATS] Generated {len(vector_db_data)} embedding entries")
             click.echo(f"   Use --output to save embeddings for vector database integration")
 
         # Show vector database integration hint
@@ -1321,7 +1321,7 @@ def embed_batch(
 ) -> None:
     """Generate embeddings for multiple files in batch."""
     try:
-        click.echo(f"📁 Batch embedding for {len(input_files)} files...")
+        click.echo(f"[INFO] Batch embedding for {len(input_files)} files...")
 
         # Setup configuration
         if config:
@@ -1375,21 +1375,21 @@ def embed_batch(
                 successful_files += 1
 
             except Exception as e:
-                click.echo(f"   ❌ Failed: {e}", err=True)
+                click.echo(f"   [ERROR] Failed: {e}", err=True)
                 failed_files.append((str(input_file), str(e)))
 
         end_time = time.time()
         processing_time = end_time - start_time
 
         # Display summary
-        click.echo(f"\n📊 Batch Embedding Summary:")
+        click.echo(f"\n[STATS] Batch Embedding Summary:")
         click.echo(f"   Files processed: {successful_files}/{len(input_files)}")
         click.echo(f"   Total embeddings: {len(all_embeddings)}")
         click.echo(f"   Processing time: {processing_time:.2f}s")
         click.echo(f"   Speed: {len(all_embeddings)/processing_time:.1f} embeddings/sec")
 
         if failed_files:
-            click.echo(f"\n❌ Failed files:")
+            click.echo(f"\n[ERROR] Failed files:")
             for file_path, error in failed_files:
                 click.echo(f"   {file_path}: {error}")
 
@@ -1478,10 +1478,10 @@ def list_models(ctx: click.Context) -> None:
         click.echo(f"  {model.value:<35} - {description}")
 
     click.echo("\n💡 Model Selection Tips:")
-    click.echo("  • all-MiniLM-L6-v2: Best for speed and general use")
-    click.echo("  • all-mpnet-base-v2: Best for quality on English text")
-    click.echo("  • CLIP models: Use for text-image cross-modal search")
-    click.echo("  • Multilingual: Use for non-English content")
+    click.echo("  - all-MiniLM-L6-v2: Best for speed and general use")
+    click.echo("  - all-mpnet-base-v2: Best for quality on English text")
+    click.echo("  - CLIP models: Use for text-image cross-modal search")
+    click.echo("  - Multilingual: Use for non-English content")
 
     click.echo("\n📦 Dependencies:")
     click.echo("  Text models: pip install 'chunking-strategy[text]'")
@@ -1524,7 +1524,7 @@ def load_custom_algorithm_cmd(
         )
 
         if algo_info:
-            click.echo(f"✅ Successfully loaded algorithm: {algo_info.name}")
+            click.echo(f"[SUCCESS] Successfully loaded algorithm: {algo_info.name}")
             click.echo(f"   Source: {algo_info.source_file}")
             click.echo(f"   Class: {algo_info.chunker_class.__name__}")
 
@@ -1540,11 +1540,11 @@ def load_custom_algorithm_cmd(
                     click.echo(f"   {warning}")
 
         else:
-            click.echo("❌ Failed to load algorithm", err=True)
+            click.echo("[ERROR] Failed to load algorithm", err=True)
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"❌ Error loading custom algorithm: {e}", err=True)
+        click.echo(f"[ERROR] Error loading custom algorithm: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -1576,14 +1576,14 @@ def load_custom_directory_cmd(
         )
 
         if algorithms:
-            click.echo(f"✅ Successfully loaded {len(algorithms)} custom algorithms:")
+            click.echo(f"[SUCCESS] Successfully loaded {len(algorithms)} custom algorithms:")
             for algo_info in algorithms:
-                click.echo(f"   • {algo_info.name} ({algo_info.source_file.name})")
+                click.echo(f"   - {algo_info.name} ({algo_info.source_file.name})")
         else:
             click.echo("⚠️  No custom algorithms found in directory")
 
     except Exception as e:
-        click.echo(f"❌ Error loading custom algorithms: {e}", err=True)
+        click.echo(f"[ERROR] Error loading custom algorithms: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -1611,7 +1611,7 @@ def list_custom_algorithms_cmd(ctx: click.Context, detailed: bool) -> None:
         if not algo_info:
             continue
 
-        click.echo(f"\n🔧 {name}")
+        click.echo(f"\n[TOOL] {name}")
         click.echo(f"   Source: {algo_info.source_file}")
         click.echo(f"   Class: {algo_info.chunker_class.__name__}")
 
@@ -1628,7 +1628,7 @@ def list_custom_algorithms_cmd(ctx: click.Context, detailed: bool) -> None:
 
         if detailed and (algo_info.loading_errors or algo_info.loading_warnings):
             if algo_info.loading_errors:
-                click.echo("   ❌ Errors:")
+                click.echo("   [ERROR] Errors:")
                 for error in algo_info.loading_errors:
                     click.echo(f"      {error}")
             if algo_info.loading_warnings:
@@ -1649,12 +1649,12 @@ def validate_custom_config_cmd(ctx: click.Context, config_file: Path) -> None:
         errors = validate_custom_config_file(config_file)
 
         if not errors:
-            click.echo("✅ Configuration is valid!")
+            click.echo("[SUCCESS] Configuration is valid!")
 
             # Try to load the config to test custom algorithm loading
             try:
                 config = load_config_with_custom_algorithms(config_file)
-                click.echo("✅ Custom algorithms successfully loaded from config")
+                click.echo("[SUCCESS] Custom algorithms successfully loaded from config")
 
                 # Show loaded algorithms
                 if 'custom_algorithms' in config:
@@ -1666,13 +1666,13 @@ def validate_custom_config_cmd(ctx: click.Context, config_file: Path) -> None:
                 click.echo(f"⚠️  Configuration valid but loading failed: {e}")
 
         else:
-            click.echo("❌ Configuration validation failed:")
+            click.echo("[ERROR] Configuration validation failed:")
             for error in errors:
-                click.echo(f"   • {error}")
+                click.echo(f"   - {error}")
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"❌ Error validating configuration: {e}", err=True)
+        click.echo(f"[ERROR] Error validating configuration: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -1701,11 +1701,11 @@ def create_template_cmd(
             with open(output_file, 'w', encoding='utf-8') as f:
                 yaml.dump(template, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
-            click.echo(f"✅ Configuration template created: {output_file}")
+            click.echo(f"[SUCCESS] Configuration template created: {output_file}")
             click.echo("   Edit the file to specify paths to your custom algorithms")
 
         except Exception as e:
-            click.echo(f"❌ Error creating config template: {e}", err=True)
+            click.echo(f"[ERROR] Error creating config template: {e}", err=True)
             sys.exit(1)
 
     else:
@@ -1906,15 +1906,15 @@ result = chunker.chunk("Your text content here...")
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(template_code)
 
-            click.echo(f"✅ Algorithm template created: {output_file}")
+            click.echo(f"[SUCCESS] Algorithm template created: {output_file}")
             click.echo("   Edit the file to implement your custom chunking logic")
             click.echo("   Key areas to modify:")
-            click.echo("   • Algorithm metadata in @register_chunker decorator")
-            click.echo("   • Constructor parameters")
-            click.echo("   • _create_custom_chunks() method - your main logic")
+            click.echo("   - Algorithm metadata in @register_chunker decorator")
+            click.echo("   - Constructor parameters")
+            click.echo("   - _create_custom_chunks() method - your main logic")
 
         except Exception as e:
-            click.echo(f"❌ Error creating algorithm template: {e}", err=True)
+            click.echo(f"[ERROR] Error creating algorithm template: {e}", err=True)
             sys.exit(1)
 
 
@@ -1956,7 +1956,7 @@ def validate_custom_algorithm_cmd(
             )
 
         # Display results
-        status_icon = "✅" if report.is_valid else "❌"
+        status_icon = "[SUCCESS]" if report.is_valid else "[ERROR]"
         click.echo(f"\n{status_icon} Validation Results for '{report.algorithm_name}'")
         click.echo("=" * 50)
 
@@ -2022,7 +2022,7 @@ def validate_custom_algorithm_cmd(
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"❌ Validation failed: {e}", err=True)
+        click.echo(f"[ERROR] Validation failed: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -2066,7 +2066,7 @@ def validate_batch_cmd(
         valid_algorithms = sum(1 for r in results.values() if r.is_valid)
         invalid_algorithms = total_algorithms - valid_algorithms
 
-        click.echo(f"\n📊 Batch Validation Summary:")
+        click.echo(f"\n[STATS] Batch Validation Summary:")
         click.echo("=" * 40)
         click.echo(f"Total algorithms: {total_algorithms}")
         click.echo(f"Valid algorithms: {valid_algorithms}")
@@ -2077,7 +2077,7 @@ def validate_batch_cmd(
             click.echo("-" * 40)
 
             for file_path, report in results.items():
-                status_icon = "✅" if report.is_valid else "❌"
+                status_icon = "[SUCCESS]" if report.is_valid else "[ERROR]"
                 file_name = Path(file_path).name
 
                 click.echo(f"{status_icon} {file_name:<30} Score: {report.overall_score:.2f}")
@@ -2110,11 +2110,11 @@ def validate_batch_cmd(
 
         # Exit with error if requested and any invalid
         if fail_on_invalid and invalid_algorithms > 0:
-            click.echo(f"\n❌ Batch validation failed: {invalid_algorithms} invalid algorithms")
+            click.echo(f"\n[ERROR] Batch validation failed: {invalid_algorithms} invalid algorithms")
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"❌ Batch validation failed: {e}", err=True)
+        click.echo(f"[ERROR] Batch validation failed: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -2158,22 +2158,22 @@ def benchmark_custom_algorithm_cmd(
 
         # If console output is disabled, show minimal success message
         if no_console:
-            click.echo(f"✅ Benchmark completed!")
-            click.echo(f"📁 Results saved to: {output_dir or Path.cwd() / 'chunking_benchmarks'}")
+            click.echo(f"[SUCCESS] Benchmark completed!")
+            click.echo(f"[INFO] Results saved to: {output_dir or Path.cwd() / 'chunking_benchmarks'}")
 
         # Show summary stats
         stats = suite.summary_stats
-        click.echo(f"📊 Summary:")
-        click.echo(f"  • Strategies tested: {stats.get('strategies_tested', 0)}")
-        click.echo(f"  • Success rate: {stats.get('success_rate', 0):.1%}")
-        click.echo(f"  • Custom algorithms: {stats.get('custom_algorithm_count', 0)}")
+        click.echo(f"[STATS] Summary:")
+        click.echo(f"  - Strategies tested: {stats.get('strategies_tested', 0)}")
+        click.echo(f"  - Success rate: {stats.get('success_rate', 0):.1%}")
+        click.echo(f"  - Custom algorithms: {stats.get('custom_algorithm_count', 0)}")
 
         if stats.get('successful_results', 0) > 0:
-            click.echo(f"  • Fastest time: {stats.get('min_processing_time', 0):.3f}s")
-            click.echo(f"  • Best quality: {stats.get('max_quality_score', 0):.3f}")
+            click.echo(f"  - Fastest time: {stats.get('min_processing_time', 0):.3f}s")
+            click.echo(f"  - Best quality: {stats.get('max_quality_score', 0):.3f}")
 
     except Exception as e:
-        click.echo(f"❌ Custom algorithm benchmark failed: {e}", err=True)
+        click.echo(f"[ERROR] Custom algorithm benchmark failed: {e}", err=True)
         if ctx.obj.get('verbose'):
             import traceback
             traceback.print_exc()
@@ -2240,7 +2240,7 @@ def collect_debug(ctx: click.Context, description: Optional[str], output: Option
 
         click.echo("\n💡 Instructions:")
         for instruction in debug_info['instructions']:
-            click.echo(f"  • {instruction}")
+            click.echo(f"  - {instruction}")
 
         if description:
             click.echo(f"\n📝 Issue description: {description}")
