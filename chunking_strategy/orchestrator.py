@@ -48,8 +48,10 @@ STRATEGY_NAME_MAPPING = {
     'adaptive_dynamic': 'adaptive',
     'intelligent': 'adaptive',
     'context_enriched': 'context_enriched',
-    'semantic': 'context_enriched',
+    'semantic': 'semantic',
+    'semantic_chunking': 'semantic',
     'contextual': 'context_enriched',
+    'context_aware': 'context_enriched',
 
     # Hash-based chunkers
     'rolling_hash': 'rolling_hash',

@@ -38,7 +38,7 @@ Adaptive:
     chunks = chunker.chunk_with_feedback(text, feedback_score=0.8)
 """
 
-# Suppress annoying warnings from heavy dependencies early
+# ponytail: scoped suppression — only affects this library's heavy imports, not global state
 import os
 import warnings
 import logging
@@ -46,54 +46,21 @@ import sys
 import contextlib
 from io import StringIO
 
-# Set environment variables before any heavy imports
-os.environ.update({
-    'TF_CPP_MIN_LOG_LEVEL': '3',           # Suppress TF INFO/WARNING/ERROR
-    'TF_ENABLE_ONEDNN_OPTS': '0',          # Disable oneDNN messages
-    'PYTHONWARNINGS': 'ignore::UserWarning', # Suppress user warnings globally
-    'TOKENIZERS_PARALLELISM': 'false',     # Avoid tokenizer warnings
-    'TRANSFORMERS_VERBOSITY': 'error',     # Only show errors from transformers
-    'GRPC_VERBOSITY': 'ERROR',            # Suppress gRPC/protobuf messages
-    'PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION': 'python',  # Use pure Python protobuf
-})
+# Set environment variables before any heavy imports (these are process-level, acceptable)
+os.environ.setdefault('TF_CPP_MIN_LOG_LEVEL', '3')
+os.environ.setdefault('TF_ENABLE_ONEDNN_OPTS', '0')
+os.environ.setdefault('TOKENIZERS_PARALLELISM', 'false')
+os.environ.setdefault('TRANSFORMERS_VERBOSITY', 'error')
+os.environ.setdefault('GRPC_VERBOSITY', 'ERROR')
 
-# Comprehensive warning suppression
-warnings.filterwarnings('ignore')  # Suppress ALL warnings initially
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', category=FutureWarning)
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-warnings.filterwarnings('ignore', message='.*pkg_resources.*')
-warnings.filterwarnings('ignore', message='.*GetPrototype.*')
-warnings.filterwarnings('ignore', message='.*cuDNN.*')
-warnings.filterwarnings('ignore', message='.*cuFFT.*')
-warnings.filterwarnings('ignore', message='.*cuBLAS.*')
-warnings.filterwarnings('ignore', message='.*8-bit optimizer.*')
-warnings.filterwarnings('ignore', message='.*NumExpr.*')
-warnings.filterwarnings('ignore', message='.*MessageFactory.*')
-
-# Also suppress specific loggers that are noisy
-logging.getLogger('transformers').setLevel(logging.ERROR)
-logging.getLogger('sentence_transformers').setLevel(logging.ERROR)
-logging.getLogger('torch').setLevel(logging.ERROR)
-logging.getLogger('tensorflow').setLevel(logging.ERROR)
-logging.getLogger('grpc').setLevel(logging.ERROR)
-logging.getLogger('absl').setLevel(logging.ERROR)
-
-# Custom context manager to suppress stderr AttributeError messages
 @contextlib.contextmanager
 def suppress_protobuf_errors():
-    """Suppress protobuf/gRPC AttributeError messages that don't go through warnings."""
+    """Scoped suppression for protobuf/gRPC noise during heavy strategy loading."""
     original_stderr = sys.stderr
-    captured_stderr = StringIO()
 
     class FilteredStderr:
         def write(self, text):
-            # Filter out specific error patterns
-            if not any(pattern in text for pattern in [
-                "AttributeError: 'MessageFactory' object has no attribute 'GetPrototype'",
-                "GetPrototype",
-                "MessageFactory"
-            ]):
+            if not any(p in text for p in ["GetPrototype", "MessageFactory"]):
                 original_stderr.write(text)
 
         def flush(self):
@@ -102,27 +69,23 @@ def suppress_protobuf_errors():
         def __getattr__(self, name):
             return getattr(original_stderr, name)
 
-    try:
-        sys.stderr = FilteredStderr()
-        yield
-    finally:
-        sys.stderr = original_stderr
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', message='.*pkg_resources.*')
+        warnings.filterwarnings('ignore', message='.*GetPrototype.*')
+        warnings.filterwarnings('ignore', message='.*MessageFactory.*')
+        warnings.filterwarnings('ignore', message='.*cuDNN.*')
+        warnings.filterwarnings('ignore', message='.*NumExpr.*')
+        try:
+            sys.stderr = FilteredStderr()
+            yield
+        finally:
+            sys.stderr = original_stderr
 
-# Custom exception handler to suppress specific AttributeErrors
-_original_excepthook = sys.excepthook
 
-def _custom_excepthook(exc_type, exc_value, exc_traceback):
-    """Custom exception handler to suppress protobuf AttributeErrors."""
-    if (exc_type == AttributeError and
-        exc_value and
-        "GetPrototype" in str(exc_value)):
-        # Silently ignore these specific protobuf errors
-        return
-    # Otherwise, use the original exception handler
-    _original_excepthook(exc_type, exc_value, exc_traceback)
-
-# Install the custom exception handler
-sys.excepthook = _custom_excepthook
+def _suppress_noisy_loggers():
+    """Quiet down ML library loggers (only affects their loggers, not the root)."""
+    for name in ('transformers', 'sentence_transformers', 'torch', 'tensorflow', 'grpc', 'absl'):
+        logging.getLogger(name).setLevel(logging.ERROR)
 
 from chunking_strategy.core.base import (
     BaseChunker,
@@ -187,23 +150,23 @@ def _ensure_strategies_loaded():
 
 def _load_heavy_strategies():
     """Load strategies with heavy dependencies separately."""
-    # Load heavy text strategies (semantic, embedding-based) with error suppression
+    _suppress_noisy_loggers()
     with suppress_protobuf_errors():
         try:
             import chunking_strategy.strategies.text.semantic_chunker  # noqa: F401
             import chunking_strategy.strategies.text.embedding_based_chunker  # noqa: F401
         except ImportError:
-            pass  # Heavy text strategies have optional ML dependencies
+            pass
 
         try:
             import chunking_strategy.strategies.document  # noqa: F401
         except ImportError:
-            pass  # Document strategies have optional dependencies
+            pass
 
         try:
             import chunking_strategy.strategies.multimedia  # noqa: F401
         except ImportError:
-            pass  # Multimedia strategies have optional dependencies
+            pass
 
 # Import universal framework
 from chunking_strategy.core.universal_framework import (
@@ -338,9 +301,9 @@ except Exception:
     pass
 
 # Version info
-__version__ = "0.1.0"
-__author__ = "Chunking Strategy Team"
-__email__ = " "
+__version__ = "0.4.1"
+__author__ = "Sharan Harsoor"
+__email__ = "sharanharsoor@gmail.com"
 
 # Expose main components
 __all__ = [
@@ -474,6 +437,7 @@ def _create_chunker_with_aliases(name: str, **kwargs):
     # Define name mappings for better UX
     name_aliases = {
         'semantic_chunker': 'semantic',
+        'semantic_chunking': 'semantic',
         'json_structured': 'json_chunker',
         'adaptive_chunker': 'adaptive',
         'sentence_chunker': 'sentence_based',
