@@ -1,0 +1,84 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "Hello.",
+      "end": 6,
+      "hash": "2d8bd7d9bb5f85ba643f0110d50cb506a1fe439e769a22503193ea6046bb87f7",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 6.0,
+          "first_sentence": "Hello.",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 6,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "World.",
+      "end": 13,
+      "hash": "52b66d1951f731ecbecf14051c45b98498bfa189833e99dbab4aba1de4b9152e",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 6.0,
+          "first_sentence": "World.",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 6,
+      "start": 7
+    },
+    {
+      "children_ids": [],
+      "content": "Done.",
+      "end": 19,
+      "hash": "ed251864987c367e9641fbdc89c1d83e9bf0fa2e3eecef8f301c79f619bfac81",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 5.0,
+          "first_sentence": "Done.",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 5,
+      "start": 14
+    }
+  ],
+  "params": {
+    "max_chunk_size": 100000,
+    "max_sentences": 1,
+    "min_sentences": 1,
+    "overlap_sentences": 0,
+    "sentence_splitter": "simple_v1"
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "c9c09f1f738581cb1f869668920a0e34db9e4aa9883c5e424afa8d535181713f",
+    "size": 20
+  },
+  "strategy": "sentence_based"
+}

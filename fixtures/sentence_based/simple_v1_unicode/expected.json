@@ -1,0 +1,84 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "Dr. Müller said \"3.14 is π.\"",
+      "end": 28,
+      "hash": "93aa523131d791f41263d2edf403550d5a26e5a0b991c4d72ea194f8925a5769",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 28.0,
+          "first_sentence": "Dr. Müller said \"3.14 is π.\"",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 28,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "The U.K. agreed.",
+      "end": 45,
+      "hash": "c82b0bab867e069c9462374bf7d89f1be88cb67e9d80fc52310f2b8039c546c3",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 16.0,
+          "first_sentence": "The U.K. agreed.",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 16,
+      "start": 29
+    },
+    {
+      "children_ids": [],
+      "content": "See https://example.com...\nhe stopped. then left.\n测试句子。日本語のテスト。",
+      "end": 109,
+      "hash": "1d0faf6f69194a398e2b737894cd48c069626cd4583312261743d93e1546bfff",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 63.0,
+          "first_sentence": "See https://example.com...\nhe stopped. then left.\n...",
+          "sentence_count": 1
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 63,
+      "start": 46
+    }
+  ],
+  "params": {
+    "max_chunk_size": 100000,
+    "max_sentences": 1,
+    "min_sentences": 1,
+    "overlap_sentences": 0,
+    "sentence_splitter": "simple_v1"
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "5284bbf50e90284e3c64912c29eb00ef554338e5d6955b6fa5de5dc389de4cfa",
+    "size": 138
+  },
+  "strategy": "sentence_based"
+}

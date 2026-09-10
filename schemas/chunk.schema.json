@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sharanharsoor/chunking/schemas/chunk.schema.json",
+  "title": "Chunk",
+  "description": "One chunk in schema chunking.v1. start/end are Unicode scalars when offset_unit is char, bytes when byte.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "modality", "metadata"],
+  "properties": {
+    "id": { "type": "string" },
+    "content": { "type": "string" },
+    "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "modality": {
+      "type": "string",
+      "enum": ["text", "image", "audio", "video", "table", "mixed"]
+    },
+    "start": { "type": ["integer", "null"], "minimum": 0 },
+    "end": { "type": ["integer", "null"], "minimum": 0 },
+    "size": { "type": ["integer", "null"], "minimum": 0 },
+    "hash": { "type": ["string", "null"] },
+    "token_count": { "type": ["integer", "null"], "minimum": 0 },
+    "parent_id": { "type": ["string", "null"] },
+    "children_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source", "chunker_used"],
+      "properties": {
+        "source": { "type": "string" },
+        "chunker_used": { "type": "string" },
+        "offset_unit": {
+          "type": ["string", "null"],
+          "enum": ["char", "byte", null]
+        },
+        "page": { "type": ["integer", "null"] },
+        "line_start": { "type": ["integer", "null"] },
+        "line_end": { "type": ["integer", "null"] },
+        "breadcrumb": { "type": ["string", "null"] },
+        "header_path": {
+          "type": ["array", "null"],
+          "items": { "type": "string" }
+        },
+        "symbol_name": { "type": ["string", "null"] },
+        "symbol_kind": {
+          "type": ["string", "null"],
+          "enum": ["function", "class", "method", "module", "other", null]
+        },
+        "extra": { "type": "object" }
+      }
+    }
+  }
+}

@@ -162,6 +162,9 @@ class Chunk:
     hash: Optional[str] = None  # Content hash for deduplication
     parent_id: Optional[str] = None  # Parent chunk for hierarchical chunking
     children_ids: Optional[List[str]] = None  # Child chunks
+    start: Optional[int] = None  # Inclusive offset; unit in metadata.extra["offset_unit"]
+    end: Optional[int] = None  # Exclusive offset
+    token_count: Optional[int] = None
 
     def __post_init__(self):
         """Initialize computed fields after object creation."""
@@ -191,12 +194,29 @@ class Chunk:
             "hash": self.hash,
             "parent_id": self.parent_id,
             "children_ids": self.children_ids,
+            "start": self.start,
+            "end": self.end,
+            "token_count": self.token_count,
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Chunk":
         """Create chunk from dictionary representation."""
-        metadata = ChunkMetadata(**data.get("metadata", {}))
+        raw_meta = dict(data.get("metadata") or {})
+        extra = dict(raw_meta.pop("extra", None) or {})
+        known = {
+            "source", "source_type", "page", "position", "offset", "length",
+            "timestamp", "frame_range", "bbox", "coordinates", "speaker",
+            "language", "encoding", "mime_type", "chunker_used",
+            "processing_time", "confidence", "quality_score",
+        }
+        meta_kwargs = {k: v for k, v in raw_meta.items() if k in known}
+        for k, v in raw_meta.items():
+            if k not in known:
+                extra.setdefault(k, v)
+        meta_kwargs["extra"] = extra
+        meta_kwargs.setdefault("source", "unknown")
+        metadata = ChunkMetadata(**meta_kwargs)
         modality = ModalityType(data["modality"])
 
         return cls(
@@ -208,6 +228,9 @@ class Chunk:
             hash=data.get("hash"),
             parent_id=data.get("parent_id"),
             children_ids=data.get("children_ids", []),
+            start=data.get("start"),
+            end=data.get("end"),
+            token_count=data.get("token_count"),
         )
 
 
@@ -275,6 +298,21 @@ class ChunkingResult:
             "strategy_used": self.strategy_used,
             "quality_score": self.quality_score,
         }
+
+    def to_canonical_json(
+        self,
+        fixture: bool = False,
+        params: Optional[Dict[str, Any]] = None,
+        source: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Serialize to chunking.v1 JSON. fixture=True uses stable chunk-NNNN ids."""
+        from chunking_strategy.core.canonical import result_to_canonical_json
+        return result_to_canonical_json(self, fixture=fixture, params=params, source=source)
+
+    @classmethod
+    def from_canonical_json(cls, payload: Union[str, bytes, Dict[str, Any]]) -> "ChunkingResult":
+        from chunking_strategy.core.canonical import result_from_canonical_json
+        return result_from_canonical_json(payload)
 
 
 class BaseChunker(ABC):

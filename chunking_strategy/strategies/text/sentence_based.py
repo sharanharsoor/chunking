@@ -19,9 +19,92 @@ from chunking_strategy.core.base import (
     ModalityType,
     StreamableChunker
 )
+from chunking_strategy.core.canonical import sha256_text
 from chunking_strategy.core.registry import register_chunker, ComplexityLevel, SpeedLevel, MemoryUsage
 
 logger = logging.getLogger(__name__)
+
+# simple_v1: protect these, then split. Lowercase after a terminator does not split (intentional).
+_PUA_L = "\ue000"
+_PUA_R = "\ue001"
+_ABBREV_PLAIN = (
+    "dr|mr|mrs|ms|mx|prof|sr|jr|vs|etc|inc|ltd|dept|approx|est|vol|fig|eq|st|nd|rd|th"
+)
+_ABBREV_DOTTED = r"e\.g|i\.e|u\.s|u\.k|ph\.d|a\.m|p\.m"
+_PROTECT_PATTERNS = (
+    re.compile(r"(?<![A-Za-z0-9])https?://\S+"),
+    re.compile(r"(?<![A-Za-z0-9])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
+    re.compile(r"\.{3,}|…"),
+    re.compile(r"(?<!\d)\d+\.\d+"),
+    re.compile(rf"(?i)(?<![A-Za-z0-9])(?:{_ABBREV_PLAIN}|{_ABBREV_DOTTED})\."),
+)
+_SENTENCE_SPLITTERS = ("simple", "simple_v1", "nltk", "spacy")
+
+
+def normalize_newlines(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def split_sentences_simple_v1(text: str) -> List[str]:
+    """Abbreviation/URL/decimal-aware splitter. Spec: plans/final.md §7.1.
+
+    Optional closing quote after the terminator so `"3.14 is π." The` splits
+    and keeps the quote. Lowercase after a terminator does not split (intentional).
+    """
+    text = normalize_newlines(text)
+    held: List[str] = []
+
+    def _sub(pattern, s: str) -> str:
+        def repl(m) -> str:
+            i = len(held)
+            held.append(m.group(0))
+            return f"{_PUA_L}{i:04d}{_PUA_R}"
+        return pattern.sub(repl, s)
+
+    protected = text
+    for pat in _PROTECT_PATTERNS:
+        protected = _sub(pat, protected)
+
+    def restore(s: str) -> str:
+        return re.sub(
+            rf"{_PUA_L}(\d{{4}}){_PUA_R}",
+            lambda m: held[int(m.group(1))],
+            s,
+        )
+
+    # ponytail: finditer not split — optional quote is part of the sentence, not the delimiter
+    boundary = re.compile(r'[.!?]["\']?(?=\s+[A-Z0-9"\'(])')
+    sentences = []
+    start = 0
+    for match in boundary.finditer(protected):
+        piece = protected[start:match.end()]
+        if piece.strip():
+            sentences.append(restore(piece.strip()))
+        start = match.end()
+        ws = re.match(r"\s+", protected[start:])
+        if ws:
+            start += ws.end()
+    tail = protected[start:]
+    if tail.strip():
+        sentences.append(restore(tail.strip()))
+    return sentences
+
+
+def _locate_sentences(text: str, sentences: List[str]) -> List[tuple]:
+    """Map stripped sentences back onto `text`. Offsets are Unicode scalars (Python str)."""
+    spans = []
+    pos = 0
+    for sentence in sentences:
+        idx = text.find(sentence, pos)
+        if idx < 0:
+            idx = text.find(sentence)
+        if idx < 0:
+            spans.append((pos, pos + len(sentence)))
+            pos = pos + len(sentence)
+        else:
+            spans.append((idx, idx + len(sentence)))
+            pos = idx + len(sentence)
+    return spans
 
 
 @register_chunker(
@@ -67,7 +150,7 @@ logger = logging.getLogger(__name__)
         },
         "sentence_splitter": {
             "type": "string",
-            "enum": ["simple", "nltk", "spacy"],
+            "enum": ["simple", "simple_v1", "nltk", "spacy"],
             "default": "simple",
             "description": "Method to use for sentence splitting"
         }
@@ -161,8 +244,10 @@ class SentenceBasedChunker(StreamableChunker):
             raise ValueError("overlap_sentences cannot be negative")
         if overlap_sentences >= max_sentences:
             raise ValueError("overlap_sentences must be less than max_sentences")
-        if sentence_splitter not in ["simple", "nltk", "spacy"]:
-            raise ValueError("sentence_splitter must be 'simple', 'nltk', or 'spacy'")
+        if sentence_splitter not in _SENTENCE_SPLITTERS:
+            raise ValueError(
+                "sentence_splitter must be 'simple', 'simple_v1', 'nltk', or 'spacy'"
+            )
 
         self.max_sentences = max_sentences
         self.min_sentences = min_sentences
@@ -230,6 +315,9 @@ class SentenceBasedChunker(StreamableChunker):
             text_content = str(content)
             actual_source = source_info.get("source", "text_input") if source_info else "text_input"
 
+        if self.sentence_splitter == "simple_v1":
+            text_content = normalize_newlines(text_content)
+
         # Validate input
         self.validate_input(text_content, ModalityType.TEXT)
 
@@ -253,7 +341,7 @@ class SentenceBasedChunker(StreamableChunker):
             )
 
         # Group sentences into chunks
-        chunks = self._group_sentences_into_chunks(sentences, actual_source)
+        chunks = self._group_sentences_into_chunks(sentences, actual_source, text_content)
 
         processing_time = time.time() - start_time
 
@@ -380,7 +468,9 @@ class SentenceBasedChunker(StreamableChunker):
         # First try the configured sentence splitter
         sentences = []
 
-        if self.sentence_splitter == "nltk" and hasattr(self, '_nltk_splitter'):
+        if self.sentence_splitter == "simple_v1":
+            sentences = split_sentences_simple_v1(text)
+        elif self.sentence_splitter == "nltk" and hasattr(self, '_nltk_splitter'):
             try:
                 sentences = self._nltk_splitter(text)
                 sentences = [s.strip() for s in sentences if s.strip()]
@@ -454,18 +544,24 @@ class SentenceBasedChunker(StreamableChunker):
 
         return [s for s in sentences if s]
 
-    def _group_sentences_into_chunks(self, sentences: List[str], source: str) -> List[Chunk]:
+    def _group_sentences_into_chunks(
+        self,
+        sentences: List[str],
+        source: str,
+        text: str,
+    ) -> List[Chunk]:
         """Group sentences into chunks according to configuration."""
         chunks = []
         chunk_counter = 0
         i = 0
+        spans = _locate_sentences(text, sentences)
 
         while i < len(sentences):
             chunk_sentences = []
+            chunk_indices: List[int] = []
             chunk_size = 0
             sentences_added = 0
 
-            # Add sentences until we reach limits
             while (i < len(sentences) and
                    sentences_added < self.max_sentences and
                    chunk_size < self.max_chunk_size):
@@ -473,32 +569,35 @@ class SentenceBasedChunker(StreamableChunker):
                 sentence = sentences[i]
                 sentence_size = len(sentence)
 
-                # Check if adding this sentence would exceed size limit
                 if chunk_size + sentence_size > self.max_chunk_size and chunk_sentences:
                     break
 
                 chunk_sentences.append(sentence)
+                chunk_indices.append(i)
                 chunk_size += sentence_size
                 sentences_added += 1
                 i += 1
 
-            # Ensure minimum sentences requirement
             if len(chunk_sentences) < self.min_sentences and i < len(sentences):
                 while len(chunk_sentences) < self.min_sentences and i < len(sentences):
                     chunk_sentences.append(sentences[i])
+                    chunk_indices.append(i)
                     i += 1
 
-            # Create chunk
             if chunk_sentences:
+                start = spans[chunk_indices[0]][0] if chunk_indices else None
+                end = spans[chunk_indices[-1]][1] if chunk_indices else None
                 chunk = self._create_chunk_from_sentences(
                     chunk_sentences,
                     chunk_counter,
-                    {"source": source}
+                    {"source": source},
+                    text=text,
+                    start=start,
+                    end=end,
                 )
                 chunks.append(chunk)
                 chunk_counter += 1
 
-                # Handle overlap
                 if self.overlap_sentences > 0 and i < len(sentences):
                     overlap_start = max(0, len(chunk_sentences) - self.overlap_sentences)
                     i -= len(chunk_sentences) - overlap_start
@@ -509,26 +608,40 @@ class SentenceBasedChunker(StreamableChunker):
         self,
         sentences: List[str],
         chunk_id: int,
-        extra_metadata: Optional[Dict[str, Any]] = None
+        extra_metadata: Optional[Dict[str, Any]] = None,
+        text: Optional[str] = None,
+        start: Optional[int] = None,
+        end: Optional[int] = None,
     ) -> Chunk:
         """Create a chunk from a list of sentences."""
-        content = ' '.join(sentences)
+        if (
+            self.sentence_splitter == "simple_v1"
+            and text is not None
+            and start is not None
+            and end is not None
+        ):
+            content = text[start:end]
+        else:
+            content = " ".join(sentences)
 
-        # Create metadata
         metadata = ChunkMetadata(
             source=extra_metadata.get("source", "unknown") if extra_metadata else "unknown",
             chunker_used=self.name,
-            length=len(content)
+            length=len(content),
+            offset=start,
         )
-
-        # Add sentence-specific metadata
         metadata.extra.update({
             "sentence_count": len(sentences),
             "avg_sentence_length": len(content) / len(sentences) if sentences else 0,
-            "first_sentence": sentences[0][:50] + "..." if sentences and len(sentences[0]) > 50 else sentences[0] if sentences else ""
+            "first_sentence": (
+                sentences[0][:50] + "..." if sentences and len(sentences[0]) > 50
+                else (sentences[0] if sentences else "")
+            ),
+            "offset_unit": "char",
         })
+        if self.sentence_splitter == "simple_v1":
+            metadata.extra["sentence_spec"] = "simple_v1"
 
-        # Add extra metadata
         if extra_metadata:
             for key, value in extra_metadata.items():
                 if key != "source":
@@ -538,7 +651,10 @@ class SentenceBasedChunker(StreamableChunker):
             id=f"sentence_based_{chunk_id}",
             content=content,
             modality=ModalityType.TEXT,
-            metadata=metadata
+            metadata=metadata,
+            hash=sha256_text(content) if isinstance(content, str) else None,
+            start=start,
+            end=end,
         )
 
     def _extract_complete_sentences(self, text_buffer: str) -> Optional[tuple[List[str], str]]:

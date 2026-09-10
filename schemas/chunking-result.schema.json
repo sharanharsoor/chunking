@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sharanharsoor/chunking/schemas/chunking-result.schema.json",
+  "title": "ChunkingResult",
+  "description": "Canonical export document. Schema version chunking.v1.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema", "strategy", "params", "source", "chunks"],
+  "properties": {
+    "schema": { "const": "chunking.v1" },
+    "strategy": { "type": "string" },
+    "params": { "type": "object" },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "size": { "type": ["integer", "null"], "minimum": 0 },
+        "sha256": { "type": ["string", "null"] }
+      }
+    },
+    "chunks": {
+      "type": "array",
+      "items": { "$ref": "chunk.schema.json" }
+    }
+  }
+}

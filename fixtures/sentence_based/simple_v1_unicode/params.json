@@ -1,0 +1,10 @@
+{
+  "strategy": "sentence_based",
+  "params": {
+    "max_sentences": 1,
+    "min_sentences": 1,
+    "max_chunk_size": 100000,
+    "overlap_sentences": 0,
+    "sentence_splitter": "simple_v1"
+  }
+}
