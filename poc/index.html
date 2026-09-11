@@ -804,6 +804,9 @@
     }
     .chunk.hit { background: color-mix(in srgb, var(--accent) 14%, transparent); }
     .chunk p { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+    .chunk[data-depth="1"] { padding-left: 26px; }
+    .chunk[data-depth="2"] { padding-left: 40px; }
+    .chunk[data-depth="3"] { padding-left: 54px; }
     .chunk.active-a { background: var(--a-soft); box-shadow: inset 3px 0 0 var(--a); }
     .chunk.active-b { background: var(--b-soft); box-shadow: inset 3px 0 0 var(--b); }
 
@@ -1071,6 +1074,7 @@
             <summary>Which strategy to pick</summary>
             <ul>
               <li><code>recursive_character</code> is the RAG default: paragraphs, then lines, then spaces. It is not hierarchical <code>recursive</code>.</li>
+              <li><code>recursive</code> keeps parent and child chunks. The list is a tree. pip <code>compare</code> is still how you run three or more.</li>
               <li><code>token_based</code> uses cl100k_base windows. The tokenizer loads once in this tab.</li>
               <li><code>markdown_chunker</code> and <code>python_code</code> follow headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>. Breadcrumb is H1 &gt; H2.</li>
               <li><code>overlapping_window</code> slides with overlap. The amber band is the shared range.</li>
@@ -1394,6 +1398,67 @@
             : 'create_chunker("recursive_character", chunk_size=' + size + ")";
         },
       },
+      recursive: {
+        label: "recursive",
+        why: "Parent and child chunks. Paragraphs first, then sentences inside them. This is not recursive_character. quality_threshold is 0 here so the tree stays on screen; pip defaults to 0.7 and drops weak nodes.",
+        knobs: [{ key: "max_depth", type: "number", min: 1, max: 3, value: 2 }],
+        params: function (root) {
+          var depth = Math.max(1, Math.min(3, knobNum(root, "max_depth", 2)));
+          var levels = [
+            {
+              name: "paragraph",
+              strategy: "paragraph",
+              parameters: { max_paragraphs: 1, min_paragraphs: 1, merge_short_paragraphs: false, min_paragraph_length: 1 },
+              min_chunk_size: 1,
+              max_chunk_size: 5000,
+              target_chunk_size: 80,
+              quality_threshold: 0,
+            },
+            {
+              name: "sentence",
+              strategy: "sentence",
+              parameters: { max_sentences: 1, min_sentences: 1, sentence_splitter: "simple_v1", max_chunk_size: 5000 },
+              min_chunk_size: 1,
+              max_chunk_size: 5000,
+              target_chunk_size: 40,
+              quality_threshold: 0,
+            },
+          ];
+          if (depth >= 3) {
+            levels.push({
+              name: "fixed",
+              strategy: "fixed_size",
+              parameters: { chunk_size: 200 },
+              min_chunk_size: 1,
+              max_chunk_size: 300,
+              target_chunk_size: 200,
+              quality_threshold: 0,
+            });
+          }
+          return {
+            max_depth: depth,
+            adaptive_depth: false,
+            quality_threshold: 0,
+            hierarchy_levels: levels.slice(0, depth),
+          };
+        },
+        call: function (root) {
+          var p = LIVE.recursive.params(root);
+          function pyVal(v) {
+            if (v === true) return "True";
+            if (v === false) return "False";
+            if (typeof v === "string") return JSON.stringify(v);
+            if (Array.isArray(v)) return "[" + v.map(pyVal).join(", ") + "]";
+            if (v && typeof v === "object") {
+              return "{" + Object.keys(v).map(function (k) {
+                return JSON.stringify(k) + ": " + pyVal(v[k]);
+              }).join(", ") + "}";
+            }
+            return String(v);
+          }
+          return 'create_chunker(\n    "recursive",\n    max_depth=' + p.max_depth + ",\n    adaptive_depth=False,\n    quality_threshold=0,\n    hierarchy_levels=" + pyVal(p.hierarchy_levels) + "\n)";
+        },
+      },
       token_based: {
         label: "token_based",
         why: "Windows of cl100k_base tokens (GPT-3.5/4). The first run in this tab loads the tokenizer. After that, every strategy's cards show real token counts, not a chars/4 guess.",
@@ -1620,7 +1685,7 @@
       },
     };
     var LIVE_GROUPS = [
-      { label: "Text", names: ["fixed_size", "recursive_character", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word", "token_based", "regex_custom"] },
+      { label: "Text", names: ["fixed_size", "recursive_character", "recursive", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word", "token_based", "regex_custom"] },
       { label: "Documents & data", names: ["markdown_chunker", "xml_html_chunker", "json_chunker", "csv_chunker"] },
       { label: "Code", names: ["python_code", "javascript_code", "css_code", "go_code", "java_code", "c_cpp_code"] },
       { label: "Content-defined", names: ["rolling_hash", "fastcdc"] },
@@ -2298,6 +2363,11 @@
     }
 
     function ahaIndex(side, chunks) {
+      if (strategyOf(side) === "recursive") {
+        for (var r = 0; r < chunks.length; r++) {
+          if (chunks[r].parent_id) return r;
+        }
+      }
       if (strategyOf(side) === "sentence_based" && chunks.length > 1) return 1;
       return 0;
     }
@@ -2549,17 +2619,57 @@
         renderBars(s, chunks, selected[s]);
         var top = topRetrieve(s);
         if (q && top != null) {
-          var btn = document.getElementById("list-" + s).querySelectorAll("button.chunk")[top];
+          var btn = listButton(s, top);
           if (btn) btn.scrollIntoView({ block: "nearest" });
         }
       });
       renderSource();
     }
 
+    function treeOrder(chunks) {
+      var n = chunks.length;
+      var order = [];
+      var seen = {};
+      function walk(i) {
+        if (seen[i]) return;
+        seen[i] = true;
+        order.push(i);
+        var id = chunks[i].id;
+        for (var j = 0; j < n; j++) {
+          if (chunks[j].parent_id === id) walk(j);
+        }
+      }
+      for (var i = 0; i < n; i++) {
+        if (!chunks[i].parent_id) walk(i);
+      }
+      for (var k = 0; k < n; k++) {
+        if (!seen[k]) walk(k);
+      }
+      return order;
+    }
+
+    function chunkDepth(chunks, index) {
+      var byId = {};
+      for (var i = 0; i < chunks.length; i++) byId[chunks[i].id] = i;
+      var d = 0;
+      var cur = chunks[index];
+      var guard = 0;
+      while (cur && cur.parent_id && byId[cur.parent_id] != null && guard++ < 8) {
+        d += 1;
+        cur = chunks[byId[cur.parent_id]];
+      }
+      return d;
+    }
+
+    function listButton(side, index) {
+      return document.getElementById("list-" + side).querySelector('button.chunk[data-idx="' + index + '"]');
+    }
+
     function renderList(side, chunks) {
       var root = document.getElementById("list-" + side);
       root.replaceChildren();
-      var shown = chunks.slice(0, MAX_DOM);
+      var order = treeOrder(chunks);
+      var shown = order.slice(0, MAX_DOM);
       var median = medianSize(chunks);
       if (chunks.length > MAX_DOM) {
         var note = document.createElement("p");
@@ -2567,9 +2677,13 @@
         note.textContent = "Showing " + MAX_DOM + " of " + chunks.length + ". Use pip for the rest.";
         root.appendChild(note);
       }
-      shown.forEach(function (chunk, i) {
+      shown.forEach(function (i) {
+        var chunk = chunks[i];
+        var depth = chunkDepth(chunks, i);
         var el = document.createElement("button");
         el.type = "button";
+        el.dataset.idx = String(i);
+        if (depth) el.setAttribute("data-depth", String(depth));
         el.className = "chunk"
           + (selected[side] === i ? " active-" + side : "")
           + (retrieveRanks[side] && retrieveRanks[side][i] ? " hit" : "");
@@ -2581,11 +2695,17 @@
         dot.title = q.title;
         head.appendChild(dot);
         var tc = chunk.metadata && chunk.metadata.token_count;
-        head.appendChild(document.createTextNode(
-          "#" + String(i).padStart(2, "0") + "  ·  " + (chunk.end - chunk.start) + " chars"
-          + (tc != null ? "  ·  " + tc + " tokens" : "")
-          + "  ·  [" + chunk.start + ", " + chunk.end + ")"
-        ));
+        var kind = chunk.metadata && (chunk.metadata.level_name || chunk.metadata.level_strategy);
+        var range = (chunk.start != null && chunk.end != null) ? (chunk.end - chunk.start) : (chunk.size || 0);
+        var label = "#" + String(i).padStart(2, "0");
+        if (kind) {
+          var lv = chunk.metadata.level != null ? chunk.metadata.level : depth;
+          label += "  ·  L" + lv + " " + kind;
+        }
+        label += "  ·  " + range + " chars";
+        if (tc != null) label += "  ·  " + tc + " tokens";
+        if (chunk.start != null && chunk.end != null) label += "  ·  [" + chunk.start + ", " + chunk.end + ")";
+        head.appendChild(document.createTextNode(label));
         var rank = retrieveRanks[side] && retrieveRanks[side][i];
         if (rank) {
           var badge = document.createElement("span");
@@ -2614,7 +2734,7 @@
       renderSource();
       renderList(side, chunks);
       renderBars(side, chunks, index);
-      var btn = document.getElementById("list-" + side).querySelectorAll("button.chunk")[index];
+      var btn = listButton(side, index);
       if (btn) btn.scrollIntoView({ block: "nearest" });
     }
 

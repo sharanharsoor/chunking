@@ -12,6 +12,7 @@ lab:
   - paragraph_based
   - overlapping_window
   - recursive_character
+  - recursive
   - token_based
   - regex_custom
   - markdown_chunker
@@ -29,7 +30,6 @@ lab:
   - fastcdc
 
 lab_later:
-  - recursive
   - universal_code
   - rabin_fingerprinting
   - buzhash

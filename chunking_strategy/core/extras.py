@@ -9,6 +9,7 @@ LAB_STRATEGIES = frozenset(
     {
         "fixed_size",
         "recursive_character",
+        "recursive",
         "sentence_based",
         "paragraph_based",
         "overlapping_window",

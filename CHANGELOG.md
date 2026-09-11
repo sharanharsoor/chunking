@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Lab hierarchical `recursive`: parent/child tree (paragraph then sentence), matched to the Python golden. This is not `recursive_character`.
+
 ## 0.5.0 (2026-09-11)
 
 ### Changed

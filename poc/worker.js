@@ -15,6 +15,7 @@ importScripts(
   "chunkers/rolling.js",
   "chunkers/fastcdc.js",
   "chunkers/recursive_character.js",
+  "chunkers/recursive.js",
   "chunkers/token_based.js",
   "chunkers/regex_custom.js"
 );
@@ -38,6 +39,7 @@ var RUNNERS = {
   rolling_hash: chunkRollingHash,
   fastcdc: chunkFastCdc,
   recursive_character: chunkRecursiveCharacter,
+  recursive: chunkRecursive,
   token_based: chunkTokenBased,
   regex_custom: chunkRegexCustom,
 };
@@ -87,6 +89,7 @@ function runJob(text, job, enc) {
   if (!fn) throw new Error("UNSUPPORTED");
   var params = Object.assign({ source: "upload" }, job.params || {});
   var chunks = fn(text, params, enc);
+  if (job.strategy === "recursive") liftRecursiveOffsets(text, chunks);
   if (enc) annotateTokenCounts(chunks, enc);
   return chunks;
 }

@@ -35,8 +35,10 @@ def check() -> None:
             seen[name] = tier
     lab = set(data.get("lab") or [])
     later = set(data.get("lab_later") or [])
-    if "recursive" in lab:
-        raise ValueError("recursive must not be in lab (homepage); see §7.6")
+    if "recursive" in lab and "recursive_character" not in lab:
+        raise ValueError("hierarchical recursive cannot replace recursive_character")
+    if "recursive" in later:
+        raise ValueError("recursive has a lab tree now; keep it in lab, not lab_later")
     if "token_based" not in lab:
         raise ValueError("token_based must be in lab once tiktoken is in the tab")
     if "token_based" in later:
@@ -60,6 +62,7 @@ def check() -> None:
         "fixed_length_word",
         "fastcdc",
         "recursive_character",
+        "recursive",
         "token_based",
         "regex_custom",
     }

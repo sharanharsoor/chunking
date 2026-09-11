@@ -20,6 +20,7 @@ var RUNNERS = {
   fixed_length_word: "chunkFixedLengthWord",
   fastcdc: "chunkFastCdc",
   recursive_character: "chunkRecursiveCharacter",
+  recursive: "chunkRecursive",
   token_based: "chunkTokenBased",
   regex_custom: "chunkRegexCustom",
 };
@@ -29,6 +30,7 @@ var META_FIELDS = {
   csv_chunker: ["csv_start_row", "csv_end_row", "csv_row_count"],
   json_chunker: ["json_start_index", "json_end_index", "json_object_count"],
   paragraph_based: ["paragraph_count"],
+  recursive: ["level", "hierarchy_path", "level_strategy", "level_name"],
   fixed_length_word: ["start_word_index", "end_word_index", "word_count"],
   token_based: ["token_count", "start_token_index"],
 };
@@ -57,6 +59,7 @@ vm.createContext(ctx);
   "words.js",
   "fastcdc.js",
   "recursive_character.js",
+  "recursive.js",
   "token_based.js",
   "regex_custom.js",
   "tiktoken_bundle.js",
@@ -157,6 +160,18 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     }
     if (!SKIP_CONTENT[strategy] && e.content != null && g.content !== e.content) {
       fail(prefix + " content mismatch");
+    }
+    if (strategy === "recursive") {
+      var idMap = {};
+      for (var r = 0; r < got.length; r++) {
+        idMap[got[r].id] = "chunk-" + String(r).padStart(4, "0");
+      }
+      var gp = g.parent_id ? idMap[g.parent_id] || g.parent_id : null;
+      var ep = e.parent_id || null;
+      if (gp !== ep) fail(prefix + " parent_id js=" + gp + " py=" + ep);
+      var gch = (g.children_ids || []).map(function (id) { return idMap[id] || id; }).join(",");
+      var ech = (e.children_ids || []).join(",");
+      if (gch !== ech) fail(prefix + " children_ids js=" + gch + " py=" + ech);
     }
     if (strategy === "fastcdc") {
       var extra = (e.metadata && e.metadata.extra) || {};

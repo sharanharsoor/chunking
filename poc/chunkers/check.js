@@ -8,7 +8,7 @@ var root = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: consol
 root.self = root;
 root.console = console;
 var ctx = vm.createContext(root);
-["offsets.js", "braces.js", "token_packing.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
+["offsets.js", "braces.js", "token_packing.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "recursive.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
   var file = path.join(__dirname, name);
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: name });
 });
@@ -102,6 +102,44 @@ for (var ri = 1; ri < recOv.length; ri++) {
   if (recOv[ri].start < recOv[ri - 1].end) recOvHit = true;
 }
 eq("recursive_character overlap", recOvHit, true);
+
+var hierText = "Alpha sentence one is here. Alpha sentence two is here.\n\nBeta sentence one is here. Beta sentence two is here.\n";
+var hierParams = {
+  adaptive_depth: false,
+  quality_threshold: 0,
+  max_depth: 2,
+  hierarchy_levels: [
+    {
+      name: "paragraph",
+      strategy: "paragraph",
+      parameters: { max_paragraphs: 1, min_paragraphs: 1, merge_short_paragraphs: false, min_paragraph_length: 1 },
+      min_chunk_size: 1,
+      max_chunk_size: 5000,
+      target_chunk_size: 80,
+      quality_threshold: 0,
+    },
+    {
+      name: "sentence",
+      strategy: "sentence",
+      parameters: { max_sentences: 1, min_sentences: 1, sentence_splitter: "simple_v1", max_chunk_size: 5000 },
+      min_chunk_size: 1,
+      max_chunk_size: 5000,
+      target_chunk_size: 40,
+      quality_threshold: 0,
+    },
+  ],
+};
+var hier = ctx.chunkRecursive(hierText, hierParams);
+eq("recursive count", hier.length, 6);
+eq("recursive first sentence", hier[0].content, "Alpha sentence one is here.");
+eq("recursive parent after children", hier[2].content.indexOf("Alpha sentence one") === 0, true);
+eq("recursive child parent_id", hier[0].parent_id, hier[2].id);
+eq("recursive root parent_id", hier[2].parent_id, null);
+eq("recursive child start is relative", hier[0].start, 0);
+var hierLift = JSON.parse(JSON.stringify(hier));
+ctx.liftRecursiveOffsets(hierText, hierLift);
+eq("recursive lifted beta sentence leaves alpha", hierLift[3].start > 50, true);
+eq("recursive lifted first still at 0", hierLift[0].start, 0);
 
 var ranks = JSON.parse(fs.readFileSync(path.join(__dirname, "tiktoken", "cl100k_base.json"), "utf8"));
 var enc = new ctx.JsTiktoken.Tiktoken(ranks);

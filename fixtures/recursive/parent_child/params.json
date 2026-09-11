@@ -1,6 +1,5 @@
 {
   "strategy": "recursive",
-  "python_only": true,
   "params": {
     "adaptive_depth": false,
     "quality_threshold": 0,

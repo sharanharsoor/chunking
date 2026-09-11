@@ -33,6 +33,8 @@ def main() -> None:
     )
     assert "fixed_size" in listed, listed
     assert "sentence_based" in listed, listed
+    assert "recursive" in listed, listed
+    assert "recursive_character" in listed, listed
     print("ok", __version__, "a", len(ra.chunks), "b", len(rb.chunks))
 
 
