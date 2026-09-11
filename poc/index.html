@@ -1441,6 +1441,20 @@
         var o = knobNum(box, "overlap_words", 0);
         if (o >= n) flag("overlap_words", "Must be less than words_per_chunk. Using " + Math.max(0, n - 1) + ".");
       }
+      if (name === "fastcdc") {
+        var min = knobNum(box, "min_chunk_size", 32);
+        var avg = knobNum(box, "avg_chunk_size", 64);
+        var max = knobNum(box, "max_chunk_size", 128);
+        if (avg < min) flag("avg_chunk_size", "Must be at least min_chunk_size. Using " + min + ".");
+        if (max < Math.max(min, avg)) flag("max_chunk_size", "Must be at least avg_chunk_size. Using " + Math.max(min, avg) + ".");
+      }
+      if (name === "rolling_hash") {
+        var rmin = knobNum(box, "min_chunk_size", 24);
+        var target = knobNum(box, "target_chunk_size", 64);
+        var rmax = knobNum(box, "max_chunk_size", 120);
+        if (target < rmin) flag("target_chunk_size", "Must be at least min_chunk_size. Using " + rmin + ".");
+        if (rmax < Math.max(rmin, target)) flag("max_chunk_size", "Must be at least target_chunk_size. Using " + Math.max(rmin, target) + ".");
+      }
     }
 
     function snippetText() {
@@ -1517,6 +1531,7 @@
         if (!fromShare) setAutoWhy("Demo text → fixed_size vs sentence_based.");
         return;
       }
+      fromShare = false;
       var name = file && file.name;
       if (!name || name === "pasted.txt") return;
       if (name === lastAutoName) return;

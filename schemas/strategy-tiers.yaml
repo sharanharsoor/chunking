@@ -1,9 +1,10 @@
 # Human-edited. tools/export_registry.py merges this with @register_chunker metadata.
 # Do not hand-edit generated strategy-registry.json.
 #
-# lab        = homepage v1
-# lab_later  = in the catalog, unlock after v1
-# python_only = locked card in the lab
+# lab        = live in the in-tab lab (poc/)
+# lab_later  = greyed in the tab; unlock when a real JS port exists
+# python_only = locked card / pip-only
+# token_based stays lab_later until tiktoken is in the tab — do not fake it.
 
 lab:
   - fixed_size
@@ -13,21 +14,21 @@ lab:
   - markdown_chunker
   - python_code
   - json_chunker
-  - fastcdc
-  - token_based
-
-lab_later:
-  - recursive
-  - fixed_length_word
   - csv_chunker
   - xml_html_chunker
   - javascript_code
-  - java_code
-  - go_code
   - css_code
+  - go_code
+  - java_code
   - c_cpp_code
-  - universal_code
   - rolling_hash
+  - fixed_length_word
+  - fastcdc
+
+lab_later:
+  - token_based
+  - recursive
+  - universal_code
   - rabin_fingerprinting
   - buzhash
   - gear_cdc

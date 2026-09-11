@@ -92,7 +92,7 @@
     var chunkStart = 0;
     while (chunkStart < bytes.length) {
       var chunkEnd = findBoundary(bytes, chunkStart, minSize, maxSize, avgSize, maskBits, normalization);
-      extra = Object.assign({}, extra, {
+      var meta = Object.assign({}, extra, {
         start_byte: chunkStart,
         end_byte: chunkEnd,
         chunk_size: chunkEnd - chunkStart,
@@ -104,7 +104,7 @@
         end: byteToScalar(decoder, bytes, chunkEnd),
         size: chunkEnd - chunkStart,
         offset_unit: "char",
-        metadata: extra,
+        metadata: meta,
       });
       chunkStart = chunkEnd;
     }

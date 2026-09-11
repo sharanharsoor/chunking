@@ -85,6 +85,8 @@ var cdcText = new Array(80).join("abcdefghij");
 var cdc = ctx.chunkFastCdc(cdcText, { min_chunk_size: 32, avg_chunk_size: 64, max_chunk_size: 128, mask_bits: 6, hash_algorithm: "gear" });
 eq("fastcdc splits", cdc.length > 1, true);
 eq("fastcdc covers bytes", cdc[0].metadata.start_byte === 0 && cdc[cdc.length - 1].metadata.end_byte === new TextEncoder().encode(cdcText).length, true);
+eq("fastcdc extras are distinct", cdc[0].metadata !== cdc[1].metadata, true);
+eq("fastcdc first start_byte stays 0", cdc[0].metadata.start_byte, 0);
 
 if (failed) {
   console.error(failed + " checks failed");

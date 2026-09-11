@@ -33,8 +33,14 @@ def check() -> None:
             if name in seen:
                 raise ValueError(f"{name} listed in both {seen[name]} and {tier}")
             seen[name] = tier
-    if "recursive" in data.get("lab", []):
+    lab = set(data.get("lab") or [])
+    later = set(data.get("lab_later") or [])
+    if "recursive" in lab:
         raise ValueError("recursive must not be in lab (homepage); see §7.6")
+    if "token_based" in lab:
+        raise ValueError("token_based must not be in lab until tiktoken is in the tab")
+    if "token_based" not in later:
+        raise ValueError("token_based must stay in lab_later until tiktoken is in the tab")
     required_lab = {
         "fixed_size",
         "sentence_based",
@@ -43,10 +49,18 @@ def check() -> None:
         "markdown_chunker",
         "python_code",
         "json_chunker",
+        "csv_chunker",
+        "xml_html_chunker",
+        "javascript_code",
+        "css_code",
+        "go_code",
+        "java_code",
+        "c_cpp_code",
+        "rolling_hash",
+        "fixed_length_word",
         "fastcdc",
-        "token_based",
     }
-    missing = required_lab - set(data.get("lab") or [])
+    missing = required_lab - lab
     if missing:
         raise ValueError(f"lab tier missing {sorted(missing)}")
 
