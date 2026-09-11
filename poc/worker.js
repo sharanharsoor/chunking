@@ -11,7 +11,8 @@ importScripts(
   "chunkers/words.js",
   "chunkers/xml.js",
   "chunkers/code.js",
-  "chunkers/rolling.js"
+  "chunkers/rolling.js",
+  "chunkers/fastcdc.js"
 );
 
 var RUNNERS = {
@@ -31,6 +32,7 @@ var RUNNERS = {
   java_code: chunkJavaCode,
   c_cpp_code: chunkCppCode,
   rolling_hash: chunkRollingHash,
+  fastcdc: chunkFastCdc,
 };
 
 function runJob(text, job) {

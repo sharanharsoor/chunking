@@ -8,7 +8,7 @@ var root = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: consol
 root.self = root;
 root.console = console;
 var ctx = vm.createContext(root);
-["offsets.js", "braces.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js"].forEach(function (name) {
+["offsets.js", "braces.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js"].forEach(function (name) {
   var file = path.join(__dirname, name);
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: name });
 });
@@ -80,6 +80,11 @@ var rh = ctx.chunkRollingHash("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW
 });
 eq("rolling splits", rh.length > 1, true);
 eq("rolling covers", rh[0].start === 0 && rh[rh.length - 1].end > 50, true);
+
+var cdcText = new Array(80).join("abcdefghij");
+var cdc = ctx.chunkFastCdc(cdcText, { min_chunk_size: 32, avg_chunk_size: 64, max_chunk_size: 128, mask_bits: 6, hash_algorithm: "gear" });
+eq("fastcdc splits", cdc.length > 1, true);
+eq("fastcdc covers bytes", cdc[0].metadata.start_byte === 0 && cdc[cdc.length - 1].metadata.end_byte === new TextEncoder().encode(cdcText).length, true);
 
 if (failed) {
   console.error(failed + " checks failed");

@@ -1,0 +1,12 @@
+{
+  "strategy": "fastcdc",
+  "params": {
+    "min_chunk_size": 32,
+    "avg_chunk_size": 64,
+    "max_chunk_size": 128,
+    "hash_algorithm": "gear",
+    "mask_bits": 6,
+    "normalization": true,
+    "window_size": 48
+  }
+}

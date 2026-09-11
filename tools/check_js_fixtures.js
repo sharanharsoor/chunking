@@ -18,6 +18,7 @@ var RUNNERS = {
   markdown_chunker: "chunkMarkdown",
   json_chunker: "chunkJson",
   fixed_length_word: "chunkFixedLengthWord",
+  fastcdc: "chunkFastCdc",
 };
 
 /* Python rebuilds these; compare grouping metadata, not content bytes. */
@@ -32,6 +33,7 @@ var SKIP_CONTENT = {
   csv_chunker: true,
   json_chunker: true,
   paragraph_based: true,
+  fastcdc: true,
 };
 
 var ctx = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: console };
@@ -48,6 +50,7 @@ vm.createContext(ctx);
   "csv.js",
   "json.js",
   "words.js",
+  "fastcdc.js",
 ].forEach(function (name) {
   vm.runInContext(fs.readFileSync(path.join(CHUNKERS, name), "utf8"), ctx, { filename: name });
 });
@@ -89,12 +92,12 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     fail(path.relative(REPO, folder) + ": missing expected.json (python tools/run_fixture.py --write)");
     return;
   }
-  var raw = fs.readFileSync(inputPath);
+  var fileBuf = fs.readFileSync(inputPath);
   if (path.basename(inputPath) === "input.bin") {
     fail(path.relative(REPO, folder) + ": binary fixtures are Python-only");
     return;
   }
-  var text = raw.toString("utf8");
+  var text = fileBuf.toString("utf8");
   var expected = JSON.parse(fs.readFileSync(expectedPath, "utf8"));
   var params = Object.assign({ source: "input.txt" }, paramsDoc.params || {});
   var got = ctx[fnName](text, params);
@@ -131,6 +134,22 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     }
     if (!SKIP_CONTENT[strategy] && e.content != null && g.content !== e.content) {
       fail(prefix + " content mismatch");
+    }
+    if (strategy === "fastcdc") {
+      var extra = (e.metadata && e.metadata.extra) || {};
+      var sb = g.metadata && g.metadata.start_byte;
+      var eb = g.metadata && g.metadata.end_byte;
+      if (sb == null || eb == null) fail(prefix + " missing start_byte/end_byte");
+      else if (extra.sha256_hash && sha256(fileBuf.subarray(sb, eb)) !== extra.sha256_hash) {
+        fail(prefix + " byte-range sha256 mismatch");
+      }
+    }
+  }
+  if (strategy === "fastcdc" && got.length) {
+    if (got[0].metadata.start_byte !== 0) fail(rel + " fastcdc does not start at byte 0");
+    if (got[got.length - 1].metadata.end_byte !== fileBuf.length) fail(rel + " fastcdc does not cover the file");
+    for (var j = 1; j < got.length; j++) {
+      if (got[j].metadata.start_byte !== got[j - 1].metadata.end_byte) fail(rel + " fastcdc gap at chunk " + j);
     }
   }
   if (failed === before) console.log("ok " + rel);

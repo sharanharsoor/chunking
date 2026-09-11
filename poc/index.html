@@ -788,7 +788,7 @@
               <path d="M14 3v5h5"/>
             </svg>
             <h2>Drop a text file</h2>
-            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Tokens / FastCDC / embeddings stay in pip.</p>
+            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Tokens / embeddings stay in pip.</p>
             <span class="cta">Choose a file</span>
             <div><span class="badge idle" id="upload-badge">Nothing uploaded</span></div>
           </div>
@@ -931,7 +931,7 @@
         <div class="dest-art"><img src="card-github.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Source on GitHub</h3>
-          <p>The library, issues, and pip-only strategies this tab does not fake — FastCDC, tiktoken, embeddings.</p>
+          <p>The library, issues, and pip-only strategies this tab does not fake — tiktoken, embeddings.</p>
         </div>
       </a>
       <a class="dest" href="https://pypi.org/project/chunking-strategy/">
@@ -1168,15 +1168,35 @@
           return 'create_chunker("rolling_hash", min_chunk_size=' + min + ", target_chunk_size=" + target + ", max_chunk_size=" + max + ', hash_function="polynomial")';
         },
       },
+      fastcdc: {
+        label: "fastcdc",
+        why: "Gear-hash cuts on content, not a fixed width. Same algorithm as pip — not restic FastCDC.",
+        knobs: [
+          { key: "min_chunk_size", type: "number", min: 8, max: 4000, value: 32 },
+          { key: "avg_chunk_size", type: "number", min: 8, max: 8000, value: 64 },
+          { key: "max_chunk_size", type: "number", min: 16, max: 16000, value: 128 },
+        ],
+        params: function (root) {
+          var min = Math.max(1, knobNum(root, "min_chunk_size", 32));
+          var avg = Math.max(min, knobNum(root, "avg_chunk_size", 64));
+          var max = Math.max(avg, knobNum(root, "max_chunk_size", 128));
+          return { min_chunk_size: min, avg_chunk_size: avg, max_chunk_size: max, hash_algorithm: "gear", mask_bits: 6, normalization: true, window_size: 48 };
+        },
+        call: function (root) {
+          var min = Math.max(1, knobNum(root, "min_chunk_size", 32));
+          var avg = Math.max(min, knobNum(root, "avg_chunk_size", 64));
+          var max = Math.max(avg, knobNum(root, "max_chunk_size", 128));
+          return 'create_chunker("fastcdc", min_chunk_size=' + min + ", avg_chunk_size=" + avg + ", max_chunk_size=" + max + ', hash_algorithm="gear", mask_bits=6)';
+        },
+      },
     };
     var LIVE_GROUPS = [
       { label: "Text", names: ["fixed_size", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word"] },
       { label: "Documents & data", names: ["markdown_chunker", "xml_html_chunker", "json_chunker", "csv_chunker"] },
       { label: "Code", names: ["python_code", "javascript_code", "css_code", "go_code", "java_code", "c_cpp_code"] },
-      { label: "Content-defined", names: ["rolling_hash"] },
+      { label: "Content-defined", names: ["rolling_hash", "fastcdc"] },
     ];
     var LATER = [
-      { name: "fastcdc", note: "gear-hash WASM" },
       { name: "token_based", note: "tiktoken" },
       { name: "semantic_chunker", note: "embeddings" },
     ];

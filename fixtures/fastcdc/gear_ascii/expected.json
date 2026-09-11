@@ -1,0 +1,516 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefgh",
+      "end": null,
+      "hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "d4fc182ce23d05c9",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "d4fc182ce23d05c9849fb9f4379325c0",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdef",
+      "end": null,
+      "hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "91d9640d5024f6f7",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "91d9640d5024f6f7121d9c8cb34c0d33",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd",
+      "end": null,
+      "hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "f425e14649a9ca67",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "f425e14649a9ca67ee785fea9e3e677f",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "efghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijab",
+      "end": null,
+      "hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20",
+      "id": "chunk-0003",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "386596c69fd2a6b5",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "386596c69fd2a6b52e7daa4e33e81580",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "cdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij",
+      "end": null,
+      "hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b",
+      "id": "chunk-0004",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "596fda321ea06f7b",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "596fda321ea06f7b94a1f4446187a2f8",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefgh",
+      "end": null,
+      "hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054",
+      "id": "chunk-0005",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "d4fc182ce23d05c9",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "d4fc182ce23d05c9849fb9f4379325c0",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdef",
+      "end": null,
+      "hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e",
+      "id": "chunk-0006",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "91d9640d5024f6f7",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "91d9640d5024f6f7121d9c8cb34c0d33",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd",
+      "end": null,
+      "hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76",
+      "id": "chunk-0007",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "f425e14649a9ca67",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "f425e14649a9ca67ee785fea9e3e677f",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "efghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijab",
+      "end": null,
+      "hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20",
+      "id": "chunk-0008",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "386596c69fd2a6b5",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "386596c69fd2a6b52e7daa4e33e81580",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "cdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij",
+      "end": null,
+      "hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b",
+      "id": "chunk-0009",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "596fda321ea06f7b",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "596fda321ea06f7b94a1f4446187a2f8",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefgh",
+      "end": null,
+      "hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054",
+      "id": "chunk-0010",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "d4fc182ce23d05c9",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "d4fc182ce23d05c9849fb9f4379325c0",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "3f2f521dfa98b748c5e79412be9cfc8b701ca36a51b44ea793d3d6f452e6f054"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdef",
+      "end": null,
+      "hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e",
+      "id": "chunk-0011",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "91d9640d5024f6f7",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "91d9640d5024f6f7121d9c8cb34c0d33",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "d11cb2ebcd71790a03aa21b978a3cf6f59866e7016e26929483c807fb8988c9e"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "ghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd",
+      "end": null,
+      "hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76",
+      "id": "chunk-0012",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "f425e14649a9ca67",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "f425e14649a9ca67ee785fea9e3e677f",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "254f28fbd041e7baeef63ba47c7ac2fbf695b2bf5dc896a1b096847743ef6f76"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "efghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijab",
+      "end": null,
+      "hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20",
+      "id": "chunk-0013",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "386596c69fd2a6b5",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "386596c69fd2a6b52e7daa4e33e81580",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "a0f8b098880c529e50c21f830b03c441fb78824974b4326afb5486645f626f20"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "cdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij",
+      "end": null,
+      "hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b",
+      "id": "chunk-0014",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 128,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584848,
+          "content_fingerprint": "596fda321ea06f7b",
+          "entropy": 3.321212,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "596fda321ea06f7b94a1f4446187a2f8",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "18db8000cffb3b2d252e9e2e075406966137719d0f7a9fe9515c014ff99a094b"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 128,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij",
+      "end": null,
+      "hash": "d68d62c262c2ec08961c1104188cde86f51695878759666ad61490c8ec66745c",
+      "id": "chunk-0015",
+      "metadata": {
+        "chunker_used": "fastcdc",
+        "extra": {
+          "algorithm": "gear",
+          "avg_target": 64,
+          "boundary_type": "content_defined",
+          "chunk_size": 80,
+          "chunk_type": "content_defined",
+          "compressibility": 0.584759,
+          "content_fingerprint": "aa14f82815637bad",
+          "entropy": 3.321928,
+          "is_text": true,
+          "max_size": 128,
+          "md5_hash": "aa14f82815637badf5355ac41035597f",
+          "min_size": 32,
+          "normalization_used": true,
+          "sha256_hash": "d68d62c262c2ec08961c1104188cde86f51695878759666ad61490c8ec66745c"
+        },
+        "source": "direct_input"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 80,
+      "start": null
+    }
+  ],
+  "params": {
+    "avg_chunk_size": 64,
+    "hash_algorithm": "gear",
+    "mask_bits": 6,
+    "max_chunk_size": 128,
+    "min_chunk_size": 32,
+    "normalization": true,
+    "window_size": 48
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "ee07216f641886936f16a9610a03eb47c66854714c597de9d9931b196a6e9b8b",
+    "size": 2000
+  },
+  "strategy": "fastcdc"
+}
