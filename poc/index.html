@@ -294,23 +294,9 @@
       word-break: break-word;
     }
     .badge.idle { color: var(--muted); background: transparent; border: 1px solid var(--line); }
-    .badge.demo { color: var(--warn); background: var(--warn-bg); }
+    .badge.starter { color: var(--warn); background: var(--warn-bg); }
     .badge.local { color: var(--ok); background: var(--ok-bg); }
 
-    .samples { display: flex; flex-wrap: wrap; gap: 6px; }
-    .samples button {
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 3px 9px;
-      font: 11px/1.2 var(--font-mono);
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .samples button.on {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
     .cheat {
       margin: 0;
       font-size: 11px;
@@ -319,32 +305,10 @@
     }
     .cheat summary { cursor: pointer; color: var(--ink); }
     .cheat ul { margin: 8px 0 0; padding-left: 16px; }
-    .cheat code, .tutorial code {
+    .cheat code {
       font-family: var(--font-mono);
       font-size: 10px;
       word-break: break-word;
-    }
-    .tutorial {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--chrome);
-      font-size: 12px;
-    }
-    .tutorial[hidden] { display: none !important; }
-    .tutorial p { margin: 0; flex: 1 1 160px; color: var(--muted); line-height: 1.35; }
-    .tutorial button {
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 4px 8px;
-      font: 11px/1.2 var(--font-ui);
-      cursor: pointer;
-      color: var(--ink);
     }
 
     .card {
@@ -893,12 +857,6 @@
       <div class="app">
         <aside class="rail">
           <div class="rail-scroll pane">
-          <div class="tutorial" id="tutorial" hidden>
-            <p id="tutorial-why"></p>
-            <button type="button" id="tutorial-back">Back</button>
-            <button type="button" id="tutorial-next">Next</button>
-            <button type="button" id="tutorial-exit">Exit</button>
-          </div>
           <div class="drop" id="drop" role="button" tabindex="0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
@@ -910,11 +868,6 @@
             <div><span class="badge idle" id="upload-badge">Nothing uploaded</span></div>
           </div>
           <input id="file" type="file" accept=".txt,.md,.markdown,.py,.js,.jsx,.ts,.tsx,.json,.jsonl,.ndjson,.csv,.tsv,.xml,.html,.htm,.css,.scss,.go,.java,.c,.h,.cpp,.cc,.hpp,.yaml,.yml,.log,.toml,text/plain" />
-          <div class="samples" id="samples">
-            <button type="button" data-sample="demo">Demo</button>
-            <button type="button" data-sample="md">Markdown</button>
-            <button type="button" data-sample="py">Python</button>
-          </div>
           <details class="cheat">
             <summary>When to pick what</summary>
             <ul>
@@ -923,6 +876,7 @@
               <li><code>markdown_chunker</code> / <code>python_code</code> — headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>.</li>
               <li><code>overlapping_window</code> — sliding overlap. Amber band is the shared range.</li>
               <li><code>regex_custom</code> — speaker turns, log lines; the match starts the next chunk.</li>
+              <li>Drop .md .py .json .csv — the lab picks a matching strategy. You can always switch.</li>
               <li>Embeddings stay pip <code>semantic_chunker</code>. N-way compare is pip.</li>
             </ul>
           </details>
@@ -940,14 +894,14 @@
             <div class="knobs" id="knobs-b"></div>
           </div>
           <p class="later" id="autopick"></p>
-          <p class="later" id="nway">This tab is two columns. Three or more strategies on one file: <code>pip install chunking-strategy</code> then <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code> — or loop <code>create_chunker(name)</code>. Grey names are pip-only. Token counts appear after you run <code>token_based</code> once in this tab — the tokenizer stays loaded; until then, characters. Cap 150 MB here; Python streams from disk.</p>
+          <p class="later" id="nway">This tab is two columns. Three or more strategies: <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names are pip-only. Cap 150 MB here; Python streams from disk.</p>
           <div id="status"></div>
           </div>
           <div class="pip">
             <div class="pip-head">
               <span>Python equivalent</span>
               <span>
-                <button type="button" class="ghost" id="share" title="A vs B + knobs. Always the demo sample — never your file.">Link</button>
+                <button type="button" class="ghost" id="share" title="A vs B + knobs. Never your file.">Link</button>
                 <button type="button" class="ghost" id="export">Export</button>
                 <button type="button" class="ghost" id="copy">Copy</button>
               </span>
@@ -1007,7 +961,7 @@
       <article>
         <div class="n">2</div>
         <h3>Compare strategies</h3>
-        <p>Two algorithms, same source. Click a chunk to underline its range. Link copies A vs B and the knobs (demo sample only — your file never goes in the URL).</p>
+        <p>Two algorithms, same source. Click a chunk to underline its range. Link copies A vs B and the knobs — never your file.</p>
       </article>
       <article>
         <div class="n">3</div>
@@ -1172,7 +1126,7 @@
       },
       recursive_character: {
         label: "recursive_character",
-        why: "The RAG default: split on paragraphs, then lines, then spaces, then characters, and merge up to chunk_size. Separators are discarded (LangChain keep_separator=False). Not hierarchical recursive.",
+        why: "The RAG default: split on paragraphs, then lines, then spaces, then characters, and merge up to chunk_size. Separators are discarded — they do not appear in the chunks. Not hierarchical recursive.",
         knobs: [
           { key: "chunk_size", type: "number", min: 8, max: 4000, value: 120 },
           { key: "overlap_size", type: "number", min: 0, max: 2000, value: 0 },
@@ -1424,7 +1378,7 @@
     var runStart = 0;
     var currentText = "";
     var lastFile = null;
-    var isDemo = true;
+    var isStarter = true;
     var sourceDirty = false;
     var applyingSource = false;
     var currentResults = { a: [], b: [] };
@@ -1434,18 +1388,6 @@
     var shareReady = false;
     var fromShare = false;
     var SHARE_MAX = 1800;
-    var currentAha = "demo";
-    var tutorialStep = null;
-    var TUTORIAL = [
-      { a: "fixed_size", b: "sentence_based", why: "Step 1/3 — naive character windows vs sentences. Click a copper chunk: the heading is split." },
-      { a: "fixed_size", b: "recursive_character", why: "Step 2/3 — recursive_character is the RAG default: paragraphs, then lines, then spaces. Not hierarchical recursive." },
-      { a: "recursive_character", b: "token_based", why: "Step 3/3 — token_based cuts on cl100k_base. First load fetches the tokenizer in this tab; cards then show real token counts." },
-    ];
-    var AHA = {
-      demo: { url: "sample.txt", name: "demo.txt", demo: true },
-      md: { url: "sample.md", name: "notes.md", demo: false },
-      py: { url: "sample.py", name: "demo.py", demo: false },
-    };
 
     function knobEl(side, key) {
       return knobsOf(side).querySelector('[name="' + key + '"]');
@@ -1473,12 +1415,10 @@
       var q = new URLSearchParams();
       var a = strategyOf("a");
       var b = strategyOf("b");
-      var keep = forceKeys || a !== "fixed_size" || b !== "sentence_based" || !knobsAreDefaults("a") || !knobsAreDefaults("b") || currentAha !== "demo" || tutorialStep != null;
+      var keep = forceKeys || a !== "fixed_size" || b !== "sentence_based" || !knobsAreDefaults("a") || !knobsAreDefaults("b");
       if (!keep) return "";
-      q.set("sample", currentAha);
       q.set("a", a);
       q.set("b", b);
-      if (tutorialStep != null) q.set("tutorial", "1");
       ["a", "b"].forEach(function (side) {
         (LIVE[strategyOf(side)].knobs || []).forEach(function (k) {
           var cur = knobCurrent(side, k);
@@ -1489,10 +1429,8 @@
       var qs = q.toString();
       if (qs.length > SHARE_MAX) {
         q = new URLSearchParams();
-        q.set("sample", currentAha);
         q.set("a", a);
         q.set("b", b);
-        if (tutorialStep != null) q.set("tutorial", "1");
         qs = q.toString();
       }
       return qs;
@@ -1530,7 +1468,7 @@
       var q = new URLSearchParams(location.search);
       var a = q.get("a");
       var b = q.get("b");
-      fromShare = !!(LIVE[a] || LIVE[b] || q.get("tutorial"));
+      fromShare = !!(LIVE[a] || LIVE[b]);
       if (LIVE[a]) document.getElementById("pick-a").value = a;
       if (LIVE[b]) document.getElementById("pick-b").value = b;
       paintKnob("a");
@@ -1707,7 +1645,7 @@
         "",
         "a = " + a,
         "b = " + b,
-        'result = b.chunk("' + ((lastFile && lastFile.name) || "your_file.txt") + '")',
+        'result = b.chunk("' + ((isStarter || !lastFile) ? "your_file.txt" : lastFile.name) + '")',
       ].join("\n");
     }
 
@@ -1765,10 +1703,10 @@
       setAutoWhy(plan.why);
     }
 
-    function maybeAutoPick(file, demo) {
-      if (demo) {
+    function maybeAutoPick(file, starter) {
+      if (starter) {
         lastAutoName = file && file.name;
-        if (!fromShare) setAutoWhy("Demo text → fixed_size vs sentence_based.");
+        if (!fromShare) setAutoWhy("Starter text → fixed_size vs sentence_based. Drop a file to auto-pick.");
         return;
       }
       fromShare = false;
@@ -1799,10 +1737,10 @@
         return;
       }
       var size = bytes(lastFile.size);
-      if (isDemo) {
-        badgeEl.className = "badge demo";
-        badgeEl.textContent = "Demo sample · " + size + " · not uploaded";
-        kindEl.textContent = "Demo document";
+      if (isStarter) {
+        badgeEl.className = "badge starter";
+        badgeEl.textContent = size + " · not uploaded";
+        kindEl.textContent = "Document";
       } else if (lastFile.name === "pasted.txt") {
         badgeEl.className = "badge local";
         badgeEl.textContent = lastFile.size ? "Pasted text · " + size + " · in this tab only" : "Empty · 0 B";
@@ -2197,7 +2135,7 @@
       if (btn) btn.scrollIntoView({ block: "nearest" });
     }
 
-    function runFile(file, demo) {
+    function runFile(file, starter) {
       if (!file) return;
       if (file.name && !isTextFile(file)) {
         setStatus("This preview reads text. PDF/media stay in Python: pip install chunking-strategy");
@@ -2207,15 +2145,9 @@
         setStatus("The playground stops at 150 MB. pip install chunking-strategy streams from disk.");
         return;
       }
-      maybeAutoPick(file, demo);
-      if (!demo && file.name !== "notes.md" && file.name !== "demo.py") {
-        currentAha = "demo";
-        [].forEach.call(document.querySelectorAll("#samples [data-sample]"), function (btn) {
-          btn.classList.remove("on");
-        });
-      }
+      maybeAutoPick(file, starter);
       lastFile = file;
-      isDemo = !!demo;
+      isStarter = !!starter;
       setBadge();
       writeShareUrl();
       jobId += 1;
@@ -2236,46 +2168,10 @@
       });
     }
 
-    function markAha(name) {
-      currentAha = AHA[name] ? name : "demo";
-      [].forEach.call(document.querySelectorAll("#samples [data-sample]"), function (btn) {
-        btn.classList.toggle("on", btn.getAttribute("data-sample") === currentAha);
+    function loadStarter() {
+      fetch("sample.txt").then(function (r) { return r.blob(); }).then(function (blob) {
+        runFile(new File([blob], "sample.txt", { type: "text/plain" }), true);
       });
-    }
-
-    function loadAha(name) {
-      var spec = AHA[name] || AHA.demo;
-      markAha(name);
-      fetch(spec.url).then(function (r) { return r.blob(); }).then(function (blob) {
-        runFile(new File([blob], spec.name, { type: "text/plain" }), spec.demo);
-      });
-    }
-
-    function applyTutorialPicks() {
-      var step = TUTORIAL[tutorialStep];
-      if (!step) return;
-      document.getElementById("pick-a").value = step.a;
-      document.getElementById("pick-b").value = step.b;
-      paintKnob("a");
-      paintKnob("b");
-      setAutoWhy(step.why);
-      document.getElementById("tutorial-why").textContent = step.why;
-      document.getElementById("tutorial-back").disabled = tutorialStep === 0;
-      document.getElementById("tutorial-next").textContent = tutorialStep === TUTORIAL.length - 1 ? "Done" : "Next";
-    }
-
-    function startTutorial() {
-      tutorialStep = 0;
-      fromShare = true;
-      document.getElementById("tutorial").hidden = false;
-      applyTutorialPicks();
-      loadAha("demo");
-    }
-
-    function exitTutorial() {
-      tutorialStep = null;
-      document.getElementById("tutorial").hidden = true;
-      writeShareUrl();
     }
 
     function ingestText(text, name) {
@@ -2283,7 +2179,7 @@
     }
 
     function editorFileName() {
-      if (!isDemo && lastFile && lastFile.name && lastFile.name !== "demo.txt") return lastFile.name;
+      if (!isStarter && lastFile && lastFile.name) return lastFile.name;
       return "pasted.txt";
     }
 
@@ -2352,7 +2248,7 @@
       renderSnippet();
       writeShareUrl();
       clearTimeout(knobTimer);
-      knobTimer = setTimeout(function () { if (lastFile) runFile(lastFile, isDemo); }, 180);
+      knobTimer = setTimeout(function () { if (lastFile) runFile(lastFile, isStarter); }, 180);
     }
     ["a", "b"].forEach(function (side) {
       document.getElementById("pick-" + side).addEventListener("change", function () {
@@ -2439,37 +2335,7 @@
       if (foot) foot.textContent = "MIT License · Lab matches chunking-strategy==" + PYPI;
       renderSnippet();
     }).catch(function () {});
-    var boot = new URLSearchParams(location.search);
-    if (boot.get("tutorial") === "1") startTutorial();
-    else loadAha(AHA[boot.get("sample")] ? boot.get("sample") : "demo");
-    document.getElementById("samples").addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-sample]");
-      if (!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
-      exitTutorial();
-      fromShare = false;
-      loadAha(btn.getAttribute("data-sample"));
-    });
-    document.getElementById("tutorial-back").addEventListener("click", function () {
-      if (tutorialStep == null || tutorialStep === 0) return;
-      tutorialStep -= 1;
-      applyTutorialPicks();
-      if (lastFile) runFile(lastFile, isDemo);
-      writeShareUrl();
-    });
-    document.getElementById("tutorial-next").addEventListener("click", function () {
-      if (tutorialStep == null) return;
-      if (tutorialStep >= TUTORIAL.length - 1) {
-        exitTutorial();
-        return;
-      }
-      tutorialStep += 1;
-      applyTutorialPicks();
-      if (lastFile) runFile(lastFile, isDemo);
-      writeShareUrl();
-    });
-    document.getElementById("tutorial-exit").addEventListener("click", exitTutorial);
+    loadStarter();
     shareReady = true;
     writeShareUrl();
 
