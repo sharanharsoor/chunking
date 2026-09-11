@@ -814,6 +814,7 @@
             <div class="pip-head">
               <span>Python equivalent</span>
               <span>
+                <button type="button" class="ghost" id="share" title="A vs B + knobs. Always the demo sample — never your file.">Link</button>
                 <button type="button" class="ghost" id="export">Export</button>
                 <button type="button" class="ghost" id="copy">Copy</button>
               </span>
@@ -868,7 +869,7 @@
       <article>
         <div class="n">2</div>
         <h3>Compare strategies</h3>
-        <p>Two algorithms, same source. Click a chunk to underline its range. Want a third? Swap a picker, or run N-way in the Python library — this tab stays A vs B.</p>
+        <p>Two algorithms, same source. Click a chunk to underline its range. Link copies A vs B and the knobs (demo sample only — your file never goes in the URL).</p>
       </article>
       <article>
         <div class="n">3</div>
@@ -1203,6 +1204,101 @@
     var selected = { a: null, b: null };
     var focusSide = "b";
     var lastAutoName = null;
+    var shareReady = false;
+    var fromShare = false;
+    var SHARE_MAX = 1800;
+
+    function knobEl(side, key) {
+      return knobsOf(side).querySelector('[name="' + key + '"]');
+    }
+
+    function knobCurrent(side, k) {
+      var el = knobEl(side, k.key);
+      if (!el) return k.value;
+      if (k.type === "checkbox") return !!el.checked;
+      if (k.type === "number") {
+        var n = Number(el.value);
+        return Number.isFinite(n) ? n : k.value;
+      }
+      return el.value;
+    }
+
+    function knobsAreDefaults(side) {
+      var spec = LIVE[strategyOf(side)];
+      return (spec.knobs || []).every(function (k) {
+        return String(knobCurrent(side, k)) === String(k.value);
+      });
+    }
+
+    function buildShareQuery(forceKeys) {
+      var q = new URLSearchParams();
+      var a = strategyOf("a");
+      var b = strategyOf("b");
+      var keep = forceKeys || a !== "fixed_size" || b !== "sentence_based" || !knobsAreDefaults("a") || !knobsAreDefaults("b");
+      if (!keep) return "";
+      q.set("sample", "demo");
+      q.set("a", a);
+      q.set("b", b);
+      ["a", "b"].forEach(function (side) {
+        (LIVE[strategyOf(side)].knobs || []).forEach(function (k) {
+          var cur = knobCurrent(side, k);
+          if (String(cur) === String(k.value)) return;
+          q.set(side + "." + k.key, k.type === "checkbox" ? (cur ? "1" : "0") : String(cur));
+        });
+      });
+      var qs = q.toString();
+      if (qs.length > SHARE_MAX) {
+        q = new URLSearchParams();
+        q.set("sample", "demo");
+        q.set("a", a);
+        q.set("b", b);
+        qs = q.toString();
+      }
+      return qs;
+    }
+
+    function writeShareUrl() {
+      if (!shareReady) return;
+      var qs = buildShareQuery(false);
+      var next = location.pathname + (qs ? "?" + qs : "") + location.hash;
+      if (next !== location.pathname + location.search + location.hash) {
+        history.replaceState(null, "", next);
+      }
+    }
+
+    function shareHref() {
+      var qs = buildShareQuery(true);
+      var base = location.href.split("?")[0].split("#")[0];
+      return qs ? base + "?" + qs : base;
+    }
+
+    function applyKnobQuery(side, q) {
+      var box = knobsOf(side);
+      (LIVE[strategyOf(side)].knobs || []).forEach(function (k) {
+        var raw = q.get(side + "." + k.key);
+        if (raw == null) return;
+        var el = box.querySelector('[name="' + k.key + '"]');
+        if (!el) return;
+        if (k.type === "checkbox") el.checked = raw === "1" || raw === "true";
+        else el.value = raw;
+      });
+      markClamp(side);
+    }
+
+    function applyShareFromUrl() {
+      var q = new URLSearchParams(location.search);
+      var a = q.get("a");
+      var b = q.get("b");
+      var fromLink = !!(LIVE[a] || LIVE[b] || q.get("sample"));
+      fromShare = fromLink;
+      if (LIVE[a]) document.getElementById("pick-a").value = a;
+      if (LIVE[b]) document.getElementById("pick-b").value = b;
+      paintKnob("a");
+      paintKnob("b");
+      applyKnobQuery("a", q);
+      applyKnobQuery("b", q);
+      if (fromLink) setAutoWhy("From link · demo sample. Your files never go in the URL.");
+    }
 
     function scalarToUtf16(str, n) { return Array.from(str).slice(0, n).join("").length; }
     function setStatus(msg) { statusEl.textContent = msg || ""; }
@@ -1398,7 +1494,7 @@
     function maybeAutoPick(file, demo) {
       if (demo) {
         lastAutoName = file && file.name;
-        setAutoWhy("Demo text → fixed_size vs sentence_based.");
+        if (!fromShare) setAutoWhy("Demo text → fixed_size vs sentence_based.");
         return;
       }
       var name = file && file.name;
@@ -1639,6 +1735,7 @@
       lastFile = file;
       isDemo = !!demo;
       setBadge();
+      writeShareUrl();
       jobId += 1;
       runStart = performance.now();
       setStatus("Chunking in a worker — file stays in this tab.");
@@ -1724,6 +1821,7 @@
       markClamp("a");
       markClamp("b");
       renderSnippet();
+      writeShareUrl();
       clearTimeout(knobTimer);
       knobTimer = setTimeout(function () { if (lastFile) runFile(lastFile, isDemo); }, 180);
     }
@@ -1745,6 +1843,12 @@
     document.getElementById("copy").addEventListener("click", function () {
       var btn = document.getElementById("copy");
       navigator.clipboard.writeText(snippetText()).then(function () { copied(btn, "Copied"); });
+    });
+    document.getElementById("share").addEventListener("click", function () {
+      var btn = document.getElementById("share");
+      var href = shareHref();
+      writeShareUrl();
+      navigator.clipboard.writeText(href).then(function () { copied(btn, "Copied"); });
     });
     document.getElementById("export").addEventListener("click", function () {
       var slim = function (chunks) {
@@ -1798,10 +1902,11 @@
 
     fillSelect(document.getElementById("pick-a"), "fixed_size");
     fillSelect(document.getElementById("pick-b"), "sentence_based");
-    paintKnob("a");
-    paintKnob("b");
+    applyShareFromUrl();
     renderSnippet();
     loadSample();
+    shareReady = true;
+    writeShareUrl();
 
     (function stars() {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
