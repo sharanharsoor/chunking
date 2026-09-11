@@ -31,3 +31,11 @@ class InvalidContentError(ChunkerError):
 class StrategyUnavailableError(ChunkerError):
     """Raised when a strategy is temporarily unavailable (e.g., missing dependencies)."""
     pass
+
+
+class MissingExtraError(ChunkerError):
+    """Raised when an optional extra is required. Message is the pip install line."""
+
+    def __init__(self, extra: str, hint: str = None):
+        self.extra = extra
+        super().__init__(hint or f"pip install chunking-strategy[{extra}]")

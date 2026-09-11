@@ -57,5 +57,5 @@ def test_chunker_sets_char_offsets():
     assert result.chunks[1].metadata.extra.get("offset_unit") == "char"
 
 
-def test_default_splitter_remains_simple():
-    assert SentenceBasedChunker().sentence_splitter == "simple"
+def test_default_splitter_is_simple_v1():
+    assert SentenceBasedChunker().sentence_splitter == "simple_v1"

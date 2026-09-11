@@ -151,7 +151,7 @@ def _locate_sentences(text: str, sentences: List[str]) -> List[tuple]:
         "sentence_splitter": {
             "type": "string",
             "enum": ["simple", "simple_v1", "nltk", "spacy"],
-            "default": "simple",
+            "default": "simple_v1",
             "description": "Method to use for sentence splitting"
         },
         "max_tokens": {
@@ -177,7 +177,7 @@ def _locate_sentences(text: str, sentences: List[str]) -> List[tuple]:
         "min_sentences": 1,
         "max_chunk_size": 2000,
         "overlap_sentences": 0,
-        "sentence_splitter": "simple"
+        "sentence_splitter": "simple_v1"
     },
     use_cases=["RAG", "document processing", "content analysis", "text summarization"],
     best_for=["natural language text", "articles", "books", "coherent chunks"],
@@ -228,7 +228,7 @@ class SentenceBasedChunker(StreamableChunker):
         min_sentences: int = 1,
         max_chunk_size: int = 2000,
         overlap_sentences: int = 0,
-        sentence_splitter: str = "simple",
+        sentence_splitter: str = "simple_v1",
         max_text_buffer_size: int = 2 * 1024 * 1024,  # 2MB buffer limit for streaming protection
         max_tokens: Optional[int] = None,
         overlap_tokens: int = 0,
@@ -483,8 +483,8 @@ class SentenceBasedChunker(StreamableChunker):
                 self._nltk_splitter = nltk.sent_tokenize
                 self.logger.debug("Initialized NLTK sentence splitter")
             except ImportError:
-                self.logger.warning("NLTK not available, falling back to simple splitter")
-                self.sentence_splitter = "simple"
+                self.logger.warning("NLTK not available, falling back to simple_v1 splitter")
+                self.sentence_splitter = "simple_v1"
 
         elif self.sentence_splitter == "spacy":
             try:
@@ -493,12 +493,12 @@ class SentenceBasedChunker(StreamableChunker):
                 try:
                     self._spacy_nlp = spacy.load("en_core_web_sm")
                 except IOError:
-                    self.logger.warning("spaCy model not found, falling back to simple splitter")
-                    self.sentence_splitter = "simple"
+                    self.logger.warning("spaCy model not found, falling back to simple_v1 splitter")
+                    self.sentence_splitter = "simple_v1"
                 self.logger.debug("Initialized spaCy sentence splitter")
             except ImportError:
-                self.logger.warning("spaCy not available, falling back to simple splitter")
-                self.sentence_splitter = "simple"
+                self.logger.warning("spaCy not available, falling back to simple_v1 splitter")
+                self.sentence_splitter = "simple_v1"
 
     def _split_sentences(self, text: str) -> List[str]:
         """Split text into individual sentences with robust fallback for dictionary data."""

@@ -46,7 +46,7 @@ from typing import Any, Dict, List, Optional, Type, Callable, Union
 from enum import Enum
 import importlib
 
-from chunking_strategy.exceptions import ChunkerNotFoundError, ChunkingConfigurationError, StrategyUnavailableError
+from chunking_strategy.exceptions import ChunkerNotFoundError, ChunkingConfigurationError, MissingExtraError, StrategyUnavailableError
 
 # Handle pkg_resources deprecation gracefully
 pkg_resources = None
@@ -439,7 +439,11 @@ class ChunkerRegistry:
             logger.error(error_msg)
             raise ChunkingConfigurationError(error_msg) from e
         except ImportError as e:
-            # Missing dependencies
+            from chunking_strategy.core.extras import extra_for_strategy
+            extra = extra_for_strategy(name)
+            if extra:
+                from chunking_strategy.exceptions import MissingExtraError
+                raise MissingExtraError(extra) from e
             error_msg = f"Strategy {name} is not available due to missing dependencies: {e}"
             logger.error(error_msg)
             raise StrategyUnavailableError(error_msg) from e

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chunking-strategy"
 version = "0.4.2"
-description = "A comprehensive chunking library for text, documents, audio, video, and data streams (Linux and macOS only)"
+description = "A comprehensive chunking library for text, documents, audio, video, and data streams"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -20,6 +20,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -62,9 +63,6 @@ tiktoken = [
 text = [
     "spacy>=3.6.0",
     "nltk>=3.8",
-    "sentence-transformers>=5.1.0",  # Fixed compatibility issues with HF Hub
-    "huggingface-hub>=0.20.0",      # Required for authentication
-    "tiktoken>=0.5.0",
 ]
 document = [
     "PyPDF2>=3.0.0",
@@ -75,7 +73,18 @@ document = [
     "lxml>=4.9.0",
     "markdown>=3.5.0",
 ]
+pdf = [
+    "pypdf>=4.0.0",
+]
 multimedia = [
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    "librosa>=0.10.0",
+    "pydub>=0.25.0",
+    "imageio>=2.31.0",
+    "moviepy>=1.0.3",
+]
+media = [
     "opencv-python>=4.8.0",
     "Pillow>=10.0.0",
     "librosa>=0.10.0",
@@ -120,7 +129,7 @@ langchain = [
     "chromadb>=0.4.15",
 ]
 all = [
-    "chunking-strategy[dev,text,document,multimedia,ml,detection,hardware,tika,vectordb,streamlit,langchain]"
+    "chunking-strategy[dev,text,document,pdf,multimedia,ml,detection,hardware,tika,vectordb,streamlit,langchain]"
 ]
 
 [project.urls]

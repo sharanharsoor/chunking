@@ -648,3 +648,77 @@ class ChunkingQualityEvaluator:
             recommendations.append("Chunking quality looks good overall!")
 
         return recommendations
+
+
+# CDC / code / JSON do not end in ".!?"; skip that term and renormalize.
+_SKIP_BOUNDARY = frozenset(
+    {
+        "fastcdc",
+        "rolling_hash",
+        "rabin_fingerprinting",
+        "buzhash",
+        "tttd",
+        "ml_cdc",
+        "json_chunker",
+        "python_code",
+        "javascript_code",
+        "css_code",
+        "go_code",
+        "java_code",
+        "c_cpp_code",
+    }
+)
+_BOUNDARY_END = ".!?\n"
+
+
+def _last_non_space(text: str) -> str:
+    stripped = text.rstrip()
+    return stripped[-1] if stripped else ""
+
+
+def _span_union(spans):
+    ordered = sorted((s, e) for s, e in spans if e > s)
+    if not ordered:
+        return 0
+    total = 0
+    cs, ce = ordered[0]
+    for s, e in ordered[1:]:
+        if s <= ce:
+            ce = max(ce, e)
+        else:
+            total += ce - cs
+            cs, ce = s, e
+    return total + (ce - cs)
+
+
+def compute_result_quality(result: ChunkingResult) -> float:
+    """v1 score: 0.4 size + 0.4 boundary + 0.2 coverage. No embeddings."""
+    chunks = result.chunks
+    if not chunks:
+        return 0.0
+
+    size_s = SizeConsistencyMetric().compute(chunks)
+    spans = [
+        (c.start, c.end)
+        for c in chunks
+        if c.start is not None and c.end is not None
+    ]
+    if spans:
+        source_size = max(e for _, e in spans)
+        coverage = min(1.0, max(0.0, _span_union(spans) / source_size)) if source_size else 0.0
+    else:
+        coverage = 1.0
+
+    strategy = result.strategy_used or ""
+    if not strategy and chunks[0].metadata.chunker_used:
+        strategy = chunks[0].metadata.chunker_used
+
+    if strategy in _SKIP_BOUNDARY:
+        return max(0.0, min(1.0, (0.4 * size_s + 0.2 * coverage) / 0.6))
+
+    boundary = sum(
+        1
+        for c in chunks
+        if isinstance(c.content, str) and _last_non_space(c.content) in _BOUNDARY_END
+    ) / len(chunks)
+    return max(0.0, min(1.0, 0.4 * size_s + 0.4 * boundary + 0.2 * coverage))

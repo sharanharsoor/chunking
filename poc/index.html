@@ -1142,7 +1142,15 @@
           var w = knobNum(root, "window_size", 80);
           var s = knobNum(root, "step_size", 40);
           if (s >= w) s = Math.max(1, w - 1);
-          return 'create_chunker("overlapping_window", window_size=' + w + ", step_size=" + s + ', window_unit="' + knobStr(root, "window_unit", "characters") + '")';
+          var unit = knobStr(root, "window_unit", "characters");
+          if (unit === "tokens") {
+            var ot = Math.max(0, w - s);
+            if (ot >= w) ot = Math.max(0, w - 1);
+            var line = 'create_chunker("overlapping_window", max_tokens=' + w + ', window_unit="tokens"';
+            if (ot) line += ", overlap_tokens=" + ot;
+            return line + ")";
+          }
+          return 'create_chunker("overlapping_window", window_size=' + w + ", step_size=" + s + ', window_unit="' + unit + '")';
         },
       },
       recursive_character: {

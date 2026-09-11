@@ -18,12 +18,6 @@ from chunking_strategy import (
     create_chunker,
     list_chunkers,
     get_chunker_metadata,
-    EmbeddingModel,
-    OutputFormat,
-    EmbeddingConfig,
-    embed_chunking_result,
-    print_embedding_summary,
-    export_for_vector_db,
     __version__
 )
 from chunking_strategy.core.registry import get_registry
@@ -46,6 +40,30 @@ from chunking_strategy.core.custom_validation import (
 from chunking_strategy.utils.benchmarking import BenchmarkRunner
 from chunking_strategy.utils.validation import ChunkValidator
 from chunking_strategy.core.metrics import ChunkingQualityEvaluator
+
+_EMBED_MODELS = (
+    "all-MiniLM-L6-v2",
+    "all-MiniLM-L12-v2",
+    "all-mpnet-base-v2",
+    "all-distilroberta-v1",
+    "paraphrase-multilingual-MiniLM-L12-v2",
+    "clip-vit-b-32",
+    "clip-vit-b-16",
+    "clip-vit-l-14",
+)
+_EMBED_FORMATS = ("vector_only", "vector_plus_text", "full_metadata")
+
+
+def _embedding_api():
+    from chunking_strategy import (
+        EmbeddingModel,
+        OutputFormat,
+        EmbeddingConfig,
+        embed_chunking_result,
+        print_embedding_summary,
+        export_for_vector_db,
+    )
+    return EmbeddingModel, OutputFormat, EmbeddingConfig, embed_chunking_result, print_embedding_summary, export_for_vector_db
 
 
 def safe_content_display(content, max_length=100, binary_placeholder="[Binary Content]"):
@@ -263,21 +281,29 @@ def chunk(
 @click.option('--modality', help='Filter by modality')
 @click.option('--format', 'output_format', type=click.Choice(['table', 'json', 'simple']), default='table', help='Output format')
 @click.option('--show-details', is_flag=True, help='Show detailed information')
+@click.option('--tier', type=click.Choice(['lab', 'python_only', 'all']), default='all', help='lab names match the browser tab')
 def list_strategies(
     category: Optional[str],
     modality: Optional[str],
     output_format: str,
-    show_details: bool
+    show_details: bool,
+    tier: str,
 ) -> None:
     """List available chunking strategies."""
     try:
-        # Get filter parameters
-        filter_params = {}
-        if category:
-            filter_params['category'] = category
+        from chunking_strategy.core.extras import LAB_STRATEGIES
 
-        # Get strategies
-        strategies = list_chunkers(**filter_params)
+        if tier == "lab":
+            strategies = sorted(LAB_STRATEGIES)
+        else:
+            strategies = list_chunkers(include_heavy=True)
+            if tier == "python_only":
+                strategies = [s for s in strategies if s not in LAB_STRATEGIES]
+        if category:
+            strategies = [
+                s for s in strategies
+                if get_chunker_metadata(s) and get_chunker_metadata(s).category == category
+            ]
 
         if not strategies:
             click.echo("No strategies found matching criteria")
@@ -311,10 +337,52 @@ def list_strategies(
                         if metadata.dependencies:
                             click.echo(f"  Dependencies: {', '.join(metadata.dependencies)}")
                         click.echo()
+                else:
+                    click.echo(f"{strategy:<20} {'lab':<12} {'-':<10} {'-':<7}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
+
+
+@main.command()
+@click.argument('input_file', type=click.Path(exists=True, path_type=Path))
+@click.option('-s', '--strategies', 'strategy_list', required=True, help='Comma-separated strategy names')
+@click.option('--format', 'output_format', type=click.Choice(['table', 'json']), default='table')
+def compare(input_file: Path, strategy_list: str, output_format: str) -> None:
+    """Run the same file through several strategies and print a table."""
+    names = [n.strip() for n in strategy_list.split(",") if n.strip()]
+    if not names:
+        click.echo("Error: pass at least one strategy", err=True)
+        sys.exit(1)
+    text = input_file.read_text(encoding="utf-8")
+    rows = []
+    for name in names:
+        started = time.perf_counter()
+        chunker = create_chunker(name)
+        result = chunker.chunk(text)
+        elapsed = time.perf_counter() - started
+        sizes = [c.size or 0 for c in result.chunks]
+        avg = (sum(sizes) / len(sizes)) if sizes else 0.0
+        q = result.quality_score
+        rows.append({
+            "strategy": name,
+            "n_chunks": len(result.chunks),
+            "avg_size": round(avg, 1),
+            "quality_score": None if q is None else round(float(q), 3),
+            "elapsed": round(elapsed, 4),
+        })
+    if output_format == "json":
+        click.echo(json.dumps(rows, indent=2))
+        return
+    click.echo(f"{'strategy':<24} {'n_chunks':>8} {'avg_size':>10} {'quality':>8} {'elapsed':>10}")
+    click.echo("-" * 64)
+    for row in rows:
+        q = row["quality_score"]
+        qtxt = "-" if q is None else f"{q:.3f}"
+        click.echo(
+            f"{row['strategy']:<24} {row['n_chunks']:>8} {row['avg_size']:>10.1f} {qtxt:>8} {row['elapsed']:>10.4f}"
+        )
 
 
 @main.command()
@@ -1185,10 +1253,10 @@ def batch(
 @click.argument('input_file', type=click.Path(exists=True, path_type=Path))
 @click.option('--strategy', '-s', help='Chunking strategy to use before embedding')
 @click.option('--config', '-c', type=click.Path(exists=True, path_type=Path), help='Configuration file')
-@click.option('--model', '-m', type=click.Choice([model.value for model in EmbeddingModel]),
-              default=EmbeddingModel.ALL_MINILM_L6_V2.value, help='Embedding model to use')
-@click.option('--output-format', type=click.Choice([fmt.value for fmt in OutputFormat]),
-              default=OutputFormat.FULL_METADATA.value, help='Output format for embeddings')
+@click.option('--model', '-m', type=click.Choice(list(_EMBED_MODELS)),
+              default="all-MiniLM-L6-v2", help='Embedding model to use')
+@click.option('--output-format', type=click.Choice(list(_EMBED_FORMATS)),
+              default="full_metadata", help='Output format for embeddings')
 @click.option('--output', '-o', type=click.Path(path_type=Path), help='Output file for embeddings')
 @click.option('--export-format', type=click.Choice(['dict', 'json']), default='json',
               help='Export format for vector database')
@@ -1215,6 +1283,7 @@ def embed(
 ) -> None:
     """Generate embeddings from chunked content."""
     try:
+        EmbeddingModel, OutputFormat, EmbeddingConfig, embed_chunking_result, print_embedding_summary, export_for_vector_db = _embedding_api()
         # Step 1: Chunk the content
         click.echo(f"📝 Chunking content from: {input_file}")
 
@@ -1296,10 +1365,10 @@ def embed(
 @click.argument('input_files', nargs=-1, required=True, type=click.Path(exists=True, path_type=Path))
 @click.option('--strategy', '-s', help='Chunking strategy to use for all files')
 @click.option('--config', '-c', type=click.Path(exists=True, path_type=Path), help='Configuration file')
-@click.option('--model', '-m', type=click.Choice([model.value for model in EmbeddingModel]),
-              default=EmbeddingModel.ALL_MINILM_L6_V2.value, help='Embedding model to use')
-@click.option('--output-format', type=click.Choice([fmt.value for fmt in OutputFormat]),
-              default=OutputFormat.FULL_METADATA.value, help='Output format for embeddings')
+@click.option('--model', '-m', type=click.Choice(list(_EMBED_MODELS)),
+              default="all-MiniLM-L6-v2", help='Embedding model to use')
+@click.option('--output-format', type=click.Choice(list(_EMBED_FORMATS)),
+              default="full_metadata", help='Output format for embeddings')
 @click.option('--output-dir', '-o', type=click.Path(path_type=Path), help='Output directory for batch embeddings')
 @click.option('--batch-size', type=int, default=32, help='Batch size for embedding generation')
 @click.option('--normalize', is_flag=True, default=True, help='Normalize embeddings')
@@ -1321,6 +1390,7 @@ def embed_batch(
 ) -> None:
     """Generate embeddings for multiple files in batch."""
     try:
+        EmbeddingModel, OutputFormat, EmbeddingConfig, embed_chunking_result, print_embedding_summary, export_for_vector_db = _embedding_api()
         click.echo(f"[INFO] Batch embedding for {len(input_files)} files...")
 
         # Setup configuration
@@ -1450,6 +1520,7 @@ def embed_batch(
 @click.pass_context
 def list_models(ctx: click.Context) -> None:
     """List available embedding models."""
+    from chunking_strategy import EmbeddingModel
 
     click.echo("🔮 Available Embedding Models:")
     click.echo("=" * 50)

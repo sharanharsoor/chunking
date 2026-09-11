@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Sequence, Tuple
 
+from chunking_strategy.exceptions import MissingExtraError
+
 INSTALL = "pip install chunking-strategy[tiktoken]"
 
 
@@ -16,9 +18,7 @@ def require_encoding(name: str = "cl100k_base"):
     try:
         import tiktoken
     except ImportError as exc:
-        raise ImportError(
-            f"max_tokens requires tiktoken. Install with: {INSTALL}"
-        ) from exc
+        raise MissingExtraError("tiktoken", INSTALL) from exc
     return tiktoken.get_encoding(name)
 
 

@@ -278,6 +278,10 @@ class ChunkingResult:
                     variance = sum((s - self.avg_chunk_size) ** 2 for s in sizes) / len(sizes)
                     self.size_variance = variance ** 0.5
 
+        if self.quality_score is None:
+            from chunking_strategy.core.metrics import compute_result_quality
+            self.quality_score = compute_result_quality(self)
+
     def get_chunks_by_modality(self, modality: ModalityType) -> List[Chunk]:
         """Get all chunks of a specific modality."""
         return [chunk for chunk in self.chunks if chunk.modality == modality]

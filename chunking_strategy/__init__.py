@@ -225,21 +225,31 @@ def _get_embedding_classes():
 # Global caches for lazy imports
 _embedding_globals = None
 _extractor_globals = None
+_EMBEDDING_NAMES = {
+    "EmbeddingModel",
+    "OutputFormat",
+    "EmbeddingConfig",
+    "EmbeddedChunk",
+    "EmbeddingResult",
+    "create_embedder",
+    "embed_chunking_result",
+    "print_embedding_summary",
+    "export_for_vector_db",
+}
+_EXTRACTOR_NAMES = {"extract_content", "get_extractor_registry"}
 
 def __getattr__(name):
-    """Lazy load expensive modules only when accessed."""
+    """Lazy load expensive modules only when those names are accessed."""
     global _embedding_globals, _extractor_globals
 
-    # Check embedding classes first
-    if _embedding_globals is None:
-        _embedding_globals = _get_embedding_classes()
-    if name in _embedding_globals:
+    if name in _EMBEDDING_NAMES:
+        if _embedding_globals is None:
+            _embedding_globals = _get_embedding_classes()
         return _embedding_globals[name]
 
-    # Check extractor classes
-    if _extractor_globals is None:
-        _extractor_globals = _get_extractor_classes()
-    if name in _extractor_globals:
+    if name in _EXTRACTOR_NAMES:
+        if _extractor_globals is None:
+            _extractor_globals = _get_extractor_classes()
         return _extractor_globals[name]
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
@@ -388,6 +398,7 @@ __all__ = [
     # Strategy listing functions
     "list_chunkers",
     "list_strategies",  # Alias for list_chunkers
+    "MissingExtraError",
 ]
 
 # Add convenient alias for strategy listing with lazy loading
@@ -433,6 +444,8 @@ def create_chunker(name: str, **kwargs):
 # Fix the reference in the alias function
 def _create_chunker_with_aliases(name: str, **kwargs):
     """Create chunker with name aliases for backward compatibility."""
+    from chunking_strategy.core.extras import ensure_strategy_extra
+    ensure_strategy_extra(name)
 
     # Define name mappings for better UX
     name_aliases = {
@@ -452,6 +465,7 @@ def _create_chunker_with_aliases(name: str, **kwargs):
         except (KeyError, ImportError):
             # Try with alias
             if name in name_aliases:
+                ensure_strategy_extra(name_aliases[name])
                 return _original_create_chunker(name_aliases[name], **kwargs)
             # Try reverse lookup
             for alias, real_name in name_aliases.items():
@@ -467,5 +481,6 @@ from chunking_strategy.exceptions import (
     ChunkingConfigurationError,
     ChunkingProcessingError,
     InvalidContentError,
+    MissingExtraError,
     StrategyUnavailableError
 )

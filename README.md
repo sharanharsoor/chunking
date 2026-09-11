@@ -10,7 +10,7 @@
 
 Transform your documents into perfectly sized chunks for RAG systems, vector databases, LLM processing, and content analysis with multi-core processing and memory-efficient streaming for large files.
 
-> **Platform Support**: Linux and macOS only. Windows support is not currently available.
+> **Platform Support**: Core library is cross-platform (Windows, macOS, Linux). POSIX-only extras: `[media]`, `[tika]`, `[hardware]`.
 
 ## Try the lab
 
@@ -23,15 +23,20 @@ Transform your documents into perfectly sized chunks for RAG systems, vector dat
 ### Installation
 
 ```bash
-# Basic installation
+# Core — same strategy names as the lab
 pip install chunking-strategy
 
-# With all features (recommended)
-pip install chunking-strategy[all]
+# Token windows (cl100k_base). Not chars/4.
+pip install chunking-strategy[tiktoken]
 
-# Specific feature sets
-pip install chunking-strategy[document,hardware,tika]
+# Optional extras
+pip install chunking-strategy[pdf]
+pip install chunking-strategy[ml]      # embeddings / semantic
+pip install chunking-strategy[media]   # audio/video/images; POSIX
+pip install chunking-strategy[tika]    # POSIX
 ```
+
+`[all]` pulls torch, OpenCV, and Tika. Do not recommend it to strangers.
 
 ### 30-Second Example
 

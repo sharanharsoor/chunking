@@ -137,6 +137,8 @@ def result_to_canonical_dict(
         "source": src,
         "chunks": [chunk_to_canonical(c, i, fixture) for i, c in enumerate(result.chunks)],
     }
+    if not fixture and result.quality_score is not None:
+        doc["quality_score"] = result.quality_score
     if fixture:
         id_map = {c.id: f"chunk-{i:04d}" for i, c in enumerate(result.chunks)}
         for row in doc["chunks"]:
