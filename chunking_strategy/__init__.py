@@ -311,7 +311,7 @@ except Exception:
     pass
 
 # Version info
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 __author__ = "Sharan Harsoor"
 __email__ = "sharanharsoor@gmail.com"
 
