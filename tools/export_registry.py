@@ -66,6 +66,10 @@ def check() -> None:
     missing = required_lab - lab
     if missing:
         raise ValueError(f"lab tier missing {sorted(missing)}")
+    lab_ver = REPO_ROOT / "poc" / "playground-version.json"
+    schema_ver = REPO_ROOT / "schemas" / "playground-version.json"
+    if lab_ver.read_text(encoding="utf-8") != schema_ver.read_text(encoding="utf-8"):
+        raise ValueError("poc/playground-version.json drifted from schemas/playground-version.json")
 
 
 def main(argv: list | None = None) -> int:

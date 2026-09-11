@@ -56,6 +56,9 @@ dev = [
     "mypy>=1.5.0",
     "pre-commit>=3.0.0",
 ]
+tiktoken = [
+    "tiktoken>=0.5.0",
+]
 text = [
     "spacy>=3.6.0",
     "nltk>=3.8",
