@@ -78,3 +78,20 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install core package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+    - name: Import, chunk, and CLI
+      run: |
+        python -m chunking_strategy --help
+        python tools/core_smoke.py

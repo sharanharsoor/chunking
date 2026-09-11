@@ -14,3 +14,4 @@
 - `chunking-strategy compare FILE -s a,b,c` table (n_chunks, avg_size, quality_score, elapsed).
 - `chunking-strategy list-strategies --tier lab|python_only|all`.
 - `[pdf]` and `[media]` extras (`[media]` matches `[multimedia]`).
+- Windows CI smoke: core `pip install -e .` on `windows-latest`, then import, `fixed_size` / `sentence_based` chunk, and `list-strategies --tier lab`.
