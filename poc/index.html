@@ -1009,7 +1009,7 @@
 
   <section class="hero wrap">
     <h1>Compare chunking strategies <em>side-by-side</em></h1>
-    <p>Drop a text file — or type, paste, and edit the document — and see how two algorithms split the same source. Nothing is uploaded. When you are ready, it is one pip install.</p>
+    <p>Drop a text file, or type and paste in the editor, to see how two algorithms split the same source. Nothing is uploaded. When you are ready, it is one pip install.</p>
   </section>
 
   <div class="wrap">
@@ -1023,21 +1023,21 @@
               <path d="M14 3v5h5"/>
             </svg>
             <h2>Drop a text file</h2>
-            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Embeddings stay in pip.</p>
+            <p>Use .txt, .md, .csv, .json, .html, or code. The lab picks a matching strategy, and you can always switch. Embeddings stay in the Python library.</p>
             <span class="cta">Choose a file</span>
-            <div><span class="badge idle" id="upload-badge">Nothing uploaded</span></div>
+            <div><span class="badge idle" id="upload-badge">No file yet</span></div>
           </div>
           <input id="file" type="file" accept=".txt,.md,.markdown,.py,.js,.jsx,.ts,.tsx,.json,.jsonl,.ndjson,.csv,.tsv,.xml,.html,.htm,.css,.scss,.go,.java,.c,.h,.cpp,.cc,.hpp,.yaml,.yml,.log,.toml,text/plain" />
           <details class="cheat">
-            <summary>When to pick what</summary>
+            <summary>Which strategy to pick</summary>
             <ul>
-              <li><code>recursive_character</code> — RAG default (paragraphs → lines → spaces). Not hierarchical <code>recursive</code>.</li>
-              <li><code>token_based</code> — cl100k_base windows. Loads the tokenizer once in this tab.</li>
-              <li><code>markdown_chunker</code> / <code>python_code</code> — headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>. Breadcrumb is H1 &gt; H2.</li>
-              <li><code>overlapping_window</code> — sliding overlap. Amber band is the shared range.</li>
-              <li><code>regex_custom</code> — speaker turns, log lines; the match starts the next chunk.</li>
-              <li>Drop .md .py .json .csv — the lab picks a matching strategy. You can always switch.</li>
-              <li>Embeddings stay pip <code>semantic_chunker</code>. N-way compare is pip.</li>
+              <li><code>recursive_character</code> is the RAG default: paragraphs, then lines, then spaces. It is not hierarchical <code>recursive</code>.</li>
+              <li><code>token_based</code> uses cl100k_base windows. The tokenizer loads once in this tab.</li>
+              <li><code>markdown_chunker</code> and <code>python_code</code> follow headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>. Breadcrumb is H1 &gt; H2.</li>
+              <li><code>overlapping_window</code> slides with overlap. The amber band is the shared range.</li>
+              <li><code>regex_custom</code> is for speaker turns and log lines. The match starts the next chunk.</li>
+              <li>Drop .md, .py, .json, or .csv and the lab picks a matching strategy. You can always switch.</li>
+              <li>Embeddings stay in pip as <code>semantic_chunker</code>. Comparing three or more strategies is pip too.</li>
             </ul>
           </details>
 
@@ -1068,14 +1068,14 @@
             <div class="knobs" id="knobs-b"></div>
           </div>
           <p class="later" id="autopick"></p>
-          <p class="later" id="nway">This tab is two columns. Three or more strategies: <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names are pip-only. Cap 150 MB here; Python streams from disk.</p>
+          <p class="later" id="nway">This tab compares two strategies. For three or more, run <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names are pip-only. The lab caps at 150 MB. Python streams from disk.</p>
           <div id="status"></div>
           </div>
           <div class="pip">
             <div class="pip-head">
               <span>Python equivalent</span>
               <span>
-                <button type="button" class="ghost" id="share" title="A vs B + knobs. Never your file.">Link</button>
+                <button type="button" class="ghost" id="share" title="Copies A vs B and the knobs. Never your file.">Link</button>
                 <button type="button" class="ghost" id="export">Export</button>
                 <button type="button" class="ghost" id="copy">Copy</button>
               </span>
@@ -1089,7 +1089,7 @@
             <strong id="source-kind">Document</strong>
             <label class="retrieve">
               <span>Find</span>
-              <input id="retrieve" type="search" spellcheck="false" autocomplete="off" placeholder="Search these chunks" title="Ranks A and B. Nothing is uploaded." />
+              <input id="retrieve" type="search" spellcheck="false" autocomplete="off" placeholder="Search these chunks" title="Ranks chunks in A and B. Nothing is uploaded." />
             </label>
             <span class="retrieve-hits" id="retrieve-hits"></span>
             <span class="focus-pair">
@@ -1099,7 +1099,7 @@
           </div>
           <div class="source-stack">
             <div id="source-hl" class="source-face" aria-hidden="true"></div>
-            <textarea id="source" class="source-face pane" spellcheck="false" placeholder="Type or paste text here…"></textarea>
+            <textarea id="source" class="source-face pane" spellcheck="false" placeholder="Type or paste text here"></textarea>
           </div>
         </section>
 
@@ -1129,18 +1129,18 @@
     <div class="how">
       <article>
         <div class="n">1</div>
-        <h3>Drop a file — or paste</h3>
-        <p>Text files stay in this tab. Nothing is uploaded. The box on the right is a real document: type, paste, or drop a file and the chunks update.</p>
+        <h3>Drop a file or paste</h3>
+        <p>Text files stay in this tab. Nothing is uploaded. The editor is a real document: type, paste, or drop a file, and the chunks update.</p>
       </article>
       <article>
         <div class="n">2</div>
         <h3>Compare strategies</h3>
-        <p>Two algorithms, same source. Click a chunk to underline its range. Link copies A vs B and the knobs — never your file.</p>
+        <p>Two algorithms, same source. Click a chunk to underline its range. Link copies A vs B and the knobs, never your file.</p>
       </article>
       <article>
         <div class="n">3</div>
         <h3>Copy the pip command</h3>
-        <p>The snippet on the left is already Python: same strategy names, same knobs. Grey names in the dropdowns ship in the library, not this tab.</p>
+        <p>The snippet on the left is already Python, with the same strategy names and knobs. Grey names in the dropdowns ship in the library, not this tab.</p>
       </article>
     </div>
     </div>
@@ -1148,9 +1148,9 @@
 
   <section class="section rag">
     <h2>Where chunking sits in RAG</h2>
-    <p class="lead">Retrieval can only be as good as the pieces you embed. This lab is that first cut — before vectors, before the index, before the model.</p>
+    <p class="lead">Retrieval can only be as good as the pieces you embed. This lab is that first cut: before vectors, before the index, before the model.</p>
     <figure>
-      <div class="rag-board" role="img" aria-label="RAG pipeline: document, chunking — this playground — then embed, index, retrieve, and LLM.">
+      <div class="rag-board" role="img" aria-label="RAG pipeline: document, then chunking (this playground), then embed, index, retrieve, and LLM.">
         <div class="rag-step">
           <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
           <b>DOCUMENT</b>
@@ -1190,21 +1190,21 @@
     <div class="rule"></div>
     <div class="inset">
     <h2>Use it in your pipeline</h2>
-    <p>The browser lab caps at 150 MB. The Python library streams from disk — same strategy names, 40+ algorithms, unlimited file size, PDF and directories.</p>
+    <p>The browser lab caps at 150 MB. The Python library streams from disk, with the same strategy names, 40+ algorithms, unlimited file size, plus PDF and directories.</p>
     <button type="button" class="pip-pill" id="pip-cta">pip install chunking-strategy</button>
     <div class="destinations">
       <a class="dest" href="https://github.com/sharanharsoor/chunking">
         <div class="dest-art"><img src="card-github.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Source on GitHub</h3>
-          <p>The library, issues, and pip-only strategies this tab does not fake — embeddings. Token counts in the lab are cl100k_base after you run token_based once, never chars/4.</p>
+          <p>The library, issues, and the pip-only strategies this tab does not fake, including embeddings. Token counts here are cl100k_base after you run token_based once, never a chars/4 guess.</p>
         </div>
       </a>
       <a class="dest" href="https://pypi.org/project/chunking-strategy/">
         <div class="dest-art"><img src="card-pypi.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Install from PyPI</h3>
-          <p>chunking-strategy on pip. Same names as this lab, then streams from disk — 40+ algorithms, PDF, directories, no 150 MB cap.</p>
+          <p>Install chunking-strategy from pip. Same names as this lab, then it streams from disk: 40+ algorithms, PDF, directories, and no 150 MB cap.</p>
         </div>
       </a>
     </div>
@@ -1235,7 +1235,7 @@
     var LIVE = {
       fixed_size: {
         label: "fixed_size",
-        why: "Naive windows. Headings get cut mid-sentence.",
+        why: "Naive character windows. Headings get cut mid-sentence.",
         knobs: [
           { key: "chunk_size", type: "number", min: 8, max: 4000, value: 80 },
           { key: "overlap_size", type: "number", min: 0, max: 2000, value: 0 },
@@ -1257,7 +1257,7 @@
       },
       sentence_based: {
         label: "sentence_based",
-        why: "Keeps sentence boundaries. Headings stay with the line that follows. max_tokens packs those sentences on cl100k_base — 0 means off.",
+        why: "Keeps sentence boundaries. Headings stay with the line that follows. Set max_tokens to pack those sentences on cl100k_base. 0 leaves packing off.",
         knobs: [
           { key: "max_sentences", type: "number", min: 1, max: 20, value: 2 },
           { key: "max_tokens", type: "number", min: 0, max: 8000, value: 0 },
@@ -1289,7 +1289,7 @@
       },
       paragraph_based: {
         label: "paragraph_based",
-        why: "Groups blank-line paragraphs. A heading glued to the next block stays together.",
+        why: "Groups paragraphs split by blank lines. A heading glued to the next block stays together.",
         knobs: [{ key: "max_paragraphs", type: "number", min: 1, max: 20, value: 2 }],
         params: function (root) {
           return { max_paragraphs: knobNum(root, "max_paragraphs", 2) };
@@ -1300,7 +1300,7 @@
       },
       overlapping_window: {
         label: "overlapping_window",
-        why: "Sliding window with overlap so context repeats at the cut. window_unit=tokens uses cl100k_base.",
+        why: "A sliding window with overlap, so context repeats at the cut. window_unit=tokens uses cl100k_base.",
         knobs: [
           { key: "window_size", type: "number", min: 2, max: 2000, value: 80 },
           { key: "step_size", type: "number", min: 1, max: 1999, value: 40 },
@@ -1329,7 +1329,7 @@
       },
       recursive_character: {
         label: "recursive_character",
-        why: "The RAG default: split on paragraphs, then lines, then spaces, then characters, and merge up to chunk_size. Separators are discarded — they do not appear in the chunks. Not hierarchical recursive.",
+        why: "The RAG default. It splits on paragraphs, then lines, then spaces, then characters, and merges up to chunk_size. Separators are discarded, so they do not appear in the chunks. This is not hierarchical recursive.",
         knobs: [
           { key: "chunk_size", type: "number", min: 8, max: 4000, value: 120 },
           { key: "overlap_size", type: "number", min: 0, max: 2000, value: 0 },
@@ -1351,7 +1351,7 @@
       },
       token_based: {
         label: "token_based",
-        why: "Windows of cl100k_base tokens (GPT-3.5/4). First run in this tab loads the tokenizer; after that every strategy's cards show real token counts, not chars/4.",
+        why: "Windows of cl100k_base tokens (GPT-3.5/4). The first run in this tab loads the tokenizer. After that, every strategy's cards show real token counts, not a chars/4 guess.",
         knobs: [
           { key: "tokens_per_chunk", type: "number", min: 4, max: 8000, value: 48 },
           { key: "overlap_tokens", type: "number", min: 0, max: 4000, value: 0 },
@@ -1381,7 +1381,7 @@
       },
       regex_custom: {
         label: "regex_custom",
-        why: "Split at each regex match. The match starts the next chunk — speaker turns, log lines, custom marks. Not a parser.",
+        why: "Splits at each regex match. The match starts the next chunk, which is useful for speaker turns, log lines, and custom marks. It is not a parser.",
         knobs: [
           { key: "pattern", type: "text", value: "\\n\\n" },
           { key: "multiline", type: "checkbox", value: true },
@@ -1429,7 +1429,7 @@
       },
       json_chunker: {
         label: "json_chunker",
-        why: "Splits arrays / JSONL by objects. A single JSON object is one chunk.",
+        why: "Splits arrays and JSONL by objects. A single JSON object is one chunk.",
         knobs: [{ key: "objects_per_chunk", type: "number", min: 1, max: 200, value: 5 }],
         params: function (root) {
           return { chunk_by: "objects", objects_per_chunk: knobNum(root, "objects_per_chunk", 5) };
@@ -1440,7 +1440,7 @@
       },
       csv_chunker: {
         label: "csv_chunker",
-        why: "Row groups with the header copied onto each chunk. Naive windows slice mid-row.",
+        why: "Groups rows and copies the header onto each chunk. Naive windows slice mid-row.",
         knobs: [
           { key: "rows_per_chunk", type: "number", min: 1, max: 500, value: 15 },
           { key: "preserve_headers", type: "checkbox", value: true },
@@ -1480,7 +1480,7 @@
       },
       xml_html_chunker: {
         label: "xml_html_chunker",
-        why: "One chunk per sibling tag (article/section or div/p). Nested copies are skipped.",
+        why: "One chunk per sibling tag, such as article/section or div/p. Nested copies are skipped.",
         knobs: [{ key: "chunk_by", type: "select", options: ["semantic", "tags"], value: "semantic" }],
         params: function (root) {
           return { chunk_by: knobStr(root, "chunk_by", "semantic") };
@@ -1491,7 +1491,7 @@
       },
       python_code: {
         label: "python_code",
-        why: "Top-level def/class by indent, including decorators. pip uses ast for the same cut on typical files.",
+        why: "Top-level def and class by indent, including decorators. pip uses ast for the same cut on typical files.",
         knobs: [],
         params: function () { return { chunk_by: "function" }; },
         call: function () { return 'create_chunker("python_code", chunk_by="function")'; },
@@ -1512,28 +1512,28 @@
       },
       go_code: {
         label: "go_code",
-        why: "One chunk per func, including methods with receivers.",
+        why: "One chunk per function, including methods with receivers.",
         knobs: [],
         params: function () { return { chunk_by: "function" }; },
         call: function () { return 'create_chunker("go_code", chunk_by="function")'; },
       },
       java_code: {
         label: "java_code",
-        why: "Classes (and leftover methods) by braces.",
+        why: "Classes by braces, plus leftover methods.",
         knobs: [],
         params: function () { return { chunk_by: "class" }; },
         call: function () { return 'create_chunker("java_code", chunk_by="class")'; },
       },
       c_cpp_code: {
         label: "c_cpp_code",
-        why: "Function bodies by braces. Control-flow if/for/while are skipped.",
+        why: "Function bodies by braces. Control-flow if, for, and while are skipped.",
         knobs: [],
         params: function () { return { chunk_by: "function" }; },
         call: function () { return 'create_chunker("c_cpp_code", chunk_by="function")'; },
       },
       rolling_hash: {
         label: "rolling_hash",
-        why: "Content-defined cuts: the boundary moves when the bytes change, not at a fixed width.",
+        why: "Content-defined cuts. The boundary moves when the bytes change, not at a fixed width.",
         knobs: [
           { key: "min_chunk_size", type: "number", min: 8, max: 2000, value: 24 },
           { key: "target_chunk_size", type: "number", min: 8, max: 4000, value: 64 },
@@ -1554,7 +1554,7 @@
       },
       fastcdc: {
         label: "fastcdc",
-        why: "Gear-hash cuts on content, not a fixed width. Same algorithm as pip — not restic FastCDC.",
+        why: "Gear-hash cuts on content, not a fixed width. Same algorithm as pip, not restic FastCDC.",
         knobs: [
           { key: "min_chunk_size", type: "number", min: 8, max: 4000, value: 32 },
           { key: "avg_chunk_size", type: "number", min: 8, max: 8000, value: 64 },
@@ -1699,7 +1699,7 @@
       paintKnob("b");
       applyKnobQuery("a", q);
       applyKnobQuery("b", q);
-      if (LIVE[a] || LIVE[b]) setAutoWhy("From link. Your files never go in the URL.");
+      if (LIVE[a] || LIVE[b]) setAutoWhy("Loaded from the link. Your files never go in the URL.");
     }
 
     function scalarToUtf16(str, n) { return Array.from(str).slice(0, n).join("").length; }
@@ -2019,36 +2019,36 @@
     function autoPlan(file) {
       var ext = fileExt(file && file.name);
       if (ext === "csv" || ext === "tsv") {
-        return { a: "csv_chunker", b: "fixed_size", why: ".csv → csv_chunker (rows + headers). B is the naive fallback. Override either side." };
+        return { a: "csv_chunker", b: "fixed_size", why: "This .csv file uses csv_chunker (rows plus headers). B is the naive fallback. You can switch either side." };
       }
       if (ext === "json" || ext === "jsonl" || ext === "ndjson") {
-        return { a: "json_chunker", b: "fixed_size", why: ".json → json_chunker (objects). B is the naive fallback. Override either side." };
+        return { a: "json_chunker", b: "fixed_size", why: "This .json file uses json_chunker (objects). B is the naive fallback. You can switch either side." };
       }
       if (ext === "md" || ext === "markdown" || ext === "mdown" || ext === "mkd") {
-        return { a: "markdown_chunker", b: "fixed_size", why: ".md → markdown_chunker (headers). B is the naive fallback. Override either side." };
+        return { a: "markdown_chunker", b: "fixed_size", why: "This .md file uses markdown_chunker (headers). B is the naive fallback. You can switch either side." };
       }
       if (ext === "py") {
-        return { a: "python_code", b: "fixed_size", why: ".py → python_code (def/class). B is the naive fallback. Override either side." };
+        return { a: "python_code", b: "fixed_size", why: "This .py file uses python_code (def and class). B is the naive fallback. You can switch either side." };
       }
       if (ext === "js" || ext === "jsx" || ext === "ts" || ext === "tsx" || ext === "mjs" || ext === "cjs") {
-        return { a: "javascript_code", b: "fixed_size", why: ".js → javascript_code (functions/classes). B is the naive fallback. Override either side." };
+        return { a: "javascript_code", b: "fixed_size", why: "This .js file uses javascript_code (functions and classes). B is the naive fallback. You can switch either side." };
       }
       if (ext === "css" || ext === "scss" || ext === "sass" || ext === "less") {
-        return { a: "css_code", b: "fixed_size", why: ".css → css_code (rules). B is the naive fallback. Override either side." };
+        return { a: "css_code", b: "fixed_size", why: "This .css file uses css_code (rules). B is the naive fallback. You can switch either side." };
       }
       if (ext === "html" || ext === "htm" || ext === "xhtml" || ext === "xml" || ext === "svg") {
-        return { a: "xml_html_chunker", b: "fixed_size", why: "." + ext + " → xml_html_chunker (tags). B is the naive fallback. Override either side." };
+        return { a: "xml_html_chunker", b: "fixed_size", why: "This ." + ext + " file uses xml_html_chunker (tags). B is the naive fallback. You can switch either side." };
       }
       if (ext === "go") {
-        return { a: "go_code", b: "fixed_size", why: ".go → go_code (func). B is the naive fallback. Override either side." };
+        return { a: "go_code", b: "fixed_size", why: "This .go file uses go_code (functions). B is the naive fallback. You can switch either side." };
       }
       if (ext === "java") {
-        return { a: "java_code", b: "fixed_size", why: ".java → java_code (class). B is the naive fallback. Override either side." };
+        return { a: "java_code", b: "fixed_size", why: "This .java file uses java_code (classes). B is the naive fallback. You can switch either side." };
       }
       if (ext === "c" || ext === "h" || ext === "cpp" || ext === "cc" || ext === "hpp") {
-        return { a: "c_cpp_code", b: "fixed_size", why: ".c/.cpp → c_cpp_code (functions). B is the naive fallback. Override either side." };
+        return { a: "c_cpp_code", b: "fixed_size", why: "This C/C++ file uses c_cpp_code (functions). B is the naive fallback. You can switch either side." };
       }
-      return { a: "fixed_size", b: "sentence_based", why: "Plain text → fixed_size vs sentence_based. Override either side." };
+      return { a: "fixed_size", b: "sentence_based", why: "Plain text uses fixed_size vs sentence_based. You can switch either side." };
     }
 
     function setAutoWhy(msg) {
@@ -2068,7 +2068,7 @@
     function maybeAutoPick(file, starter) {
       if (starter) {
         lastAutoName = file && file.name;
-        if (!fromShare) setAutoWhy("Starter text → fixed_size vs sentence_based. Drop a file to auto-pick.");
+        if (!fromShare) setAutoWhy("Starter text uses fixed_size vs sentence_based. Drop a file and the lab will pick for you.");
         return;
       }
       fromShare = false;
@@ -2094,23 +2094,23 @@
       badgeEl.removeAttribute("title");
       if (!lastFile) {
         badgeEl.className = "badge idle";
-        badgeEl.textContent = "Nothing uploaded";
+        badgeEl.textContent = "No file yet";
         kindEl.textContent = "Document";
         return;
       }
       var size = bytes(lastFile.size);
       if (isStarter) {
         badgeEl.className = "badge starter";
-        badgeEl.textContent = size + " · not uploaded";
+        badgeEl.textContent = size + " · demo text, not uploaded";
         kindEl.textContent = "Document";
       } else if (lastFile.name === "pasted.txt") {
         badgeEl.className = "badge local";
-        badgeEl.textContent = lastFile.size ? "Pasted text · " + size + " · in this tab only" : "Empty · 0 B";
+        badgeEl.textContent = lastFile.size ? "Pasted text · " + size + " · stays in this tab" : "Empty · 0 B";
         kindEl.textContent = lastFile.size ? "Pasted text" : "Empty";
       } else {
         badgeEl.className = "badge local";
         var shown = clipName(lastFile.name);
-        badgeEl.textContent = shown + " · " + size + " · in this tab only";
+        badgeEl.textContent = shown + " · " + size + " · stays in this tab";
         if (shown !== lastFile.name) badgeEl.title = lastFile.name;
         kindEl.textContent = "Your file";
       }
@@ -2188,7 +2188,7 @@
       var msg = ev.data || {};
       if (msg.id !== jobId) return;
       if (msg.type === "progress") {
-        if (msg.phase === "tokenizer") setStatus("Loading cl100k_base… first time only, then kept in this tab.");
+        if (msg.phase === "tokenizer") setStatus("Loading cl100k_base. First time only, then kept in this tab.");
         return;
       }
       clearTimeout(timer);
@@ -2203,7 +2203,7 @@
       renderAll();
       var sa = summarize(currentResults.a || []);
       var sb = summarize(currentResults.b || []);
-      setStatus("Processed " + bytes(lastFile ? lastFile.size : 0) + " in " + elapsed + "ms in this tab. A=" + sa.n + " · B=" + sb.n + " chunks.");
+      setStatus("Processed " + bytes(lastFile ? lastFile.size : 0) + " in " + elapsed + "ms in this tab. A has " + sa.n + " chunks, B has " + sb.n + ".");
     }
 
     function renderFocus() {
@@ -2401,12 +2401,12 @@
       var a = topRetrieve("a");
       var b = topRetrieve("b");
       if (a == null && b == null) {
-        el.textContent = "No chunk contains that";
+        el.textContent = "No chunk matches that";
         return;
       }
-      el.textContent = (a == null ? "A none" : "A #" + String(a).padStart(2, "0"))
+      el.textContent = (a == null ? "A: none" : "A #" + String(a).padStart(2, "0"))
         + " · "
-        + (b == null ? "B none" : "B #" + String(b).padStart(2, "0"));
+        + (b == null ? "B: none" : "B #" + String(b).padStart(2, "0"));
     }
 
     function applyRetrieve(jump) {
@@ -2445,7 +2445,7 @@
       if (chunks.length > MAX_DOM) {
         var note = document.createElement("p");
         note.className = "chunk";
-        note.textContent = "Showing " + MAX_DOM + " of " + chunks.length + ". pip for the rest.";
+        note.textContent = "Showing " + MAX_DOM + " of " + chunks.length + ". Use pip for the rest.";
         root.appendChild(note);
       }
       shown.forEach(function (chunk, i) {
@@ -2502,7 +2502,7 @@
     function runFile(file, starter) {
       if (!file) return;
       if (file.name && !isTextFile(file)) {
-        setStatus("This preview reads text. PDF/media stay in Python: pip install chunking-strategy");
+        setStatus("This preview reads text. For PDF and media, use pip install chunking-strategy");
         return;
       }
       if (file.size > MAX_FILE) {
@@ -2516,11 +2516,11 @@
       writeShareUrl();
       jobId += 1;
       runStart = performance.now();
-      setStatus("Chunking in a worker — file stays in this tab.");
+      setStatus("Chunking in a worker. The file stays in this tab.");
       clearTimeout(timer);
       timer = setTimeout(function () {
         spawnWorker();
-        setStatus("Strategy timed out on this input");
+        setStatus("That strategy timed out on this input.");
       }, TIMEOUT_MS);
       worker.postMessage({
         id: jobId,

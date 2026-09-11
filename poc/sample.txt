@@ -6,4 +6,4 @@ This heading should stay with its body when you use sentences, not a raw charact
 
 RAG systems split documents so each piece fits a model context window. If you cut at a fixed character count, a heading can land in one chunk and the paragraph that explains it in another. Sentence grouping keeps those boundaries intact.
 
-This page loaded a demo so you can see the difference immediately. You did not upload this file. Drop your own text to replace it. Click a chunk below — the underline is that chunk.
+This page loaded a demo so you can see the difference immediately. You did not upload this file. Drop your own text to replace it. Click a chunk below. The underline is that chunk.
