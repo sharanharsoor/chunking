@@ -166,17 +166,21 @@ class PythonCodeChunker(StreamableChunker):
                     })
 
         if imports and self.include_imports:
+            line_start = min(imp['lineno'] for imp in imports)
+            line_end = max(imp['end_lineno'] for imp in imports)
             elements.append({
                 'type': 'imports',
                 'content': '\n'.join(imp['content'] for imp in imports),
-                'lineno': min(imp['lineno'] for imp in imports),
-                'end_lineno': max(imp['end_lineno'] for imp in imports),
+                'lineno': line_start,
+                'end_lineno': line_end,
+                'line_start': line_start,
+                'line_end': line_end,
                 'name': 'imports'
             })
 
         # Extract functions and classes
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 element = self._extract_function(node, lines)
                 if element:
                     elements.append(element)
@@ -190,12 +194,17 @@ class PythonCodeChunker(StreamableChunker):
 
         return elements
 
-    def _extract_function(self, node: ast.FunctionDef, lines: List[str]) -> Optional[Dict[str, Any]]:
+    def _extract_function(self, node: ast.AST, lines: List[str]) -> Optional[Dict[str, Any]]:
         """Extract function information from AST node."""
         if not hasattr(node, 'lineno'):
             return None
 
         start_line = node.lineno - 1  # Convert to 0-based
+        decorator_list = getattr(node, "decorator_list", None) or []
+        if decorator_list:
+            deco = [d.lineno - 1 for d in decorator_list if hasattr(d, "lineno")]
+            if deco:
+                start_line = min(deco)
         end_line = getattr(node, 'end_lineno', node.lineno) - 1
 
         # Get function content
@@ -207,16 +216,20 @@ class PythonCodeChunker(StreamableChunker):
 
         # Extract docstring if present
         docstring = ast.get_docstring(node) if self.include_docstrings else None
+        args = [arg.arg for arg in node.args.args] if getattr(node, "args", None) else []
+        decorators = [ast.unparse(dec) for dec in decorator_list] if hasattr(ast, 'unparse') else []
 
         return {
             'type': 'function',
-            'name': node.name,
+            'name': getattr(node, "name", "unnamed"),
             'content': content,
             'lineno': node.lineno,
             'end_lineno': getattr(node, 'end_lineno', node.lineno),
+            'line_start': start_line + 1,
+            'line_end': end_line + 1,
             'docstring': docstring,
-            'args': [arg.arg for arg in node.args.args],
-            'decorators': [ast.unparse(dec) for dec in node.decorator_list] if hasattr(ast, 'unparse') else []
+            'args': args,
+            'decorators': decorators
         }
 
     def _extract_class(self, node: ast.ClassDef, lines: List[str]) -> Optional[Dict[str, Any]]:
@@ -225,6 +238,10 @@ class PythonCodeChunker(StreamableChunker):
             return None
 
         start_line = node.lineno - 1  # Convert to 0-based
+        if node.decorator_list:
+            deco = [d.lineno - 1 for d in node.decorator_list if hasattr(d, "lineno")]
+            if deco:
+                start_line = min(deco)
         end_line = getattr(node, 'end_lineno', node.lineno) - 1
 
         # Get class content
@@ -240,7 +257,7 @@ class PythonCodeChunker(StreamableChunker):
         # Extract methods
         methods = []
         for item in node.body:
-            if isinstance(item, ast.FunctionDef):
+            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 methods.append(item.name)
 
         return {
@@ -249,6 +266,8 @@ class PythonCodeChunker(StreamableChunker):
             'content': content,
             'lineno': node.lineno,
             'end_lineno': getattr(node, 'end_lineno', node.lineno),
+            'line_start': start_line + 1,
+            'line_end': end_line + 1,
             'docstring': docstring,
             'methods': methods,
             'bases': [ast.unparse(base) for base in node.bases] if hasattr(ast, 'unparse') else []
@@ -289,15 +308,26 @@ class PythonCodeChunker(StreamableChunker):
 
     def _create_chunk_from_element(self, element: Dict[str, Any], source: str) -> Chunk:
         """Create a chunk from a single code element."""
+        kind = {
+            "function": "function",
+            "class": "class",
+            "imports": "module",
+        }.get(element["type"], "other")
+        line_start = element.get("line_start", element["lineno"])
+        line_end = element.get("line_end", element["end_lineno"])
         chunk_metadata = ChunkMetadata(
             source=source,
-            position={"start_line": element['lineno'], "end_line": element['end_lineno']},
+            position={"start_line": line_start, "end_line": line_end},
             chunker_used="python_code",
             extra={
                 "chunk_type": "code",
                 "language": "python",
                 "element_type": element['type'],
                 "element_name": element.get('name', 'unnamed'),
+                "symbol_name": element.get('name', 'unnamed'),
+                "symbol_kind": kind,
+                "line_start": line_start,
+                "line_end": line_end,
                 "docstring": element.get('docstring'),
                 "methods": element.get('methods', []),
                 "args": element.get('args', []),

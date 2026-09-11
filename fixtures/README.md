@@ -41,6 +41,7 @@ node tools/check_js_fixtures.js
 | `recursive_character` | `start` / `end` / `content` (Unicode scalars; separator cascade) |
 | `token_based` (`preserve_word_boundaries: false`, tiktoken `cl100k_base`) | `start` / `end` / `content` plus `token_count` / `start_token_index` |
 | `regex_custom` | `start` / `end` / `content` (split at each regex match) |
+| `python_code` (`chunk_by=function`, no imports, top-level defs only) | `symbol_name` / `symbol_kind` / `line_start` / `line_end`. Lab tree-sitter (or indent) vs pip `ast`. Nested methods and class wrapping are not this golden. |
 | `fastcdc` (gear) | UTF-8 byte ranges via `sha256`; JS `start_byte`/`end_byte` must cover the file |
 
-This is not “the browser is byte-identical to pip.” Code strategies, `rolling_hash`, and embeddings stay unchecked here. Markdown with a preamble or `#` inside fences is lab JS behavior, not this golden. `fastcdc` compares UTF-8 byte ranges via `sha256` (gear, this library — not restic). `token_based` goldens require `tiktoken` on the Python side.
+This is not “the browser is byte-identical to pip.” Other code strategies, `rolling_hash`, and embeddings stay unchecked here. `semantic` is lab-runnable after MiniLM loads; there is no JS vs Python embedding golden. Markdown with a preamble or `#` inside fences is lab JS behavior, not this golden. `fastcdc` compares UTF-8 byte ranges via `sha256` (gear, this library — not restic). `token_based` goldens require `tiktoken` on the Python side.

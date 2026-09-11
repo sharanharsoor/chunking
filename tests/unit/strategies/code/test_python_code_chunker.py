@@ -145,6 +145,24 @@ def decorated_function():
         # Should have chunks for function, class, and if __name__ block
         assert len(result.chunks) >= 2
 
+    def test_symbol_fields_async_and_decorators(self):
+        src = """
+@dec
+async def fetch():
+    return 1
+
+def plain():
+    return 2
+"""
+        result = PythonCodeChunker(chunk_by="function", include_imports=False).chunk(src)
+        by_name = {c.metadata.extra["symbol_name"]: c for c in result.chunks}
+        assert set(by_name) == {"fetch", "plain"}
+        assert by_name["fetch"].metadata.extra["symbol_kind"] == "function"
+        assert by_name["plain"].metadata.extra["symbol_kind"] == "function"
+        assert by_name["fetch"].content.lstrip().startswith("@dec")
+        assert by_name["fetch"].metadata.extra["line_start"] < by_name["fetch"].metadata.extra["line_end"]
+        assert "async def fetch" in by_name["fetch"].content
+
     def test_chunk_by_function(self):
         """Test chunking by function."""
         chunker = PythonCodeChunker(chunk_by="function")

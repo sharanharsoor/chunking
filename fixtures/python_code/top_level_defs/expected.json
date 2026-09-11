@@ -1,0 +1,75 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "def alpha():\n    return 1",
+      "end": null,
+      "hash": "5112a98b830bf2c99cb1274c4e54d1daa7331c2dc5a79b79dbcf93a5da124c3a",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "python_code",
+        "extra": {
+          "args": [],
+          "bases": [],
+          "chunk_type": "code",
+          "decorators": [],
+          "docstring": null,
+          "element_name": "alpha",
+          "element_type": "function",
+          "language": "python",
+          "methods": []
+        },
+        "line_end": 2,
+        "line_start": 1,
+        "source": "direct_input",
+        "symbol_kind": "function",
+        "symbol_name": "alpha"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 25,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "def beta():\n    return 2",
+      "end": null,
+      "hash": "9d501d4a4bf341a140109e9da54e71f392d7c7e7927b8c4ad5fb6271f0b14092",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "python_code",
+        "extra": {
+          "args": [],
+          "bases": [],
+          "chunk_type": "code",
+          "decorators": [],
+          "docstring": null,
+          "element_name": "beta",
+          "element_type": "function",
+          "language": "python",
+          "methods": []
+        },
+        "line_end": 5,
+        "line_start": 4,
+        "source": "direct_input",
+        "symbol_kind": "function",
+        "symbol_name": "beta"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 24,
+      "start": null
+    }
+  ],
+  "params": {
+    "chunk_by": "function",
+    "include_imports": false
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "854d5c95c53c01074ee1a2b97babdc9cb23dd6d03098f6758a6667a27bdee848",
+    "size": 52
+  },
+  "strategy": "python_code"
+}

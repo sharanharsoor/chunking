@@ -170,5 +170,6 @@
   }
 
   root.splitSentencesSimpleV1 = splitSentencesSimpleV1;
+  root.locateSentences = locateSentences;
   root.chunkSentenceBased = chunkSentenceBased;
 })(typeof self !== "undefined" ? self : window);

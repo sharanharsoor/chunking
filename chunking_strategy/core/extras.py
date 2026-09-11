@@ -28,6 +28,7 @@ LAB_STRATEGIES = frozenset(
         "c_cpp_code",
         "rolling_hash",
         "fastcdc",
+        "semantic",
     }
 )
 

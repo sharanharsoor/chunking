@@ -3,3 +3,11 @@ pdf.min.js and pdf.worker.min.js are PDF.js 3.11.174
 
 mammoth.browser.min.js is mammoth 1.8.0
 (https://github.com/mwilliamson/mammoth.js), BSD-2-Clause. Loaded on demand, not on first paint.
+
+tree-sitter.js and tree-sitter.wasm are web-tree-sitter 0.24.7
+(https://github.com/tree-sitter/tree-sitter), MIT. Loaded on demand, not on first paint.
+
+tree-sitter-python.wasm is tree-sitter-python 0.23.6
+(https://github.com/tree-sitter/tree-sitter-python), MIT. Loaded on demand, not on first paint.
+
+MiniLM weights are not vendored. The lab loads Transformers.js 2.17.2 and Xenova/all-MiniLM-L6-v2 from the public CDN / Hugging Face the first time you pick semantic.

@@ -43,6 +43,8 @@ def check() -> None:
         raise ValueError("token_based must be in lab once tiktoken is in the tab")
     if "token_based" in later:
         raise ValueError("token_based must not stay in lab_later")
+    if "semantic" in later:
+        raise ValueError("semantic has a lab MiniLM path now; keep it in lab, not lab_later")
     required_lab = {
         "fixed_size",
         "sentence_based",
@@ -65,6 +67,7 @@ def check() -> None:
         "recursive",
         "token_based",
         "regex_custom",
+        "semantic",
     }
     missing = required_lab - lab
     if missing:

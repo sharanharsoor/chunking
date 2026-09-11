@@ -35,6 +35,8 @@ def main() -> None:
     assert "sentence_based" in listed, listed
     assert "recursive" in listed, listed
     assert "recursive_character" in listed, listed
+    assert "python_code" in listed, listed
+    assert "semantic" in listed, listed
     print("ok", __version__, "a", len(ra.chunks), "b", len(rb.chunks))
 
 

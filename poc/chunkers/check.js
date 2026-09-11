@@ -8,7 +8,7 @@ var root = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: consol
 root.self = root;
 root.console = console;
 var ctx = vm.createContext(root);
-["offsets.js", "braces.js", "token_packing.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "recursive.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
+["offsets.js", "braces.js", "token_packing.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "recursive.js", "token_based.js", "regex_custom.js", "semantic.js", "tiktoken_bundle.js"].forEach(function (name) {
   var file = path.join(__dirname, name);
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: name });
 });
@@ -66,8 +66,30 @@ eq("fixed overlap second", fxo[1].content, "cdefgh");
 var words = ctx.chunkFixedLengthWord("one two three four five", { words_per_chunk: 2, overlap_words: 0 });
 eq("word chunks", words.length, 3);
 
-var py = ctx.chunkPythonCode("def a():\n    return 1\n\ndef b():\n    return 2\n", {});
+var pySrc = "def a():\n    return 1\n\ndef b():\n    return 2\n";
+var py = ctx.chunkPythonCode(pySrc, {});
 eq("python defs", py.length, 2);
+eq("python symbol a", py[0].metadata.symbol_name, "a");
+eq("python symbol b", py[1].metadata.symbol_name, "b");
+eq("python kind", py[0].metadata.symbol_kind, "function");
+eq("python line a", py[0].metadata.line_start === 1 && py[0].metadata.line_end === 2, true);
+eq("python extras distinct", py[0].metadata !== py[1].metadata, true);
+var pyDec = ctx.chunkPythonCode("@dec\nasync def fetch():\n    return 1\n", {});
+eq("python decorator name", pyDec[0].metadata.symbol_name, "fetch");
+eq("python decorator starts at 1", pyDec[0].metadata.line_start, 1);
+
+var semSent = ["Alpha topic stays here.", "Alpha keeps going.", "Zebra is a different subject."];
+var semText = semSent.join(" ");
+var vKeep = [1, 0, 0];
+var vOther = [0, 1, 0];
+var sem = ctx.chunkSemanticFromVectors(semText, semSent, [vKeep, vKeep, vOther], {
+  similarity_threshold: 0.5,
+  min_chunk_sentences: 1,
+  max_chunk_sentences: 15,
+});
+eq("semantic splits on topic change", sem.length, 2);
+eq("semantic first count", sem[0].metadata.sentence_count, 2);
+eq("semantic second start after first", sem[1].start > sem[0].start, true);
 
 var js = ctx.chunkJavascriptCode("function a() { return 1; }\nfunction b() { return 2; }\n", {});
 eq("js functions", js.length, 2);

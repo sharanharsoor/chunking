@@ -23,6 +23,7 @@ var RUNNERS = {
   recursive: "chunkRecursive",
   token_based: "chunkTokenBased",
   regex_custom: "chunkRegexCustom",
+  python_code: "chunkPythonCode",
 };
 
 /* Python rebuilds these; compare grouping metadata, not content bytes. */
@@ -31,6 +32,7 @@ var META_FIELDS = {
   json_chunker: ["json_start_index", "json_end_index", "json_object_count"],
   paragraph_based: ["paragraph_count"],
   recursive: ["level", "hierarchy_path", "level_strategy", "level_name"],
+  python_code: ["symbol_name", "symbol_kind", "line_start", "line_end"],
   fixed_length_word: ["start_word_index", "end_word_index", "word_count"],
   token_based: ["token_count", "start_token_index"],
 };
@@ -40,6 +42,7 @@ var SKIP_CONTENT = {
   json_chunker: true,
   paragraph_based: true,
   fastcdc: true,
+  python_code: true,
 };
 
 var ctx = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: console };
@@ -62,6 +65,7 @@ vm.createContext(ctx);
   "recursive.js",
   "token_based.js",
   "regex_custom.js",
+  "code.js",
   "tiktoken_bundle.js",
 ].forEach(function (name) {
   vm.runInContext(fs.readFileSync(path.join(CHUNKERS, name), "utf8"), ctx, { filename: name });
@@ -152,10 +156,12 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     if (e.start != null && g.start !== e.start) fail(prefix + " start js=" + g.start + " py=" + e.start);
     if (e.end != null && g.end !== e.end) fail(prefix + " end js=" + g.end + " py=" + e.end);
     if (metaKeys.length) {
-      var extra = (e.metadata && e.metadata.extra) || {};
+      var em = e.metadata || {};
+      var extra = em.extra || {};
       var gm = g.metadata || {};
       metaKeys.forEach(function (k) {
-        if (extra[k] != null && gm[k] !== extra[k]) fail(prefix + " " + k + " js=" + gm[k] + " py=" + extra[k]);
+        var want = em[k] != null ? em[k] : extra[k];
+        if (want != null && gm[k] !== want) fail(prefix + " " + k + " js=" + gm[k] + " py=" + want);
       });
     }
     if (!SKIP_CONTENT[strategy] && e.content != null && g.content !== e.content) {

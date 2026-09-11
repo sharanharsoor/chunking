@@ -1,10 +1,60 @@
-/* python_code, javascript_code, css_code, go_code, java_code, c_cpp_code. Brace/indent cuts — not tree-sitter. */
+/* python_code, javascript_code, css_code, go_code, java_code, c_cpp_code.
+   python_code: tree-sitter module-level def/class when a parser is passed, else indent.
+   Other languages: brace/indent cuts. */
 (function (root) {
   function extra(name, params) {
     return { chunker_used: name, source: params.source || "paste", chunk_by: params.chunk_by || "function" };
   }
 
-  function chunkPythonCode(text, params) {
+  function lineRange(text, utf16Start, utf16End) {
+    var lines = root.lineRecords(text);
+    var first = -1;
+    var last = -1;
+    var i;
+    for (i = 0; i < lines.length; i++) {
+      if (lines[i].end <= utf16Start) continue;
+      if (lines[i].start >= utf16End) break;
+      if (first < 0) first = i;
+      last = i;
+    }
+    if (first < 0) return { start: utf16Start, end: utf16End, lineStart: 1, lineEnd: 1 };
+    while (last > first && !String(lines[last].text).trim()) last -= 1;
+    return {
+      start: lines[first].start,
+      end: lines[last].end,
+      lineStart: first + 1,
+      lineEnd: last + 1,
+    };
+  }
+
+  function pythonName(block) {
+    var lines = String(block || "").split("\n");
+    var i;
+    for (i = 0; i < lines.length; i++) {
+      var m = lines[i].match(/^\s*(?:async\s+)?def\s+(\w+)/);
+      if (m) return { name: m[1], kind: "function" };
+      m = lines[i].match(/^\s*class\s+(\w+)/);
+      if (m) return { name: m[1], kind: "class" };
+    }
+    return { name: "unnamed", kind: "other" };
+  }
+
+  function pythonChunk(text, utf16Start, utf16End, params, parserUsed, index) {
+    var span = lineRange(text, utf16Start, utf16End);
+    var meta = pythonName(text.slice(span.start, Math.min(text.length, span.start + 200)));
+    return root.chunkFromUtf16("python_code_" + index, text, span.start, span.end, {
+      chunker_used: "python_code",
+      source: params.source || "paste",
+      chunk_by: params.chunk_by || "function",
+      symbol_name: meta.name,
+      symbol_kind: meta.kind,
+      line_start: span.lineStart,
+      line_end: span.lineEnd,
+      parser: parserUsed,
+    });
+  }
+
+  function chunkPythonIndent(text, params) {
     var lines = root.lineRecords(text);
     var defRe = /^\s*(async\s+)?def\s+\w+|^\s*class\s+\w+/;
     var decRe = /^\s*@\w/;
@@ -23,10 +73,8 @@
         continue;
       }
       var ind = indent(lines[i].text);
-      var startLine = i;
       var j = i;
       while (j > 0 && decRe.test(lines[j - 1].text) && indent(lines[j - 1].text) === ind) j -= 1;
-      startLine = j;
       var k = i + 1;
       while (k < lines.length) {
         if (blank(lines[k].text)) {
@@ -36,10 +84,70 @@
         if (indent(lines[k].text) <= ind) break;
         k += 1;
       }
-      spans.push({ start: lines[startLine].start, end: lines[k - 1] ? lines[k - 1].end : text.length });
+      spans.push({ start: lines[j].start, end: lines[k - 1] ? lines[k - 1].end : text.length });
       i = k;
     }
-    return root.chunksFromSpans("python_code_", text, spans, extra("python_code", params));
+    if (!spans.length) {
+      if (!String(text).trim()) return [];
+      return [pythonChunk(text, 0, text.length, params, "indent", 0)];
+    }
+    return spans.map(function (s, idx) {
+      return pythonChunk(text, s.start, s.end, params, "indent", idx);
+    });
+  }
+
+  function unwrapPythonDef(node) {
+    if (!node) return null;
+    if (node.type === "function_definition" || node.type === "class_definition") return node;
+    if (node.type === "decorated_definition") {
+      var n = node.namedChildCount || 0;
+      var i;
+      for (i = 0; i < n; i++) {
+        var inner = unwrapPythonDef(node.namedChild(i));
+        if (inner) return inner;
+      }
+    }
+    return null;
+  }
+
+  function chunkPythonTreeSitter(text, params, parser) {
+    var tree = parser.parse(text);
+    var rootNode = tree.rootNode;
+    var chunks = [];
+    var i;
+    var n = rootNode.namedChildCount || 0;
+    for (i = 0; i < n; i++) {
+      var child = rootNode.namedChild(i);
+      var inner = unwrapPythonDef(child);
+      if (!inner) continue;
+      var nameNode = inner.childForFieldName && inner.childForFieldName("name");
+      var kind = inner.type === "class_definition" ? "class" : "function";
+      var span = lineRange(text, child.startIndex, child.endIndex);
+      chunks.push(root.chunkFromUtf16("python_code_" + chunks.length, text, span.start, span.end, {
+        chunker_used: "python_code",
+        source: params.source || "paste",
+        chunk_by: params.chunk_by || "function",
+        symbol_name: nameNode && nameNode.text ? nameNode.text : "unnamed",
+        symbol_kind: kind,
+        line_start: span.lineStart,
+        line_end: span.lineEnd,
+        parser: "tree-sitter",
+      }));
+    }
+    if (tree.delete) tree.delete();
+    return chunks.length ? chunks : null;
+  }
+
+  function chunkPythonCode(text, params, _enc, parser) {
+    if (parser && typeof parser.parse === "function") {
+      try {
+        var treeChunks = chunkPythonTreeSitter(text, params || {}, parser);
+        if (treeChunks && treeChunks.length) return treeChunks;
+      } catch (err) {
+        /* indent fallback */
+      }
+    }
+    return chunkPythonIndent(text, params || {});
   }
 
   function chunkJavascriptCode(text, params) {

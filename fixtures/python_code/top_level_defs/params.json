@@ -1,0 +1,7 @@
+{
+  "strategy": "python_code",
+  "params": {
+    "chunk_by": "function",
+    "include_imports": false
+  }
+}

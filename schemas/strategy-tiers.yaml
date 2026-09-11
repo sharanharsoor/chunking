@@ -28,6 +28,7 @@ lab:
   - rolling_hash
   - fixed_length_word
   - fastcdc
+  - semantic
 
 lab_later:
   - universal_code
@@ -40,7 +41,6 @@ lab_later:
   - doc_chunker
   - boundary_aware
   - context_enriched
-  - semantic
   - embedding_based
   - discourse_aware
   - grid_based_image
