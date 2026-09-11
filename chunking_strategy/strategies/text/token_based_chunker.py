@@ -643,6 +643,7 @@ class TokenBasedChunker(StreamableChunker, AdaptableChunker):
 
         # Split text into words for boundary preservation
         words = text.split() if self.preserve_word_boundaries else None
+        locate_hint = 0
 
         for start_idx in range(0, total_tokens, step_size):
             end_idx = min(start_idx + self.tokens_per_chunk, total_tokens)
@@ -667,30 +668,45 @@ class TokenBasedChunker(StreamableChunker, AdaptableChunker):
                             chunk_text = self._approximate_text_from_tokens(text, start_idx, end_idx, total_tokens)
                     else:
                         chunk_text = self._approximate_text_from_tokens(text, start_idx, end_idx, total_tokens)
-                except:
+                except Exception:
                     chunk_text = self._approximate_text_from_tokens(text, start_idx, end_idx, total_tokens)
 
-            # Ensure chunk doesn't exceed character limit
-            if len(chunk_text) > self.max_chunk_chars:
+            # Do not truncate decoded token windows — that breaks highlighter offsets.
+            if self.preserve_word_boundaries and len(chunk_text) > self.max_chunk_chars:
                 chunk_text = chunk_text[:self.max_chunk_chars].rsplit(' ', 1)[0]
 
-            # Create chunk metadata
+            start = end = None
+            if not self.preserve_word_boundaries and chunk_text:
+                idx = text.find(chunk_text, locate_hint)
+                if idx < 0:
+                    idx = text.find(chunk_text)
+                if idx >= 0:
+                    start = idx
+                    end = idx + len(chunk_text)
+                    locate_hint = start + 1 if self.overlap_tokens else end
+
+            extra = {
+                "token_count": len(chunk_tokens),
+                "start_token_index": start_idx,
+                "end_token_index": end_idx - 1,
+                "chunk_index": len(chunks),
+                "chunking_strategy": "token_based",
+                "tokenizer_type": self.tokenizer_type.value,
+                "tokenizer_model": self.tokenizer_model,
+                "overlap_tokens": min(self.overlap_tokens, start_idx) if start_idx > 0 else 0,
+                "preserve_word_boundaries": self.preserve_word_boundaries,
+            }
+            if start is not None:
+                extra["offset_unit"] = "char"
+
             chunk_metadata = ChunkMetadata(
                 source="string",
                 source_type="content",
+                chunker_used="token_based",
                 position=f"tokens {start_idx}-{end_idx-1}",
-                length=len(chunk_text),
-                extra={
-                    "token_count": len(chunk_tokens),
-                    "start_token_index": start_idx,
-                    "end_token_index": end_idx - 1,
-                    "chunk_index": len(chunks),
-                    "chunking_strategy": "token_based",
-                    "tokenizer_type": self.tokenizer_type.value,
-                    "tokenizer_model": self.tokenizer_model,
-                    "overlap_tokens": min(self.overlap_tokens, start_idx) if start_idx > 0 else 0,
-                    "preserve_word_boundaries": self.preserve_word_boundaries
-                }
+                offset=start,
+                length=(end - start) if start is not None and end is not None else len(chunk_text),
+                extra=extra,
             )
 
             chunk_id = f"token_{len(chunks)}"
@@ -699,7 +715,10 @@ class TokenBasedChunker(StreamableChunker, AdaptableChunker):
                 content=chunk_text,
                 modality=ModalityType.TEXT,
                 metadata=chunk_metadata,
-                size=len(chunk_text)
+                size=len(chunk_text),
+                start=start,
+                end=end,
+                token_count=len(chunk_tokens),
             )
 
             chunks.append(chunk)

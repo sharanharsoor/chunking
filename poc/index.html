@@ -398,6 +398,30 @@
       border-bottom: 1px solid var(--line);
     }
     .paper-meta strong { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+    .retrieve {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 180px;
+      flex: 1 1 220px;
+    }
+    .retrieve span {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .retrieve input {
+      flex: 1;
+      min-width: 0;
+      background: var(--paper);
+      color: var(--paper-ink);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font: 12px/1.3 var(--font-ui);
+    }
     .focus-pair { margin-left: auto; display: flex; gap: 6px; }
     .focus-chip {
       background: transparent;
@@ -458,6 +482,12 @@
       border-bottom: 2px solid var(--b);
       box-decoration-break: clone;
       -webkit-box-decoration-break: clone;
+    }
+    #source-hl mark.ov {
+      background: var(--warn-bg);
+      border-bottom: 1px dashed var(--warn);
+      box-shadow: inset 0 0 0 1px var(--warn);
+      padding: 0;
     }
     #source {
       resize: none;
@@ -530,7 +560,31 @@
       cursor: pointer;
     }
     .chunk:hover { background: rgba(127,127,127,0.08); }
-    .chunk .idx { font: 10px/1.3 var(--font-mono); color: var(--muted); }
+    .chunk .idx {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 10px/1.3 var(--font-mono);
+      color: var(--muted);
+    }
+    .qdot {
+      flex: 0 0 auto;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .qdot.ok { background: var(--ok); }
+    .qdot.warn { background: var(--warn); }
+    .qdot.bad { background: #ef4444; }
+    .rank {
+      margin-left: auto;
+      flex: 0 0 auto;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 1px 6px;
+      font: 10px/1.2 var(--font-mono);
+    }
     .chunk p { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
     .chunk.active-a { background: var(--a-soft); box-shadow: inset 3px 0 0 var(--a); }
     .chunk.active-b { background: var(--b-soft); box-shadow: inset 3px 0 0 var(--b); }
@@ -788,7 +842,7 @@
               <path d="M14 3v5h5"/>
             </svg>
             <h2>Drop a text file</h2>
-            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Tokens / embeddings stay in pip.</p>
+            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Embeddings stay in pip.</p>
             <span class="cta">Choose a file</span>
             <div><span class="badge idle" id="upload-badge">Nothing uploaded</span></div>
           </div>
@@ -807,7 +861,7 @@
             <div class="knobs" id="knobs-b"></div>
           </div>
           <p class="later" id="autopick"></p>
-          <p class="later" id="nway">This tab is two columns. Three or more strategies on one file: <code>pip install chunking-strategy</code> then <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code> — or loop <code>create_chunker(name)</code>. Grey names are pip-only. Cap 150 MB here; Python streams from disk.</p>
+          <p class="later" id="nway">This tab is two columns. Three or more strategies on one file: <code>pip install chunking-strategy</code> then <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code> — or loop <code>create_chunker(name)</code>. Grey names are pip-only. Token counts appear after you run <code>token_based</code> once in this tab — the tokenizer stays loaded; until then, characters. Cap 150 MB here; Python streams from disk.</p>
           <div id="status"></div>
           </div>
           <div class="pip">
@@ -826,6 +880,10 @@
         <section class="paper" id="paper" aria-label="Source document">
           <div class="paper-meta">
             <strong id="source-kind">Document</strong>
+            <label class="retrieve">
+              <span>Retrieve</span>
+              <input id="retrieve" type="text" spellcheck="false" autocomplete="off" placeholder="BM25 on these chunks — nothing leaves the tab" />
+            </label>
             <span class="focus-pair">
               <button type="button" class="focus-chip a" id="focus-a">A</button>
               <button type="button" class="focus-chip b" id="focus-b">B</button>
@@ -931,7 +989,7 @@
         <div class="dest-art"><img src="card-github.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Source on GitHub</h3>
-          <p>The library, issues, and pip-only strategies this tab does not fake — tiktoken, embeddings.</p>
+          <p>The library, issues, and pip-only strategies this tab does not fake — embeddings. Token counts in the lab are cl100k_base after you run token_based once, never chars/4.</p>
         </div>
       </a>
       <a class="dest" href="https://pypi.org/project/chunking-strategy/">
@@ -1030,6 +1088,74 @@
           var s = knobNum(root, "step_size", 40);
           if (s >= w) s = Math.max(1, w - 1);
           return 'create_chunker("overlapping_window", window_size=' + w + ", step_size=" + s + ', window_unit="' + knobStr(root, "window_unit", "characters") + '")';
+        },
+      },
+      recursive_character: {
+        label: "recursive_character",
+        why: "The RAG default: split on paragraphs, then lines, then spaces, then characters, and merge up to chunk_size. Separators are discarded (LangChain keep_separator=False). Not hierarchical recursive.",
+        knobs: [
+          { key: "chunk_size", type: "number", min: 8, max: 4000, value: 120 },
+          { key: "overlap_size", type: "number", min: 0, max: 2000, value: 0 },
+        ],
+        params: function (root) {
+          var size = Math.max(1, knobNum(root, "chunk_size", 120));
+          var overlap = knobNum(root, "overlap_size", 0);
+          if (overlap >= size) overlap = Math.max(0, size - 1);
+          return { chunk_size: size, overlap_size: overlap };
+        },
+        call: function (root) {
+          var size = Math.max(1, knobNum(root, "chunk_size", 120));
+          var overlap = knobNum(root, "overlap_size", 0);
+          if (overlap >= size) overlap = Math.max(0, size - 1);
+          return overlap
+            ? 'create_chunker("recursive_character", chunk_size=' + size + ", overlap_size=" + overlap + ")"
+            : 'create_chunker("recursive_character", chunk_size=' + size + ")";
+        },
+      },
+      token_based: {
+        label: "token_based",
+        why: "Windows of cl100k_base tokens (GPT-3.5/4). First run in this tab loads the tokenizer; after that every strategy's cards show real token counts, not chars/4.",
+        knobs: [
+          { key: "tokens_per_chunk", type: "number", min: 4, max: 8000, value: 48 },
+          { key: "overlap_tokens", type: "number", min: 0, max: 4000, value: 0 },
+        ],
+        params: function (root) {
+          var n = Math.max(1, knobNum(root, "tokens_per_chunk", 48));
+          var o = knobNum(root, "overlap_tokens", 0);
+          if (o >= n) o = Math.max(0, n - 1);
+          return {
+            tokens_per_chunk: n,
+            overlap_tokens: o,
+            tokenizer_type: "tiktoken",
+            tokenizer_model: "gpt-3.5-turbo",
+            preserve_word_boundaries: false,
+            min_chunk_tokens: 1,
+            max_chunk_chars: 100000,
+          };
+        },
+        call: function (root) {
+          var n = Math.max(1, knobNum(root, "tokens_per_chunk", 48));
+          var o = knobNum(root, "overlap_tokens", 0);
+          if (o >= n) o = Math.max(0, n - 1);
+          var base = 'create_chunker("token_based", tokens_per_chunk=' + n;
+          if (o) base += ", overlap_tokens=" + o;
+          return base + ', tokenizer_type="tiktoken", tokenizer_model="gpt-3.5-turbo", preserve_word_boundaries=False)';
+        },
+      },
+      regex_custom: {
+        label: "regex_custom",
+        why: "Split at each regex match. The match starts the next chunk — speaker turns, log lines, custom marks. Not a parser.",
+        knobs: [
+          { key: "pattern", type: "text", value: "\\n\\n" },
+          { key: "multiline", type: "checkbox", value: true },
+        ],
+        params: function (root) {
+          return { pattern: knobStr(root, "pattern", "\\n\\n"), multiline: knobChk(root, "multiline") };
+        },
+        call: function (root) {
+          var pattern = knobStr(root, "pattern", "\\n\\n");
+          var ml = knobChk(root, "multiline");
+          return "create_chunker(\"regex_custom\", pattern=" + JSON.stringify(pattern) + ", multiline=" + (ml ? "True" : "False") + ")";
         },
       },
       markdown_chunker: {
@@ -1191,13 +1317,12 @@
       },
     };
     var LIVE_GROUPS = [
-      { label: "Text", names: ["fixed_size", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word"] },
+      { label: "Text", names: ["fixed_size", "recursive_character", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word", "token_based", "regex_custom"] },
       { label: "Documents & data", names: ["markdown_chunker", "xml_html_chunker", "json_chunker", "csv_chunker"] },
       { label: "Code", names: ["python_code", "javascript_code", "css_code", "go_code", "java_code", "c_cpp_code"] },
       { label: "Content-defined", names: ["rolling_hash", "fastcdc"] },
     ];
     var LATER = [
-      { name: "token_based", note: "tiktoken" },
       { name: "semantic_chunker", note: "embeddings" },
     ];
 
@@ -1214,6 +1339,8 @@
     var timer = null;
     var knobTimer = null;
     var editTimer = null;
+    var retrieveTimer = null;
+    var retrieveRanks = { a: {}, b: {} };
     var runStart = 0;
     var currentText = "";
     var lastFile = null;
@@ -1393,6 +1520,12 @@
           input = document.createElement("input");
           input.type = "checkbox";
           input.checked = !!k.value;
+        } else if (k.type === "text") {
+          input = document.createElement("input");
+          input.type = "text";
+          input.value = k.value;
+          input.spellcheck = false;
+          input.autocomplete = "off";
         } else {
           input = document.createElement("input");
           input.type = "number";
@@ -1430,6 +1563,16 @@
         var size = knobNum(box, "chunk_size", 80);
         var overlap = knobNum(box, "overlap_size", 0);
         if (overlap >= size) flag("overlap_size", "Must be less than chunk_size. Using " + Math.max(0, size - 1) + ".");
+      }
+      if (name === "recursive_character") {
+        var rsize = knobNum(box, "chunk_size", 120);
+        var roverlap = knobNum(box, "overlap_size", 0);
+        if (roverlap >= rsize) flag("overlap_size", "Must be less than chunk_size. Using " + Math.max(0, rsize - 1) + ".");
+      }
+      if (name === "token_based") {
+        var tn = knobNum(box, "tokens_per_chunk", 48);
+        var to = knobNum(box, "overlap_tokens", 0);
+        if (to >= tn) flag("overlap_tokens", "Must be less than tokens_per_chunk. Using " + Math.max(0, tn - 1) + ".");
       }
       if (name === "overlapping_window") {
         var w = knobNum(box, "window_size", 80);
@@ -1628,7 +1771,7 @@
         var bar = document.createElement("i");
         bar.style.height = Math.max(4, Math.round(((c.end - c.start) / mx) * 28)) + "px";
         if (i === active) bar.classList.add("on");
-        bar.title = "chunk " + i + " · " + (c.end - c.start) + " chars";
+        bar.title = "chunk " + i + " · " + (c.end - c.start) + " chars" + (c.metadata && c.metadata.token_count != null ? " · " + c.metadata.token_count + " tokens" : "");
         bar.addEventListener("click", function (idx) {
           return function (e) {
             e.stopPropagation();
@@ -1647,7 +1790,10 @@
     function onWorkerMessage(ev) {
       var msg = ev.data || {};
       if (msg.id !== jobId) return;
-      if (msg.type === "progress") return;
+      if (msg.type === "progress") {
+        if (msg.phase === "tokenizer") setStatus("Loading cl100k_base… first time only, then kept in this tab.");
+        return;
+      }
       clearTimeout(timer);
       if (msg.type === "error") { setStatus(msg.message || msg.code); return; }
       var elapsed = Math.round(performance.now() - runStart);
@@ -1677,6 +1823,7 @@
     function renderAll() {
       document.getElementById("head-a").textContent = "A · " + strategyOf("a");
       document.getElementById("head-b").textContent = "B · " + strategyOf("b");
+      scoreRetrieve();
       renderSource();
       ["a", "b"].forEach(function (s) {
         var chunks = currentResults[s] || [];
@@ -1685,6 +1832,16 @@
         renderBars(s, chunks, selected[s]);
       });
       renderSnippet();
+    }
+
+    function overlapWithPrev(chunks, idx) {
+      var cur = chunks[idx];
+      var prev = idx > 0 ? chunks[idx - 1] : null;
+      if (!cur || !prev) return null;
+      var a = Math.max(cur.start, prev.start);
+      var b = Math.min(cur.end, prev.end);
+      if (b <= a) return null;
+      return { start: a, end: b };
     }
 
     function renderSource() {
@@ -1697,7 +1854,8 @@
       hlEl.replaceChildren();
       if (!currentText) return;
       var chunks = currentResults[focusSide] || [];
-      var chunk = chunks[selected[focusSide]];
+      var idx = selected[focusSide];
+      var chunk = chunks[idx];
       if (!chunk || sourceDirty) {
         hlEl.appendChild(document.createTextNode(currentText));
         return;
@@ -1706,7 +1864,23 @@
       var e = scalarToUtf16(currentText, chunk.end);
       var mark = document.createElement("mark");
       mark.className = focusSide;
-      mark.textContent = currentText.slice(s, e);
+      var ov = overlapWithPrev(chunks, idx);
+      if (ov) {
+        var os = scalarToUtf16(currentText, ov.start);
+        var oe = scalarToUtf16(currentText, ov.end);
+        if (os < s) os = s;
+        if (oe > e) oe = e;
+        if (os > s) mark.appendChild(document.createTextNode(currentText.slice(s, os)));
+        if (oe > os) {
+          var band = document.createElement("mark");
+          band.className = "ov";
+          band.textContent = currentText.slice(os, oe);
+          mark.appendChild(band);
+        }
+        if (e > oe) mark.appendChild(document.createTextNode(currentText.slice(oe, e)));
+      } else {
+        mark.textContent = currentText.slice(s, e);
+      }
       hlEl.appendChild(document.createTextNode(currentText.slice(0, s)));
       hlEl.appendChild(mark);
       hlEl.appendChild(document.createTextNode(currentText.slice(e)));
@@ -1717,10 +1891,99 @@
       });
     }
 
+    function isWordChar(ch) {
+      return /[0-9A-Za-z_]/.test(ch);
+    }
+
+    function medianSize(chunks) {
+      var sizes = chunks.map(function (c) { return c.end - c.start; }).sort(function (a, b) { return a - b; });
+      if (!sizes.length) return 0;
+      var mid = Math.floor(sizes.length / 2);
+      return sizes.length % 2 ? sizes[mid] : (sizes[mid - 1] + sizes[mid]) / 2;
+    }
+
+    function qualityOf(chunk, text, median) {
+      var reasons = [];
+      var chars = Array.from(text || "");
+      var start = chunk.start;
+      var end = chunk.end;
+      var piece = chars.slice(start, end);
+      var n = piece.length;
+      var first = piece[0] || "";
+      var last = n ? piece[n - 1] : "";
+      var before = start > 0 ? chars[start - 1] : "";
+      var after = end < chars.length ? chars[end] : "";
+      if (before && first && isWordChar(before) && isWordChar(first)) reasons.push("starts mid-word");
+      if (after && last && isWordChar(last) && isWordChar(after)) reasons.push("ends mid-word");
+      var red = reasons.length > 0;
+      var trimmed = piece.join("").replace(/\s+$/u, "");
+      if (trimmed && !/[.!?…。！？]$/.test(trimmed)) reasons.push("mid-sentence");
+      if (n > 0 && n < 20) reasons.push("tiny");
+      if (median && n > 2 * median) reasons.push("huge");
+      var level = red ? "bad" : (reasons.length ? "warn" : "ok");
+      if (!reasons.length) reasons.push("clean cut");
+      return { level: level, title: reasons.join(" · ") };
+    }
+
+    function tokenizeBm25(s) {
+      return String(s || "").toLowerCase().match(/[a-z0-9]+/g) || [];
+    }
+
+    function scoreRetrieve() {
+      retrieveRanks = { a: {}, b: {} };
+      var qEl = document.getElementById("retrieve");
+      var qTokens = tokenizeBm25(qEl && qEl.value);
+      if (!qTokens.length) return;
+      var k1 = 1.5;
+      var b = 0.75;
+      ["a", "b"].forEach(function (side) {
+        var chunks = currentResults[side] || [];
+        var docs = chunks.map(function (c) { return tokenizeBm25(c.content); });
+        var N = docs.length;
+        if (!N) return;
+        var avgdl = 0;
+        docs.forEach(function (d) { avgdl += d.length; });
+        avgdl = avgdl / N || 1;
+        var df = {};
+        var seenQ = {};
+        qTokens.forEach(function (t) {
+          if (seenQ[t]) return;
+          seenQ[t] = 1;
+          df[t] = 0;
+        });
+        docs.forEach(function (d) {
+          var seen = {};
+          d.forEach(function (t) {
+            if (df[t] != null && !seen[t]) { df[t] += 1; seen[t] = 1; }
+          });
+        });
+        var scored = [];
+        docs.forEach(function (d, i) {
+          var tf = {};
+          d.forEach(function (t) { tf[t] = (tf[t] || 0) + 1; });
+          var score = 0;
+          Object.keys(df).forEach(function (t) {
+            var n = df[t] || 0;
+            var idf = Math.log(1 + (N - n + 0.5) / (n + 0.5));
+            var f = tf[t] || 0;
+            if (!f) return;
+            var dl = d.length || 1;
+            score += idf * (f * (k1 + 1)) / (f + k1 * (1 - b + b * (dl / avgdl)));
+          });
+          if (score > 0) scored.push({ i: i, score: score });
+        });
+        scored.sort(function (x, y) { return y.score - x.score || x.i - y.i; });
+        scored.slice(0, 5).forEach(function (row, rank) {
+          retrieveRanks[side][row.i] = rank + 1;
+        });
+      });
+    }
+
     function renderList(side, chunks) {
       var root = document.getElementById("list-" + side);
       root.replaceChildren();
       var shown = chunks.slice(0, MAX_DOM);
+      var median = medianSize(chunks);
       if (chunks.length > MAX_DOM) {
         var note = document.createElement("p");
         note.className = "chunk";
@@ -1733,7 +1996,25 @@
         el.className = "chunk" + (selected[side] === i ? " active-" + side : "");
         var head = document.createElement("div");
         head.className = "idx";
-        head.textContent = "#" + String(i).padStart(2, "0") + "  ·  " + (chunk.end - chunk.start) + " chars  ·  [" + chunk.start + ", " + chunk.end + ")";
+        var q = qualityOf(chunk, currentText, median);
+        var dot = document.createElement("span");
+        dot.className = "qdot " + q.level;
+        dot.title = q.title;
+        head.appendChild(dot);
+        var tc = chunk.metadata && chunk.metadata.token_count;
+        head.appendChild(document.createTextNode(
+          "#" + String(i).padStart(2, "0") + "  ·  " + (chunk.end - chunk.start) + " chars"
+          + (tc != null ? "  ·  " + tc + " tokens" : "")
+          + "  ·  [" + chunk.start + ", " + chunk.end + ")"
+        ));
+        var rank = retrieveRanks[side] && retrieveRanks[side][i];
+        if (rank) {
+          var badge = document.createElement("span");
+          badge.className = "rank";
+          badge.textContent = String(rank);
+          badge.title = "BM25 rank " + rank + " in this column";
+          head.appendChild(badge);
+        }
         var body = document.createElement("p");
         var text = chunk.content || "";
         var hdr = chunk.metadata && chunk.metadata.csv_header;
@@ -1850,6 +2131,16 @@
     sourceEl.addEventListener("change", function () {
       if (applyingSource) return;
       if (sourceEl.value !== currentText) ingestText(sourceEl.value, editorFileName());
+    });
+
+    document.getElementById("retrieve").addEventListener("input", function () {
+      clearTimeout(retrieveTimer);
+      retrieveTimer = setTimeout(function () {
+        scoreRetrieve();
+        ["a", "b"].forEach(function (s) {
+          renderList(s, currentResults[s] || []);
+        });
+      }, 200);
     });
 
     function rerunSoon() {

@@ -96,7 +96,8 @@ def get_available_strategies():
         # Fallback list if function not available
         return [
             'sentence_based', 'paragraph_based', 'fixed_size', 'token_based',
-            'semantic', 'boundary_aware', 'recursive', 'overlapping_window',
+            'semantic', 'boundary_aware', 'recursive', 'recursive_character',
+            'regex_custom', 'overlapping_window',
             'python_code', 'javascript_code', 'markdown_chunker', 'pdf_chunker'
         ]
 

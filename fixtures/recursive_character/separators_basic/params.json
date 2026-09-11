@@ -1,0 +1,7 @@
+{
+  "strategy": "recursive_character",
+  "params": {
+    "chunk_size": 40,
+    "overlap_size": 0
+  }
+}

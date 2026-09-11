@@ -8,7 +8,7 @@ var root = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: consol
 root.self = root;
 root.console = console;
 var ctx = vm.createContext(root);
-["offsets.js", "braces.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js"].forEach(function (name) {
+["offsets.js", "braces.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
   var file = path.join(__dirname, name);
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: name });
 });
@@ -87,6 +87,33 @@ eq("fastcdc splits", cdc.length > 1, true);
 eq("fastcdc covers bytes", cdc[0].metadata.start_byte === 0 && cdc[cdc.length - 1].metadata.end_byte === new TextEncoder().encode(cdcText).length, true);
 eq("fastcdc extras are distinct", cdc[0].metadata !== cdc[1].metadata, true);
 eq("fastcdc first start_byte stays 0", cdc[0].metadata.start_byte, 0);
+
+var rec = ctx.chunkRecursiveCharacter("Hello world.\n\nSecond paragraph lives here.\n\nThird.", { chunk_size: 40, overlap_size: 0 });
+eq("recursive_character splits", rec.length > 1, true);
+eq("recursive_character starts at 0", rec[0].start, 0);
+eq("recursive_character first", rec[0].content, "Hello world.");
+var recOvText = "Hello world.\n\nThis is a second paragraph that should stay together until the size cap.\n\nSupercalifragilisticexpialidociousAndMore";
+var recOv = ctx.chunkRecursiveCharacter(recOvText, { chunk_size: 40, overlap_size: 20 });
+var recOvHit = false;
+for (var ri = 1; ri < recOv.length; ri++) {
+  if (recOv[ri].start < recOv[ri - 1].end) recOvHit = true;
+}
+eq("recursive_character overlap", recOvHit, true);
+
+var ranks = JSON.parse(fs.readFileSync(path.join(__dirname, "tiktoken", "cl100k_base.json"), "utf8"));
+var enc = new ctx.JsTiktoken.Tiktoken(ranks);
+var tok = ctx.chunkTokenBased("hello world hello world hello world hello world", { tokens_per_chunk: 4, overlap_tokens: 0, min_chunk_tokens: 1 }, enc);
+eq("token_based splits", tok.length > 1, true);
+eq("token_based starts at 0", tok[0].start, 0);
+eq("token_based has token_count", tok[0].metadata.token_count > 0, true);
+eq("token_based first tokens", tok[0].metadata.token_count, 4);
+var tokOv = ctx.chunkTokenBased("hello world hello world hello world hello world", { tokens_per_chunk: 4, overlap_tokens: 2, min_chunk_tokens: 1 }, enc);
+eq("token_based overlap", tokOv.length > 1 && tokOv[1].start < tokOv[0].end, true);
+
+var rx = ctx.chunkRegexCustom("# A\nhello\n\n# B\nworld\n", { pattern: "^# ", multiline: true });
+eq("regex_custom splits", rx.length, 2);
+eq("regex_custom first", rx[0].content.indexOf("# A") === 0, true);
+eq("regex_custom second", rx[1].content.indexOf("# B") === 0, true);
 
 if (failed) {
   console.error(failed + " checks failed");

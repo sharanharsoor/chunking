@@ -4,13 +4,16 @@
 # lab        = live in the in-tab lab (poc/)
 # lab_later  = greyed in the tab; unlock when a real JS port exists
 # python_only = locked card / pip-only
-# token_based stays lab_later until tiktoken is in the tab — do not fake it.
+# token_based is lab: real cl100k_base in the tab. Do not fake counts as chars/4.
 
 lab:
   - fixed_size
   - sentence_based
   - paragraph_based
   - overlapping_window
+  - recursive_character
+  - token_based
+  - regex_custom
   - markdown_chunker
   - python_code
   - json_chunker
@@ -26,7 +29,6 @@ lab:
   - fastcdc
 
 lab_later:
-  - token_based
   - recursive
   - universal_code
   - rabin_fingerprinting

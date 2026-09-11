@@ -1,0 +1,55 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "# A\nhello\n\n",
+      "end": 11,
+      "hash": "af46ccfe19dda8591f516a72b4fbc31f9c9e59a412c4db9bb425132a2f5f7f3e",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "regex_custom",
+        "extra": {
+          "multiline": true,
+          "pattern": "^# "
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 11,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "# B\nworld\n",
+      "end": 21,
+      "hash": "679bb4f1d751500bc4d6337e4a2179aea22dc98a659c889bbff139931e0715d9",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "regex_custom",
+        "extra": {
+          "multiline": true,
+          "pattern": "^# "
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 10,
+      "start": 11
+    }
+  ],
+  "params": {
+    "multiline": true,
+    "pattern": "^# "
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "ba65d75ff693e3baa39e7cca25b7224e33b965d730c571ca7aaaa681f61fec95",
+    "size": 21
+  },
+  "strategy": "regex_custom"
+}

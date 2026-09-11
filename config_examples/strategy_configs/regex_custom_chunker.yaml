@@ -1,0 +1,33 @@
+# Split on a user regex. Each match starts the next chunk (delimiter kept).
+
+profile_name: "regex_custom_chunker"
+
+strategies:
+  primary: "regex_custom"
+  fallbacks:
+    - "paragraph_based"
+    - "sentence_based"
+    - "fixed_size"
+  configs:
+    regex_custom:
+      pattern: "\\n\\n"
+      multiline: true
+
+parameters:
+  regex_custom:
+    pattern: "\\n\\n"
+    multiline: true
+
+regex_custom:
+  pattern: "\\n\\n"
+  multiline: true
+
+configurations:
+  headings:
+    regex_custom:
+      pattern: "^# "
+      multiline: true
+  speaker_turns:
+    regex_custom:
+      pattern: "^Speaker \\d+:"
+      multiline: true

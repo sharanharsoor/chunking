@@ -8,6 +8,8 @@ Strategies included:
 - Sentence-based chunking
 - Paragraph-based chunking
 - Token-based chunking
+- Recursive character splitting (separator cascade; not hierarchical recursive)
+- Regex-custom splitting
 - Semantic chunking variants
 - Structure-aware chunking
 - Language-specific chunkers
@@ -21,6 +23,8 @@ from chunking_strategy.strategies.text.token_based_chunker import TokenBasedChun
 from chunking_strategy.strategies.text.overlapping_window_chunker import OverlappingWindowChunker
 from chunking_strategy.strategies.text.boundary_aware_chunker import BoundaryAwareChunker
 from chunking_strategy.strategies.text.recursive_chunker import RecursiveChunker
+from chunking_strategy.strategies.text.recursive_character_chunker import RecursiveCharacterChunker
+from chunking_strategy.strategies.text.regex_custom_chunker import RegexCustomChunker
 
 # Lazy import heavy chunkers with ML dependencies
 def _get_semantic_chunker():
@@ -53,4 +57,6 @@ __all__ = [
     "EmbeddingBasedChunker",
     "BoundaryAwareChunker",
     "RecursiveChunker",
+    "RecursiveCharacterChunker",
+    "RegexCustomChunker",
 ]

@@ -1,0 +1,7 @@
+{
+  "strategy": "regex_custom",
+  "params": {
+    "pattern": "^# ",
+    "multiline": true
+  }
+}

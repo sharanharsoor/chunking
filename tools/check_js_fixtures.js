@@ -19,6 +19,9 @@ var RUNNERS = {
   json_chunker: "chunkJson",
   fixed_length_word: "chunkFixedLengthWord",
   fastcdc: "chunkFastCdc",
+  recursive_character: "chunkRecursiveCharacter",
+  token_based: "chunkTokenBased",
+  regex_custom: "chunkRegexCustom",
 };
 
 /* Python rebuilds these; compare grouping metadata, not content bytes. */
@@ -27,6 +30,7 @@ var META_FIELDS = {
   json_chunker: ["json_start_index", "json_end_index", "json_object_count"],
   paragraph_based: ["paragraph_count"],
   fixed_length_word: ["start_word_index", "end_word_index", "word_count"],
+  token_based: ["token_count", "start_token_index"],
 };
 
 var SKIP_CONTENT = {
@@ -51,9 +55,16 @@ vm.createContext(ctx);
   "json.js",
   "words.js",
   "fastcdc.js",
+  "recursive_character.js",
+  "token_based.js",
+  "regex_custom.js",
+  "tiktoken_bundle.js",
 ].forEach(function (name) {
   vm.runInContext(fs.readFileSync(path.join(CHUNKERS, name), "utf8"), ctx, { filename: name });
 });
+
+var cl100k = JSON.parse(fs.readFileSync(path.join(CHUNKERS, "tiktoken", "cl100k_base.json"), "utf8"));
+var tokenEnc = new ctx.JsTiktoken.Tiktoken(cl100k);
 
 function sha256(buf) {
   return crypto.createHash("sha256").update(buf).digest("hex");
@@ -83,7 +94,10 @@ iterFixtures(FIXTURES).forEach(function (folder) {
   var paramsDoc = JSON.parse(fs.readFileSync(path.join(folder, "params.json"), "utf8"));
   var strategy = paramsDoc.strategy;
   var fnName = RUNNERS[strategy];
-  if (!fnName) return;
+  if (!fnName) {
+    console.log("skip (Python-only golden) " + path.relative(REPO, folder));
+    return;
+  }
   var inputPath = fs.existsSync(path.join(folder, "input.txt"))
     ? path.join(folder, "input.txt")
     : path.join(folder, "input.bin");
@@ -100,7 +114,7 @@ iterFixtures(FIXTURES).forEach(function (folder) {
   var text = fileBuf.toString("utf8");
   var expected = JSON.parse(fs.readFileSync(expectedPath, "utf8"));
   var params = Object.assign({ source: "input.txt" }, paramsDoc.params || {});
-  var got = ctx[fnName](text, params);
+  var got = strategy === "token_based" ? ctx[fnName](text, params, tokenEnc) : ctx[fnName](text, params);
   if (!Array.isArray(got)) {
     fail(path.relative(REPO, folder) + ": " + fnName + " did not return an array");
     return;

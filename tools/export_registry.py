@@ -37,10 +37,10 @@ def check() -> None:
     later = set(data.get("lab_later") or [])
     if "recursive" in lab:
         raise ValueError("recursive must not be in lab (homepage); see §7.6")
-    if "token_based" in lab:
-        raise ValueError("token_based must not be in lab until tiktoken is in the tab")
-    if "token_based" not in later:
-        raise ValueError("token_based must stay in lab_later until tiktoken is in the tab")
+    if "token_based" not in lab:
+        raise ValueError("token_based must be in lab once tiktoken is in the tab")
+    if "token_based" in later:
+        raise ValueError("token_based must not stay in lab_later")
     required_lab = {
         "fixed_size",
         "sentence_based",
@@ -59,6 +59,9 @@ def check() -> None:
         "rolling_hash",
         "fixed_length_word",
         "fastcdc",
+        "recursive_character",
+        "token_based",
+        "regex_custom",
     }
     missing = required_lab - lab
     if missing:

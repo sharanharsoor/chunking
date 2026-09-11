@@ -59,7 +59,9 @@ jobs:
     - name: Golden fixtures (Python + in-tab JS)
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       run: |
+        pip install tiktoken
         python tools/run_fixture.py --check
+        python tools/export_registry.py --check
         node tools/check_js_fixtures.js
 
     - name: Run tests with coverage

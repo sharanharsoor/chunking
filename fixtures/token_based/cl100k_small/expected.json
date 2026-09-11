@@ -1,0 +1,104 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "The quick brown fox jumps over the lazy",
+      "end": 39,
+      "hash": "e79df309e6b0e98a1b677e5d47765063170fd0fbe136d305230dca2ca1ade525",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "token_based",
+        "extra": {
+          "chunk_index": 0,
+          "chunking_strategy": "token_based",
+          "end_token_index": 7,
+          "overlap_tokens": 0,
+          "preserve_word_boundaries": false,
+          "start_token_index": 0,
+          "token_count": 8,
+          "tokenizer_model": "gpt-3.5-turbo",
+          "tokenizer_type": "tiktoken"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 39,
+      "start": 0,
+      "token_count": 8
+    },
+    {
+      "children_ids": [],
+      "content": " dog. Token windows cut on cl100",
+      "end": 71,
+      "hash": "a9fa74a9ab8425c5789fd98c0a792e292ab64aa9f5c9c97dd1f31ea5b31173dc",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "token_based",
+        "extra": {
+          "chunk_index": 1,
+          "chunking_strategy": "token_based",
+          "end_token_index": 15,
+          "overlap_tokens": 0,
+          "preserve_word_boundaries": false,
+          "start_token_index": 8,
+          "token_count": 8,
+          "tokenizer_model": "gpt-3.5-turbo",
+          "tokenizer_type": "tiktoken"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 32,
+      "start": 39,
+      "token_count": 8
+    },
+    {
+      "children_ids": [],
+      "content": "k_base, not characters.\n",
+      "end": 95,
+      "hash": "3983f3cdff46201db2e41245ae685cf5262f9516ddfcd4f8b62c9669cce09236",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "token_based",
+        "extra": {
+          "chunk_index": 2,
+          "chunking_strategy": "token_based",
+          "end_token_index": 21,
+          "overlap_tokens": 0,
+          "preserve_word_boundaries": false,
+          "start_token_index": 16,
+          "token_count": 6,
+          "tokenizer_model": "gpt-3.5-turbo",
+          "tokenizer_type": "tiktoken"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 24,
+      "start": 71,
+      "token_count": 6
+    }
+  ],
+  "params": {
+    "max_chunk_chars": 100000,
+    "min_chunk_tokens": 1,
+    "overlap_tokens": 0,
+    "preserve_word_boundaries": false,
+    "tokenizer_model": "gpt-3.5-turbo",
+    "tokenizer_type": "tiktoken",
+    "tokens_per_chunk": 8
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "2997515194cfcad6ab7593fff8b6d85201455846a9ea4cde7db098bce4688815",
+    "size": 95
+  },
+  "strategy": "token_based"
+}

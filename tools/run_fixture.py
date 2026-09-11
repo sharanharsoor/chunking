@@ -33,6 +33,13 @@ def run_one(folder: Path, *, write: bool) -> str:
     params_doc = _load_params(folder)
     strategy = params_doc["strategy"]
     params = dict(params_doc.get("params") or {})
+    if strategy == "token_based" and (params.get("tokenizer_type") or "tiktoken") == "tiktoken":
+        try:
+            import tiktoken  # noqa: F401
+        except ImportError as exc:
+            raise RuntimeError(
+                "token_based goldens need tiktoken (pip install tiktoken)"
+            ) from exc
     source_path = _input_path(folder)
     raw = source_path.read_bytes()
     chunker = create_chunker(strategy, **params)

@@ -1,0 +1,40 @@
+# Recursive character splitter (LangChain-style separator cascade).
+# Not hierarchical `recursive`. Orchestrator reads `parameters` / `strategies.configs`.
+
+profile_name: "recursive_character_chunker"
+
+strategies:
+  primary: "recursive_character"
+  fallbacks:
+    - "paragraph_based"
+    - "sentence_based"
+    - "fixed_size"
+  configs:
+    recursive_character:
+      chunk_size: 1000
+      overlap_size: 0
+      separators: ["\n\n", "\n", " ", ""]
+
+parameters:
+  recursive_character:
+    chunk_size: 1000
+    overlap_size: 0
+    separators: ["\n\n", "\n", " ", ""]
+
+# Direct construction: RecursiveCharacterChunker(**config["recursive_character"])
+recursive_character:
+  chunk_size: 1000
+  overlap_size: 0
+  separators: ["\n\n", "\n", " ", ""]
+
+configurations:
+  rag_default:
+    recursive_character:
+      chunk_size: 1000
+      overlap_size: 200
+      separators: ["\n\n", "\n", " ", ""]
+  tight:
+    recursive_character:
+      chunk_size: 200
+      overlap_size: 0
+      separators: ["\n\n", "\n", " ", ""]

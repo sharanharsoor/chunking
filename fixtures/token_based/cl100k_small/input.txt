@@ -1,0 +1,1 @@
+The quick brown fox jumps over the lazy dog. Token windows cut on cl100k_base, not characters.

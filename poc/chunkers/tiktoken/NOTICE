@@ -1,0 +1,3 @@
+cl100k_base ranks and the Tiktoken runtime bundled as tiktoken_bundle.js
+come from js-tiktoken 1.0.21 (https://github.com/dqbd/tiktoken), MIT license,
+which ports OpenAI tiktoken (also MIT). Loaded on demand — not on first paint.

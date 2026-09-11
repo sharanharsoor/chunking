@@ -1,0 +1,12 @@
+{
+  "strategy": "token_based",
+  "params": {
+    "tokens_per_chunk": 8,
+    "overlap_tokens": 2,
+    "tokenizer_type": "tiktoken",
+    "tokenizer_model": "gpt-3.5-turbo",
+    "preserve_word_boundaries": false,
+    "min_chunk_tokens": 1,
+    "max_chunk_chars": 100000
+  }
+}

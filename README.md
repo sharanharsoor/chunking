@@ -467,13 +467,15 @@ chunking-strategy chunk document.pdf --config config.yaml
 
 ## 🎭 **Complete Chunking Algorithms Reference (40+ Total)**
 
-### 📝 **Text-Based Strategies** (9 strategies)
+### 📝 **Text-Based Strategies** (11 strategies)
 - `sentence_based` - Semantic coherence with sentence boundaries (RAG, Q&A)
 - `paragraph_based` - Natural paragraph structure (Document analysis, summarization)
 - `token_based` - Precise token-level chunking with multiple tokenizer support (LLM optimization)
 - `semantic` - AI-powered semantic similarity with embeddings (High-quality understanding)
 - `boundary_aware` - Intelligent boundary detection (Clean, readable chunks)
 - `recursive` - Hierarchical multi-level chunking (Complex document structure)
+- `recursive_character` - Separator cascade (`\\n\\n` → `\\n` → space → char), merge up to `chunk_size` (default RAG split; not hierarchical `recursive`)
+- `regex_custom` - Split at each regex match; the match starts the next chunk (transcripts, logs)
 - `overlapping_window` - Sliding window with customizable overlap (Context preservation)
 - `fixed_length_word` - Fixed word count per chunk (Consistent word-based processing)
 - `embedding_based` - Embedding similarity for boundaries (Advanced semantic understanding)

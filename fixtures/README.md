@@ -37,6 +37,9 @@ node tools/check_js_fixtures.js
 | `json_chunker` | `json_start_index` / `json_end_index` / `json_object_count` (Python re-dumps JSON) |
 | `paragraph_based` | `paragraph_count` (`merge_short_paragraphs: false`; Python collapses whitespace) |
 | `fixed_length_word` | `start_word_index` / `end_word_index` / `word_count`, plus `content` when spacing is a single space |
+| `recursive_character` | `start` / `end` / `content` (Unicode scalars; separator cascade) |
+| `token_based` (`preserve_word_boundaries: false`, tiktoken `cl100k_base`) | `start` / `end` / `content` plus `token_count` / `start_token_index` |
+| `regex_custom` | `start` / `end` / `content` (split at each regex match) |
 | `fastcdc` (gear) | UTF-8 byte ranges via `sha256`; JS `start_byte`/`end_byte` must cover the file |
 
-This is not “the browser is byte-identical to pip.” Code strategies, `rolling_hash`, tiktoken, and embeddings stay unchecked here. Markdown with a preamble or `#` inside fences is lab JS behavior, not this golden. `fastcdc` compares UTF-8 byte ranges via `sha256` (gear, this library — not restic).
+This is not “the browser is byte-identical to pip.” Code strategies, `rolling_hash`, and embeddings stay unchecked here. Markdown with a preamble or `#` inside fences is lab JS behavior, not this golden. `fastcdc` compares UTF-8 byte ranges via `sha256` (gear, this library — not restic). `token_based` goldens require `tiktoken` on the Python side.

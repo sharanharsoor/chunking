@@ -1,0 +1,115 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "Hello world.",
+      "end": 12,
+      "hash": "aa3ec16e6acc809d8b2818662276256abfd2f1b441cb51574933f3d4bd115d11",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "recursive_character",
+        "extra": {
+          "chunk_size": 40,
+          "overlap_size": 0
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 12,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "This is a second paragraph that should",
+      "end": 52,
+      "hash": "1ffdca37fe9da2d0f03c2b266f52642a411bc521359f23f6dfdb3ff9f8bad56a",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "recursive_character",
+        "extra": {
+          "chunk_size": 40,
+          "overlap_size": 0
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 38,
+      "start": 14
+    },
+    {
+      "children_ids": [],
+      "content": "stay together until the size cap.",
+      "end": 86,
+      "hash": "7986940845d72a143db5f926803b1d15a3e73116cfe16389a666a53f02f25bc9",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "recursive_character",
+        "extra": {
+          "chunk_size": 40,
+          "overlap_size": 0
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 33,
+      "start": 53
+    },
+    {
+      "children_ids": [],
+      "content": "SupercalifragilisticexpialidociousAndMor",
+      "end": 128,
+      "hash": "8487df3bc4418d610851ef0a336ae412b5ae4677d1195d02603ae81fa91525c2",
+      "id": "chunk-0003",
+      "metadata": {
+        "chunker_used": "recursive_character",
+        "extra": {
+          "chunk_size": 40,
+          "overlap_size": 0
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 40,
+      "start": 88
+    },
+    {
+      "children_ids": [],
+      "content": "e",
+      "end": 129,
+      "hash": "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea",
+      "id": "chunk-0004",
+      "metadata": {
+        "chunker_used": "recursive_character",
+        "extra": {
+          "chunk_size": 40,
+          "overlap_size": 0
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 1,
+      "start": 128
+    }
+  ],
+  "params": {
+    "chunk_size": 40,
+    "overlap_size": 0
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "af51121b15d567864134d40786c6c88aa1b87f14695cc9c4ce7f4737eb3ecd43",
+    "size": 130
+  },
+  "strategy": "recursive_character"
+}
