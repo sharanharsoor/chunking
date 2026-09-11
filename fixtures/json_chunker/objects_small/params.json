@@ -1,0 +1,7 @@
+{
+  "strategy": "json_chunker",
+  "params": {
+    "chunk_by": "objects",
+    "objects_per_chunk": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "strategy": "overlapping_window",
+  "params": {
+    "window_size": 4,
+    "step_size": 2,
+    "window_unit": "characters",
+    "preserve_boundaries": false,
+    "min_window_size": 1
+  }
+}

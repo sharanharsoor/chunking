@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Compare in-tab JS chunkers to Python golden expected.json (start/end/content). */
+/* Compare in-tab JS chunkers to Python golden expected.json. */
 var fs = require("fs");
 var path = require("path");
 var vm = require("vm");
@@ -13,6 +13,25 @@ var RUNNERS = {
   fixed_size: "chunkFixedSize",
   sentence_based: "chunkSentenceBased",
   csv_chunker: "chunkCsv",
+  paragraph_based: "chunkParagraphBased",
+  overlapping_window: "chunkOverlappingWindow",
+  markdown_chunker: "chunkMarkdown",
+  json_chunker: "chunkJson",
+  fixed_length_word: "chunkFixedLengthWord",
+};
+
+/* Python rebuilds these; compare grouping metadata, not content bytes. */
+var META_FIELDS = {
+  csv_chunker: ["csv_start_row", "csv_end_row", "csv_row_count"],
+  json_chunker: ["json_start_index", "json_end_index", "json_object_count"],
+  paragraph_based: ["paragraph_count"],
+  fixed_length_word: ["start_word_index", "end_word_index", "word_count"],
+};
+
+var SKIP_CONTENT = {
+  csv_chunker: true,
+  json_chunker: true,
+  paragraph_based: true,
 };
 
 var ctx = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: console };
@@ -23,7 +42,12 @@ vm.createContext(ctx);
   "braces.js",
   "fixed_size.js",
   "sentence.js",
+  "paragraph.js",
+  "overlapping.js",
+  "markdown.js",
   "csv.js",
+  "json.js",
+  "words.js",
 ].forEach(function (name) {
   vm.runInContext(fs.readFileSync(path.join(CHUNKERS, name), "utf8"), ctx, { filename: name });
 });
@@ -65,12 +89,12 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     fail(path.relative(REPO, folder) + ": missing expected.json (python tools/run_fixture.py --write)");
     return;
   }
-  var text = fs.readFileSync(inputPath);
+  var raw = fs.readFileSync(inputPath);
   if (path.basename(inputPath) === "input.bin") {
     fail(path.relative(REPO, folder) + ": binary fixtures are Python-only");
     return;
   }
-  text = text.toString("utf8");
+  var text = raw.toString("utf8");
   var expected = JSON.parse(fs.readFileSync(expectedPath, "utf8"));
   var params = Object.assign({ source: "input.txt" }, paramsDoc.params || {});
   var got = ctx[fnName](text, params);
@@ -91,19 +115,21 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     var actualHash = sha256(fs.readFileSync(inputPath));
     if (actualHash !== src.sha256) fail(rel + ": input.txt sha256 drifted from expected.json");
   }
+  var metaKeys = META_FIELDS[strategy] || [];
   for (var i = 0; i < want.length; i++) {
     var e = want[i];
     var g = got[i];
     var prefix = rel + " chunk " + i;
     if (e.start != null && g.start !== e.start) fail(prefix + " start js=" + g.start + " py=" + e.start);
     if (e.end != null && g.end !== e.end) fail(prefix + " end js=" + g.end + " py=" + e.end);
-    if (strategy === "csv_chunker") {
+    if (metaKeys.length) {
       var extra = (e.metadata && e.metadata.extra) || {};
       var gm = g.metadata || {};
-      ["csv_start_row", "csv_end_row", "csv_row_count"].forEach(function (k) {
+      metaKeys.forEach(function (k) {
         if (extra[k] != null && gm[k] !== extra[k]) fail(prefix + " " + k + " js=" + gm[k] + " py=" + extra[k]);
       });
-    } else if (e.content != null && g.content !== e.content) {
+    }
+    if (!SKIP_CONTENT[strategy] && e.content != null && g.content !== e.content) {
       fail(prefix + " content mismatch");
     }
   }

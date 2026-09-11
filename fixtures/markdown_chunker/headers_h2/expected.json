@@ -1,0 +1,61 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "# A\nhello",
+      "end": null,
+      "hash": "05e90a02e2cd88ff4e623384367a1f6aeed96e6397b2bfea32cfda3bfe3d6086",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_type": "header_based",
+          "has_frontmatter": false,
+          "markdown_header": "A",
+          "markdown_level": 1,
+          "section_index": 0
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 9,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "## B\nworld\n### Deep\nstill B",
+      "end": null,
+      "hash": "5ade9d91cb299167fd127900ece0d9f21d68ca61e6cf3a5e6bdfa133212538a1",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_type": "header_based",
+          "has_frontmatter": false,
+          "markdown_header": "B",
+          "markdown_level": 2,
+          "section_index": 1
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 27,
+      "start": null
+    }
+  ],
+  "params": {
+    "chunk_by": "headers",
+    "header_level": 2,
+    "max_chunk_size": 8000,
+    "min_chunk_size": 1
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "3a120e0f07fa1765617519422c8ea1db7be69335bdb52684f1b38c170fe17a10",
+    "size": 38
+  },
+  "strategy": "markdown_chunker"
+}

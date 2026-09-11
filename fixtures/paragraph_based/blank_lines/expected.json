@@ -1,0 +1,61 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "alpha\n\nbravo",
+      "end": null,
+      "hash": "6672e0daeeced03b1f2787679434711ac51e5287d025cef018374a49ff2e15d6",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "paragraph_based",
+        "extra": {
+          "avg_paragraph_length": 5.0,
+          "first_paragraph_preview": "alpha",
+          "formatting_preserved": true,
+          "merged_short_paragraphs": false,
+          "paragraph_count": 2
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 12,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "charlie\n\ndelta",
+      "end": null,
+      "hash": "88eb7dd174c5e71b30bbe6b3148285be3f83c13e85f205b57dc90ae51e6d9820",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "paragraph_based",
+        "extra": {
+          "avg_paragraph_length": 6.0,
+          "first_paragraph_preview": "charlie",
+          "formatting_preserved": true,
+          "merged_short_paragraphs": false,
+          "paragraph_count": 2
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 14,
+      "start": null
+    }
+  ],
+  "params": {
+    "max_paragraphs": 2,
+    "merge_short_paragraphs": false,
+    "min_paragraphs": 1,
+    "overlap_paragraphs": 0
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "04a82fc54a43d2c1f2ab685cf37331c80b40996680f46acd7c1062a822c91317",
+    "size": 29
+  },
+  "strategy": "paragraph_based"
+}

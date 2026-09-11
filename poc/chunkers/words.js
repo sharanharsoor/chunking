@@ -25,13 +25,18 @@
     var i = 0;
     while (i < words.length) {
       var endIdx = Math.min(words.length, i + n);
+      var meta = Object.assign({}, extra, {
+        word_count: endIdx - i,
+        start_word_index: i,
+        end_word_index: endIdx - 1,
+      });
       chunks.push(
         root.chunkFromUtf16(
           "fixed_length_word_" + chunks.length,
           text,
           words[i].start,
           words[endIdx - 1].end,
-          extra
+          meta
         )
       );
       if (endIdx >= words.length) break;

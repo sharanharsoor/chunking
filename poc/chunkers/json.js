@@ -87,13 +87,18 @@
     var chunks = [];
     for (var i = 0; i < spans.length; i += per) {
       var group = spans.slice(i, i + per);
+      var meta = Object.assign({}, extra, {
+        json_object_count: group.length,
+        json_start_index: i,
+        json_end_index: i + group.length - 1,
+      });
       chunks.push(
         root.chunkFromUtf16(
           "json_chunker_" + chunks.length,
           text,
           group[0].start,
           group[group.length - 1].end,
-          extra
+          meta
         )
       );
     }

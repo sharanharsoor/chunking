@@ -51,9 +51,7 @@
         )
       );
       n += 1;
-      if (endIdx >= spans.length) break;
       i += stepSize;
-      if (i >= spans.length) break;
     }
     return chunks;
   }
@@ -81,7 +79,6 @@
           root.chunkFromScalar("overlapping_window_" + n, text, startPos, endPos, extra)
         );
         n += 1;
-        if (endPos >= chars.length) break;
         startPos += stepSize;
       }
       return chunks;

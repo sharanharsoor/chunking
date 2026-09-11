@@ -47,13 +47,18 @@ var jsonl = ctx.chunkJson('{"a":1}\n{"a":2}\n{"a":3}\n', { objects_per_chunk: 1 
 eq("jsonl chunks", jsonl.length, 3);
 
 var ov = ctx.chunkOverlappingWindow("abcdefghij", { window_size: 4, step_size: 2, window_unit: "characters" });
-eq("overlap count", ov.length, 4);
+eq("overlap count", ov.length, 5);
 eq("overlap first", ov[0].content, "abcd");
 eq("overlap second", ov[1].content, "cdef");
+eq("overlap last", ov[4].content, "ij");
 
 var emoji = "hi 👩\u200d💻 z";
 var fx = ctx.chunkFixedSize(emoji, { chunk_size: 4, overlap_size: 0 });
 eq("scalar emoji not split wrong", fx[0].end, 4);
+
+var fxo = ctx.chunkFixedSize("abcdefghij", { chunk_size: 4, overlap_size: 2 });
+eq("fixed overlap count", fxo.length, 3);
+eq("fixed overlap second", fxo[1].content, "cdefgh");
 
 var words = ctx.chunkFixedLengthWord("one two three four five", { words_per_chunk: 2, overlap_words: 0 });
 eq("word chunks", words.length, 3);

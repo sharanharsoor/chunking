@@ -27,6 +27,15 @@ python tools/run_fixture.py fixtures/sentence_based/simple_v1_unicode --write
 node tools/check_js_fixtures.js
 ```
 
-`check_js_fixtures.js` compares in-tab JS (`fixed_size`, `sentence_based`, `csv_chunker`) to the same `expected.json`. Text strategies must match `start` / `end` / `content` as Unicode strings (not bytes; `💩` is one scalar). CSV matches row spans (`csv_start_row`, `csv_end_row`, `csv_row_count`) because Python rewrites CSV text with `csv.writer` (`\r\n`).
+`check_js_fixtures.js` compares in-tab JS to the same `expected.json` for:
 
-This is not “the browser is byte-identical to pip.” It is three strategies, these five cases. Live knobs not in a fixture (e.g. `overlap_size > 0`) and the other in-tab chunkers are unchecked here. FastCDC / tiktoken / embeddings stay Python-only.
+| Strategy | What must match |
+|---|---|
+| `fixed_size`, `sentence_based`, `overlapping_window` (characters, `preserve_boundaries: false`) | `start` / `end` / `content` (Unicode strings, not bytes; `💩` is one scalar) |
+| `markdown_chunker` (`chunk_by=headers`, no preamble, no fenced `#`) | `content` after trim; Python does not set offsets |
+| `csv_chunker` | `csv_start_row` / `csv_end_row` / `csv_row_count` (Python `csv.writer` uses `\r\n`) |
+| `json_chunker` | `json_start_index` / `json_end_index` / `json_object_count` (Python re-dumps JSON) |
+| `paragraph_based` | `paragraph_count` (`merge_short_paragraphs: false`; Python collapses whitespace) |
+| `fixed_length_word` | `start_word_index` / `end_word_index` / `word_count`, plus `content` when spacing is a single space |
+
+This is not “the browser is byte-identical to pip.” Code strategies, `rolling_hash`, FastCDC, tiktoken, and embeddings stay unchecked here. Markdown with a preamble or `#` inside fences is lab JS behavior, not this golden.

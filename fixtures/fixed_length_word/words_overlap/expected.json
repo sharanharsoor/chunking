@@ -1,0 +1,82 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "one two three",
+      "end": null,
+      "hash": "6899ee404683a14e8c2a03149860df25d67d34d9cd4dae7350cbe91e4b3976be",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 0,
+          "chunking_strategy": "fixed_length_word",
+          "end_word_index": 2,
+          "start_word_index": 0,
+          "word_count": 3
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 13,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "three four five",
+      "end": null,
+      "hash": "7deaf5e2f640ecc12e997b12b62ebd235a5d39837c884860b42ef168475c2482",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 1,
+          "chunking_strategy": "fixed_length_word",
+          "end_word_index": 4,
+          "start_word_index": 2,
+          "word_count": 3
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 15,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "five six",
+      "end": null,
+      "hash": "c81b55d9544ee52b88e1106d3f18bb99c270ce8255e6916741e0295632604359",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 2,
+          "chunking_strategy": "fixed_length_word",
+          "end_word_index": 5,
+          "start_word_index": 4,
+          "word_count": 2
+        },
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 8,
+      "start": null
+    }
+  ],
+  "params": {
+    "min_chunk_words": 1,
+    "overlap_words": 1,
+    "words_per_chunk": 3
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "beb200d4012460a3e1356669a91aaee14b66209ce36761bd2f14ac5bbd98630a",
+    "size": 28
+  },
+  "strategy": "fixed_length_word"
+}

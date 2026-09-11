@@ -1,0 +1,74 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "abcd",
+      "end": 4,
+      "hash": "88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "fixed_size",
+        "extra": {
+          "end_pos": 4
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 4,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "cdefgh",
+      "end": 8,
+      "hash": "3c109ff8f33137d4a5d1ebdd47aa48d4790745fbde8a4d4d88636e8ee4d2c8fb",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "fixed_size",
+        "extra": {
+          "end_pos": 8
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 6,
+      "start": 2
+    },
+    {
+      "children_ids": [],
+      "content": "ghij\n",
+      "end": 11,
+      "hash": "caab399d3326c4d9a44fd79026c65f52a6d136bf97131dba9ec72d26684babf4",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "fixed_size",
+        "extra": {
+          "end_pos": 11
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 5,
+      "start": 6
+    }
+  ],
+  "params": {
+    "chunk_size": 4,
+    "overlap_size": 2,
+    "preserve_boundaries": false,
+    "unit": "character"
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "c4f6fa010fb86ed9f99900dbf654759acd894604192042d5944f7c935ba41f2c",
+    "size": 11
+  },
+  "strategy": "fixed_size"
+}

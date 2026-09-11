@@ -1,0 +1,9 @@
+{
+  "strategy": "paragraph_based",
+  "params": {
+    "max_paragraphs": 2,
+    "min_paragraphs": 1,
+    "merge_short_paragraphs": false,
+    "overlap_paragraphs": 0
+  }
+}

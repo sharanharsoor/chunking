@@ -1,0 +1,8 @@
+{
+  "strategy": "fixed_length_word",
+  "params": {
+    "words_per_chunk": 3,
+    "overlap_words": 1,
+    "min_chunk_words": 1
+  }
+}

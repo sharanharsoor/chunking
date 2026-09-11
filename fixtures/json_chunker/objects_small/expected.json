@@ -1,0 +1,81 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "[\n  {\n    \"a\": 1\n  },\n  {\n    \"a\": 2\n  }\n]",
+      "end": null,
+      "hash": "d7b5344b7ec1a5364fbde4ab3fbdfa58b3b3885871d9b59f7ab30ee5e54179c0",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 0,
+          "json_end_index": 1,
+          "json_format": "json",
+          "json_object_count": 2,
+          "json_start_index": 0
+        },
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 42,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "[\n  {\n    \"a\": 3\n  },\n  {\n    \"a\": 4\n  }\n]",
+      "end": null,
+      "hash": "e320fe4ed58c83f1b145d411a86aef6aa8985779e07ec487ec7a0942b9c65056",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 1,
+          "json_end_index": 3,
+          "json_format": "json",
+          "json_object_count": 2,
+          "json_start_index": 2
+        },
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 42,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "[\n  {\n    \"a\": 5\n  }\n]",
+      "end": null,
+      "hash": "ceab97d067f75e189210f460efa52cdff8d88f776843ad0c1079edef9dacf43e",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": null,
+        "extra": {
+          "chunk_index": 2,
+          "json_end_index": 4,
+          "json_format": "json",
+          "json_object_count": 1,
+          "json_start_index": 4
+        },
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 22,
+      "start": null
+    }
+  ],
+  "params": {
+    "chunk_by": "objects",
+    "objects_per_chunk": 2
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "c65f1fdeff7e094d69b0db72cdf96b7fe92a1f6b8a573b58de07a6715c1937e8",
+    "size": 42
+  },
+  "strategy": "json_chunker"
+}
