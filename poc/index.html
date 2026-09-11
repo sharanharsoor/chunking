@@ -453,7 +453,7 @@
       align-items: center;
       gap: 8px;
       min-width: 180px;
-      flex: 1 1 220px;
+      flex: 1 1 280px;
     }
     .retrieve span {
       font-size: 10px;
@@ -463,7 +463,7 @@
       white-space: nowrap;
     }
     .retrieve input {
-      flex: 1;
+      flex: 1 1 140px;
       min-width: 0;
       background: var(--paper);
       color: var(--paper-ink);
@@ -471,6 +471,11 @@
       border-radius: 999px;
       padding: 4px 10px;
       font: 12px/1.3 var(--font-ui);
+    }
+    .retrieve-hits {
+      font: 11px/1.3 var(--font-mono);
+      color: var(--muted);
+      white-space: nowrap;
     }
     .focus-pair { margin-left: auto; display: flex; gap: 6px; }
     .focus-chip {
@@ -630,11 +635,13 @@
       margin-left: auto;
       flex: 0 0 auto;
       border: 1px solid var(--accent);
-      color: var(--accent);
+      color: var(--paper);
+      background: var(--accent);
       border-radius: 999px;
       padding: 1px 6px;
       font: 10px/1.2 var(--font-mono);
     }
+    .chunk.hit { background: color-mix(in srgb, var(--accent) 14%, transparent); }
     .chunk p { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
     .chunk.active-a { background: var(--a-soft); box-shadow: inset 3px 0 0 var(--a); }
     .chunk.active-b { background: var(--b-soft); box-shadow: inset 3px 0 0 var(--b); }
@@ -953,9 +960,10 @@
           <div class="paper-meta">
             <strong id="source-kind">Document</strong>
             <label class="retrieve">
-              <span>Retrieve</span>
-              <input id="retrieve" type="text" spellcheck="false" autocomplete="off" placeholder="BM25 on these chunks — nothing leaves the tab" />
+              <span>Find</span>
+              <input id="retrieve" type="search" spellcheck="false" autocomplete="off" placeholder="Search these chunks" title="Ranks A and B. Nothing is uploaded." />
             </label>
+            <span class="retrieve-hits" id="retrieve-hits"></span>
             <span class="focus-pair">
               <button type="button" class="focus-chip a" id="focus-a">A</button>
               <button type="button" class="focus-chip b" id="focus-b">B</button>
@@ -1912,7 +1920,7 @@
     function renderAll() {
       document.getElementById("head-a").textContent = "A · " + strategyOf("a");
       document.getElementById("head-b").textContent = "B · " + strategyOf("b");
-      scoreRetrieve();
+      applyRetrieve(false);
       renderSource();
       ["a", "b"].forEach(function (s) {
         var chunks = currentResults[s] || [];
@@ -2015,7 +2023,12 @@
     }
 
     function tokenizeBm25(s) {
-      return String(s || "").toLowerCase().match(/[a-z0-9]+/g) || [];
+      var t = String(s || "").toLowerCase();
+      try {
+        return t.match(/[\p{L}\p{N}]+/gu) || [];
+      } catch (err) {
+        return t.match(/[a-z0-9]+/g) || [];
+      }
     }
 
     function scoreRetrieve() {
@@ -2068,6 +2081,62 @@
       });
     }
 
+    function topRetrieve(side) {
+      var map = retrieveRanks[side] || {};
+      var keys = Object.keys(map);
+      for (var i = 0; i < keys.length; i++) {
+        if (map[keys[i]] === 1) return Number(keys[i]);
+      }
+      return null;
+    }
+
+    function paintRetrieveHits() {
+      var el = document.getElementById("retrieve-hits");
+      if (!el) return;
+      var q = ((document.getElementById("retrieve") || {}).value || "").trim();
+      if (!q) {
+        el.textContent = "";
+        return;
+      }
+      var a = topRetrieve("a");
+      var b = topRetrieve("b");
+      if (a == null && b == null) {
+        el.textContent = "No chunk contains that";
+        return;
+      }
+      el.textContent = (a == null ? "A none" : "A #" + String(a).padStart(2, "0"))
+        + " · "
+        + (b == null ? "B none" : "B #" + String(b).padStart(2, "0"));
+    }
+
+    function applyRetrieve(jump) {
+      scoreRetrieve();
+      paintRetrieveHits();
+      if (!jump) return;
+      var q = ((document.getElementById("retrieve") || {}).value || "").trim();
+      if (q) {
+        ["a", "b"].forEach(function (side) {
+          var top = topRetrieve(side);
+          if (top != null) selected[side] = top;
+        });
+        if (topRetrieve(focusSide) == null) {
+          var other = focusSide === "a" ? "b" : "a";
+          if (topRetrieve(other) != null) focusSide = other;
+        }
+      }
+      ["a", "b"].forEach(function (s) {
+        var chunks = currentResults[s] || [];
+        renderList(s, chunks);
+        renderBars(s, chunks, selected[s]);
+        var top = topRetrieve(s);
+        if (q && top != null) {
+          var btn = document.getElementById("list-" + s).querySelectorAll("button.chunk")[top];
+          if (btn) btn.scrollIntoView({ block: "nearest" });
+        }
+      });
+      renderSource();
+    }
+
     function renderList(side, chunks) {
       var root = document.getElementById("list-" + side);
       root.replaceChildren();
@@ -2082,7 +2151,9 @@
       shown.forEach(function (chunk, i) {
         var el = document.createElement("button");
         el.type = "button";
-        el.className = "chunk" + (selected[side] === i ? " active-" + side : "");
+        el.className = "chunk"
+          + (selected[side] === i ? " active-" + side : "")
+          + (retrieveRanks[side] && retrieveRanks[side][i] ? " hit" : "");
         var head = document.createElement("div");
         head.className = "idx";
         var q = qualityOf(chunk, currentText, median);
@@ -2266,12 +2337,13 @@
 
     document.getElementById("retrieve").addEventListener("input", function () {
       clearTimeout(retrieveTimer);
-      retrieveTimer = setTimeout(function () {
-        scoreRetrieve();
-        ["a", "b"].forEach(function (s) {
-          renderList(s, currentResults[s] || []);
-        });
-      }, 200);
+      retrieveTimer = setTimeout(function () { applyRetrieve(true); }, 200);
+    });
+    document.getElementById("retrieve").addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      clearTimeout(retrieveTimer);
+      applyRetrieve(true);
     });
 
     function rerunSoon() {
