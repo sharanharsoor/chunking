@@ -12,6 +12,10 @@ Transform your documents into perfectly sized chunks for RAG systems, vector dat
 
 > **Platform Support**: Linux and macOS only. Windows support is not currently available.
 
+## Try the lab
+
+[Open the playground](https://sharanharsoor.github.io/chunking/) — compare two strategies on the same text, in the browser. Nothing is uploaded. Cap 150 MB here; `pip install chunking-strategy` streams from disk.
+
 ---
 
 ## 🚀 **Quick Start**
