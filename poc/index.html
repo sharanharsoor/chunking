@@ -21,6 +21,9 @@
       --radius: 12px;
       --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
       --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      --track: #3f3f46;
+      --thumb: #d4d4d8;
+      --ink: #f4f4f5;
     }
     [data-theme="light"] {
       color-scheme: light;
@@ -76,12 +79,33 @@
     html {
       scroll-behavior: smooth;
       overflow-x: hidden;
-      scrollbar-width: auto;
-      scrollbar-color: var(--thumb) var(--track);
+      overflow-y: scroll;
     }
-    html::-webkit-scrollbar { width: 14px; background: var(--track); }
-    html::-webkit-scrollbar-track { background: var(--track); }
-    html::-webkit-scrollbar-thumb { background: var(--thumb); border: 2px solid var(--track); border-radius: 8px; }
+    @supports not selector(::-webkit-scrollbar) {
+      * {
+        scrollbar-width: auto;
+        scrollbar-color: var(--thumb) var(--track);
+      }
+    }
+    ::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--track);
+    }
+    ::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-track { background: var(--track); }
+    ::-webkit-scrollbar-thumb,
+    *::-webkit-scrollbar-thumb {
+      background: var(--thumb);
+      border: 3px solid var(--track);
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb:hover,
+    *::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+    ::-webkit-scrollbar-corner,
+    *::-webkit-scrollbar-corner { background: var(--track); }
     body {
       margin: 0;
       background: var(--desk);
@@ -105,15 +129,10 @@
     code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
 
     .pane {
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: scroll;
       scrollbar-gutter: stable;
-      scrollbar-width: auto;
-      scrollbar-color: var(--thumb) var(--track);
     }
-    .pane::-webkit-scrollbar { width: 14px; height: 14px; background: var(--track); }
-    .pane::-webkit-scrollbar-track { background: var(--track); border-left: 1px solid var(--line); }
-    .pane::-webkit-scrollbar-thumb { background: var(--thumb); border: 2px solid var(--track); border-radius: 8px; }
-    .pane::-webkit-scrollbar-thumb:hover { background: var(--ink); }
 
     .nav {
       position: sticky;
@@ -169,7 +188,8 @@
     .ghost:focus-visible, .theme-btn:focus-visible, input:focus-visible,
     select:focus-visible, textarea:focus-visible, .drop:focus-visible,
     .chunk:focus-visible, .cta:focus-visible, .pip-pill:focus-visible,
-    .dest:focus-visible, .focus-chip:focus-visible {
+    .dest:focus-visible, .focus-chip:focus-visible, .picker-btn:focus-visible,
+    .picker-opt:focus-visible {
       outline: 2px solid var(--focus);
       outline-offset: 2px;
     }
@@ -319,7 +339,7 @@
     }
     .card.a { box-shadow: inset 3px 0 0 var(--a); }
     .card.b { box-shadow: inset 3px 0 0 var(--b); }
-    .card label.pick {
+    .card .pick {
       display: block;
       font-size: 10px;
       font-weight: 700;
@@ -327,14 +347,150 @@
       text-transform: uppercase;
       margin-bottom: 4px;
     }
-    .card.a label.pick { color: var(--a); }
-    .card.b label.pick { color: var(--b); }
+    .card.a .pick { color: var(--a); }
+    .card.b .pick { color: var(--b); }
     .card select, .card input {
       width: 100%;
       background: var(--drop);
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 7px 10px;
+    }
+    .picker { position: relative; }
+    .picker-native {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .picker-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--drop);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px 9px 12px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent);
+    }
+    .picker-btn:hover { border-color: color-mix(in srgb, var(--ink) 28%, var(--line)); }
+    .card.a .picker-btn[aria-expanded="true"] {
+      border-color: var(--a);
+      box-shadow: 0 0 0 3px var(--a-soft);
+    }
+    .card.b .picker-btn[aria-expanded="true"] {
+      border-color: var(--b);
+      box-shadow: 0 0 0 3px var(--b-soft);
+    }
+    .picker-name {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 650;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .picker-caret {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      padding: 4px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      color: var(--muted);
+    }
+    .picker-btn[aria-expanded="true"] .picker-caret { transform: rotate(180deg); }
+    .picker-menu {
+      display: none;
+      position: fixed;
+      z-index: 80;
+      box-sizing: border-box;
+      background: var(--chrome);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+      padding: 6px;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+    .picker-menu:not([hidden]) { display: block; }
+    [data-theme="light"] .picker-menu {
+      box-shadow: 0 16px 40px rgba(24, 24, 27, 0.16);
+    }
+    .picker-group {
+      padding: 2px 0 6px;
+    }
+    .picker-group + .picker-group {
+      margin-top: 2px;
+      border-top: 1px solid var(--line);
+    }
+    .picker-h {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 10px 6px;
+    }
+    .picker-h::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+    .picker-opt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .picker-opt::before {
+      content: "";
+      flex-shrink: 0;
+      width: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .picker-opt:hover, .picker-opt:focus-visible { background: rgba(127, 127, 127, 0.12); }
+    .picker-opt.on { font-weight: 650; }
+    .picker-opt.on::before { content: "✓"; }
+    .picker-menu[data-side="a"] .picker-opt.on { background: var(--a-soft); color: var(--a); }
+    .picker-menu[data-side="b"] .picker-opt.on { background: var(--b-soft); color: var(--b); }
+    .picker-opt[disabled] {
+      color: var(--muted);
+      cursor: default;
+      opacity: 0.6;
+    }
+    .picker-opt[disabled]:hover { background: none; }
+    .picker-opt[disabled]::before { content: ""; }
+    .picker-note {
+      margin-left: auto;
+      font-family: var(--font-ui);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
     .card .why { margin: 4px 0 6px; font-size: 11px; color: var(--muted); line-height: 1.35; }
     .knobs { display: grid; gap: 6px; }
@@ -380,7 +536,9 @@
       margin: 0;
       padding: 8px;
       max-height: 7.8em;
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
       background: var(--code-bg);
       color: var(--code-ink);
       font: 10.5px/1.4 var(--font-mono);
@@ -481,13 +639,12 @@
       tab-size: 2;
     }
     #source-hl {
-      overflow: auto;
+      overflow: hidden;
+      right: 14px;
       pointer-events: none;
       color: var(--paper-ink);
       background: transparent;
-      scrollbar-gutter: stable;
     }
-    #source-hl::-webkit-scrollbar { width: 14px; height: 14px; }
     #source-hl.off { opacity: 0; }
     #source-hl mark { color: inherit; padding: 0 1px; }
     #source-hl mark.a {
@@ -514,8 +671,11 @@
       color: transparent;
       caret-color: var(--paper-ink);
       outline: none;
-      overflow-x: hidden;
+      overflow-x: auto;
+      overflow-y: scroll;
       overflow-wrap: anywhere;
+      scrollbar-gutter: stable;
+      z-index: 1;
     }
     #source.plain { color: var(--paper-ink); }
 
@@ -882,14 +1042,28 @@
           </details>
 
           <div class="card a">
-            <label class="pick" for="pick-a">Strategy A</label>
-            <select id="pick-a"></select>
+            <span class="pick" id="pick-a-label">Strategy A</span>
+            <div class="picker" data-side="a">
+              <button type="button" class="picker-btn" id="pick-a-btn" aria-labelledby="pick-a-label pick-a-name" aria-haspopup="listbox" aria-expanded="false" aria-controls="pick-a-menu">
+                <span class="picker-name" id="pick-a-name">fixed_size</span>
+                <svg class="picker-caret" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <select id="pick-a" class="picker-native" tabindex="-1" aria-hidden="true"></select>
+              <div class="picker-menu" id="pick-a-menu" role="listbox" hidden></div>
+            </div>
             <p class="why" id="why-a"></p>
             <div class="knobs" id="knobs-a"></div>
           </div>
           <div class="card b">
-            <label class="pick" for="pick-b">Strategy B</label>
-            <select id="pick-b"></select>
+            <span class="pick" id="pick-b-label">Strategy B</span>
+            <div class="picker" data-side="b">
+              <button type="button" class="picker-btn" id="pick-b-btn" aria-labelledby="pick-b-label pick-b-name" aria-haspopup="listbox" aria-expanded="false" aria-controls="pick-b-menu">
+                <span class="picker-name" id="pick-b-name">sentence_based</span>
+                <svg class="picker-caret" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <select id="pick-b" class="picker-native" tabindex="-1" aria-hidden="true"></select>
+              <div class="picker-menu" id="pick-b-menu" role="listbox" hidden></div>
+            </div>
             <p class="why" id="why-b"></p>
             <div class="knobs" id="knobs-b"></div>
           </div>
@@ -1555,6 +1729,7 @@
     spawnWorker();
 
     function fillSelect(sel, value) {
+      var side = sel.id === "pick-a" ? "a" : "b";
       sel.replaceChildren();
       LIVE_GROUPS.forEach(function (group) {
         var og = document.createElement("optgroup");
@@ -1567,22 +1742,148 @@
         });
         sel.appendChild(og);
       });
-      var later = document.createElement("optgroup");
-      later.label = "Python library — not in this tab";
+      sel.value = value;
+      var menu = document.getElementById("pick-" + side + "-menu");
+      if (menu.parentNode !== document.body) document.body.appendChild(menu);
+      menu.dataset.side = side;
+      menu.replaceChildren();
+      LIVE_GROUPS.forEach(function (group) {
+        var block = document.createElement("div");
+        block.className = "picker-group";
+        block.setAttribute("role", "group");
+        block.setAttribute("aria-label", group.label);
+        var h = document.createElement("div");
+        h.className = "picker-h";
+        h.textContent = group.label;
+        block.appendChild(h);
+        group.names.forEach(function (name) {
+          var opt = document.createElement("button");
+          opt.type = "button";
+          opt.className = "picker-opt";
+          opt.id = "pick-" + side + "-opt-" + name;
+          opt.setAttribute("role", "option");
+          opt.setAttribute("data-value", name);
+          opt.textContent = LIVE[name].label;
+          opt.addEventListener("click", function () {
+            sel.value = name;
+            closePickers();
+            sel.dispatchEvent(new Event("change"));
+          });
+          block.appendChild(opt);
+        });
+        menu.appendChild(block);
+      });
+      var later = document.createElement("div");
+      later.className = "picker-group";
+      later.setAttribute("role", "group");
+      later.setAttribute("aria-label", "Python library");
+      var lh = document.createElement("div");
+      lh.className = "picker-h";
+      lh.textContent = "Python library";
+      later.appendChild(lh);
       LATER.forEach(function (item) {
-        var opt = document.createElement("option");
+        var opt = document.createElement("button");
+        opt.type = "button";
+        opt.className = "picker-opt";
         opt.disabled = true;
-        opt.textContent = item.name + " — " + item.note;
+        opt.textContent = item.name;
+        var note = document.createElement("span");
+        note.className = "picker-note";
+        note.textContent = item.note;
+        opt.appendChild(note);
         later.appendChild(opt);
       });
-      sel.appendChild(later);
-      sel.value = value;
+      menu.appendChild(later);
+      syncPicker(side);
+    }
+
+    function syncPicker(side) {
+      var name = strategyOf(side);
+      var label = document.getElementById("pick-" + side + "-name");
+      if (label) label.textContent = name;
+      var menu = document.getElementById("pick-" + side + "-menu");
+      if (!menu) return;
+      menu.querySelectorAll(".picker-opt[data-value]").forEach(function (el) {
+        var on = el.getAttribute("data-value") === name;
+        el.classList.toggle("on", on);
+        el.setAttribute("aria-selected", on ? "true" : "false");
+      });
+    }
+
+    function placePicker(side) {
+      var btn = document.getElementById("pick-" + side + "-btn");
+      var menu = document.getElementById("pick-" + side + "-menu");
+      var r = btn.getBoundingClientRect();
+      var width = Math.max(r.width, 280);
+      var left = Math.min(r.left, window.innerWidth - width - 8);
+      if (left < 8) left = 8;
+      var top = r.bottom + 6;
+      var maxH = Math.min(420, window.innerHeight - top - 12);
+      if (maxH < 160) {
+        maxH = Math.min(420, r.top - 12);
+        top = Math.max(8, r.top - maxH - 6);
+      }
+      menu.style.position = "fixed";
+      menu.style.left = left + "px";
+      menu.style.top = top + "px";
+      menu.style.width = width + "px";
+      menu.style.maxHeight = maxH + "px";
+    }
+
+    function closePickers() {
+      ["a", "b"].forEach(function (side) {
+        var btn = document.getElementById("pick-" + side + "-btn");
+        var menu = document.getElementById("pick-" + side + "-menu");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+        if (menu) menu.hidden = true;
+      });
+    }
+
+    function openPickerSide() {
+      if (document.getElementById("pick-a-btn").getAttribute("aria-expanded") === "true") return "a";
+      if (document.getElementById("pick-b-btn").getAttribute("aria-expanded") === "true") return "b";
+      return null;
+    }
+
+    function pickerChoices(menu) {
+      return Array.prototype.filter.call(menu.querySelectorAll(".picker-opt"), function (el) {
+        return !el.disabled;
+      });
+    }
+
+    function movePickerFocus(menu, delta) {
+      var opts = pickerChoices(menu);
+      if (!opts.length) return;
+      var i = opts.indexOf(document.activeElement);
+      if (i < 0) {
+        for (var n = 0; n < opts.length; n++) {
+          if (opts[n].classList.contains("on")) { i = n; break; }
+        }
+      }
+      if (delta === "first") i = 0;
+      else if (delta === "last") i = opts.length - 1;
+      else i = Math.max(0, Math.min(opts.length - 1, (i < 0 ? 0 : i) + delta));
+      opts[i].focus();
+    }
+
+    function togglePicker(side) {
+      var btn = document.getElementById("pick-" + side + "-btn");
+      var open = btn.getAttribute("aria-expanded") === "true";
+      closePickers();
+      if (open) return;
+      var menu = document.getElementById("pick-" + side + "-menu");
+      menu.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      placePicker(side);
+      var on = menu.querySelector(".picker-opt.on");
+      if (on) on.focus();
     }
 
     function paintKnob(side) {
       var spec = LIVE[strategyOf(side)];
       document.getElementById("why-" + side).textContent = spec.why;
       document.getElementById("head-" + side).textContent = side.toUpperCase() + " · " + strategyOf(side);
+      syncPicker(side);
       var box = document.getElementById("knobs-" + side);
       box.replaceChildren();
       (spec.knobs || []).forEach(function (k) {
@@ -2320,9 +2621,49 @@
         renderFocus();
         rerunSoon();
       });
+      document.getElementById("pick-" + side + "-btn").addEventListener("click", function (e) {
+        e.stopPropagation();
+        togglePicker(side);
+      });
+      document.getElementById("pick-" + side + "-btn").addEventListener("keydown", function (e) {
+        if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+        e.preventDefault();
+        if (document.getElementById("pick-" + side + "-btn").getAttribute("aria-expanded") !== "true") {
+          togglePicker(side);
+        }
+        if (e.key === "ArrowUp") movePickerFocus(document.getElementById("pick-" + side + "-menu"), "last");
+      });
       knobsOf(side).addEventListener("input", rerunSoon);
       knobsOf(side).addEventListener("change", rerunSoon);
     });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest(".picker-menu")) return;
+      if (e.target.closest && e.target.closest(".picker-btn")) return;
+      closePickers();
+    });
+    document.addEventListener("keydown", function (e) {
+      var side = openPickerSide();
+      if (!side) return;
+      var menu = document.getElementById("pick-" + side + "-menu");
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closePickers();
+        document.getElementById("pick-" + side + "-btn").focus();
+        return;
+      }
+      if (e.key === "ArrowDown") { e.preventDefault(); movePickerFocus(menu, 1); }
+      if (e.key === "ArrowUp") { e.preventDefault(); movePickerFocus(menu, -1); }
+      if (e.key === "Home") { e.preventDefault(); movePickerFocus(menu, "first"); }
+      if (e.key === "End") { e.preventDefault(); movePickerFocus(menu, "last"); }
+    });
+    addEventListener("resize", function () {
+      var side = openPickerSide();
+      if (side) placePicker(side);
+    });
+    addEventListener("scroll", function () {
+      var side = openPickerSide();
+      if (side) placePicker(side);
+    }, true);
     function copied(btn, label) {
       var prev = btn.textContent;
       btn.textContent = label;
