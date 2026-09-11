@@ -1,0 +1,8 @@
+{
+  "strategy": "csv_chunker",
+  "params": {
+    "chunk_by": "rows",
+    "rows_per_chunk": 2,
+    "preserve_headers": true
+  }
+}

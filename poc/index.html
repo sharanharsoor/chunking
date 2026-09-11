@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chunking Playground</title>
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <style>
+    :root {
+      --a: #ea580c;
+      --a-soft: rgba(234, 88, 12, 0.18);
+      --b: #14b8a6;
+      --b-soft: rgba(20, 184, 166, 0.18);
+      --accent: #818cf8;
+      --radius: 12px;
+      --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+    [data-theme="light"] {
+      color-scheme: light;
+      --desk: #f4f4f5;
+      --rail-bg: #fafafa;
+      --chrome: #ffffff;
+      --paper: #ffffff;
+      --paper-bar: #f4f4f5;
+      --paper-ink: #18181b;
+      --ink: #18181b;
+      --muted: #71717a;
+      --line: #e4e4e7;
+      --col: #fafafa;
+      --code-bg: #18181b;
+      --code-ink: #e4e4e7;
+      --ok: #16a34a;
+      --ok-bg: #dcfce7;
+      --warn: #c2410c;
+      --warn-bg: #ffedd5;
+      --focus: #6366f1;
+      --drop: #ffffff;
+      --track: #d4d4d8;
+      --thumb: #52525b;
+      --hero-sub: #52525b;
+      --a: #c2410c;
+      --b: #0f766e;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --desk: #09090b;
+      --rail-bg: #18181b;
+      --chrome: #18181b;
+      --paper: #18181b;
+      --paper-bar: #27272a;
+      --paper-ink: #f4f4f5;
+      --ink: #f4f4f5;
+      --muted: #a1a1aa;
+      --line: rgba(255,255,255,0.08);
+      --col: #141416;
+      --code-bg: #09090b;
+      --code-ink: #e4e4e7;
+      --ok: #4ade80;
+      --ok-bg: rgba(34, 197, 94, 0.12);
+      --warn: #fdba74;
+      --warn-bg: rgba(234, 88, 12, 0.16);
+      --focus: #818cf8;
+      --drop: #27272a;
+      --track: #3f3f46;
+      --thumb: #d4d4d8;
+      --hero-sub: #a1a1aa;
+    }
+    * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      scrollbar-width: auto;
+      scrollbar-color: var(--thumb) var(--track);
+    }
+    html::-webkit-scrollbar { width: 14px; background: var(--track); }
+    html::-webkit-scrollbar-track { background: var(--track); }
+    html::-webkit-scrollbar-thumb { background: var(--thumb); border: 2px solid var(--track); border-radius: 8px; }
+    body {
+      margin: 0;
+      background: var(--desk);
+      color: var(--ink);
+      font: 14px/1.45 var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hero, .wrap, .section, .pipeline, .site-foot {
+      position: relative;
+      z-index: 1;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    a { color: inherit; }
+    code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+    .pane {
+      overflow: auto;
+      scrollbar-gutter: stable;
+      scrollbar-width: auto;
+      scrollbar-color: var(--thumb) var(--track);
+    }
+    .pane::-webkit-scrollbar { width: 14px; height: 14px; background: var(--track); }
+    .pane::-webkit-scrollbar-track { background: var(--track); border-left: 1px solid var(--line); }
+    .pane::-webkit-scrollbar-thumb { background: var(--thumb); border: 2px solid var(--track); border-radius: 8px; }
+    .pane::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 28px;
+      background: color-mix(in srgb, var(--desk) 88%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .brand em { font-style: normal; color: var(--accent); }
+    .privacy {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ok);
+      background: var(--ok-bg);
+      padding: 5px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .privacy i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ok);
+    }
+    .ghost, .theme-btn, .link-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .ghost:hover, .theme-btn:hover, .link-btn:hover { border-color: var(--ink); }
+    .link-btn { color: var(--accent); border-color: rgba(129, 140, 248, 0.45); }
+    .ghost:focus-visible, .theme-btn:focus-visible, input:focus-visible,
+    select:focus-visible, textarea:focus-visible, .drop:focus-visible,
+    .chunk:focus-visible, .cta:focus-visible, .pip-pill:focus-visible,
+    .dest:focus-visible, .focus-chip:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .wrap { width: min(1280px, calc(100% - 72px)); margin: 0 auto; }
+    .inset {
+      width: min(1040px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 24px 22px 22px;
+      background: color-mix(in srgb, var(--chrome) 72%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 22px 16px 14px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3.6vw, 2.7rem);
+      font-weight: 650;
+      letter-spacing: -0.045em;
+      line-height: 1.15;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p {
+      margin: 14px auto 0;
+      max-width: 54ch;
+      color: var(--hero-sub);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .playground {
+      background: var(--chrome);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      height: calc(100dvh - 14rem);
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+    }
+    .app {
+      flex: 1;
+      min-height: 0;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 280px) minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: minmax(200px, 42%) 1fr;
+      gap: 12px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--desk) 92%, transparent);
+      overflow: hidden;
+    }
+    .rail, .paper, .col {
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--chrome);
+    }
+
+    .rail {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      background: var(--rail-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      gap: 0;
+    }
+    .rail-scroll {
+      flex: 1;
+      min-height: 0;
+      padding: 12px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .drop {
+      flex-shrink: 0;
+      min-width: 0;
+      border: 1.5px dashed var(--line);
+      border-radius: 10px;
+      background: var(--drop);
+      padding: 14px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .drop:hover, .drop.over { border-color: var(--accent); }
+    .drop svg { display: none; }
+    .drop h2 { margin: 0 0 4px; font-size: 14px; }
+    .drop p { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .cta {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--chrome);
+      font-size: 12px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+    #file { display: none; }
+    .drop > div { min-width: 0; margin-top: 8px; }
+    .badge {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 8px;
+      border-radius: 8px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .badge.idle { color: var(--muted); background: transparent; border: 1px solid var(--line); }
+    .badge.demo { color: var(--warn); background: var(--warn-bg); }
+    .badge.local { color: var(--ok); background: var(--ok-bg); }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--chrome);
+      padding: 10px;
+    }
+    .card.a { box-shadow: inset 3px 0 0 var(--a); }
+    .card.b { box-shadow: inset 3px 0 0 var(--b); }
+    .card label.pick {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .card.a label.pick { color: var(--a); }
+    .card.b label.pick { color: var(--b); }
+    .card select, .card input {
+      width: 100%;
+      background: var(--drop);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+    }
+    .card .why { margin: 4px 0 6px; font-size: 11px; color: var(--muted); line-height: 1.35; }
+    .knobs { display: grid; gap: 6px; }
+    .knob-row { min-width: 0; }
+    .card .knob-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .knob-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .knob-check .knob-label { margin: 0; }
+    .card input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--accent); }
+    .knob-row.bad input, .knob-row.bad select { border-color: var(--a); }
+    .knob-hint { margin: 4px 0 0; font-size: 10px; color: var(--a); line-height: 1.3; }
+    .later { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .later code, #nway code {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      word-break: break-word;
+    }
+    #autopick { color: var(--ink); }
+    #status { font-size: 11px; color: var(--muted); min-height: 2.4em; line-height: 1.4; }
+
+    .pip {
+      flex-shrink: 0;
+      margin-top: 0;
+      padding: 10px 12px 12px;
+      border-top: 1px solid var(--line);
+      background: var(--rail-bg);
+    }
+    .pip-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .pip-head > span:first-child { font-size: 11px; font-weight: 700; }
+    .pip-head > span:last-child { display: inline-flex; gap: 12px; font-size: 11px; font-weight: 600; }
+    .pip .ghost { border: 0; padding: 0; }
+    .pip .ghost:hover { text-decoration: underline; }
+    .pip pre {
+      margin: 0;
+      padding: 8px;
+      max-height: 7.8em;
+      overflow: auto;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      font: 10.5px/1.4 var(--font-mono);
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-radius: 8px;
+    }
+
+    .paper {
+      grid-column: 2 / 4;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--paper);
+      color: var(--paper-ink);
+      border-left: 3px solid var(--accent);
+    }
+    .paper.over { box-shadow: inset 0 0 0 2px var(--accent); }
+    .paper-meta {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--paper-bar);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .paper-meta strong { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+    .focus-pair { margin-left: auto; display: flex; gap: 6px; }
+    .focus-chip {
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font: 11px/1.2 var(--font-mono);
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .focus-chip.a.on {
+      color: var(--a);
+      border-color: var(--a);
+      background: var(--a-soft);
+    }
+    .focus-chip.b.on {
+      color: var(--b);
+      border-color: var(--b);
+      background: var(--b-soft);
+    }
+
+    .source-stack {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+    .source-face {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      padding: 14px 18px 16px;
+      border: 0;
+      font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      tab-size: 2;
+    }
+    #source-hl {
+      overflow: auto;
+      pointer-events: none;
+      color: var(--paper-ink);
+      background: transparent;
+      scrollbar-gutter: stable;
+    }
+    #source-hl::-webkit-scrollbar { width: 14px; height: 14px; }
+    #source-hl.off { opacity: 0; }
+    #source-hl mark { color: inherit; padding: 0 1px; }
+    #source-hl mark.a {
+      background: var(--a-soft);
+      border-bottom: 2px solid var(--a);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    #source-hl mark.b {
+      background: var(--b-soft);
+      border-bottom: 2px solid var(--b);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    #source {
+      resize: none;
+      background: transparent;
+      color: transparent;
+      caret-color: var(--paper-ink);
+      outline: none;
+      overflow-x: hidden;
+      overflow-wrap: anywhere;
+    }
+    #source.plain { color: var(--paper-ink); }
+
+    .col { display: flex; flex-direction: column; background: var(--col); }
+    .col.a { grid-column: 2; grid-row: 2; }
+    .col.b { grid-column: 3; grid-row: 2; }
+    .col-head {
+      min-width: 0;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--line);
+      background: var(--chrome);
+    }
+    .col.a .col-head { box-shadow: inset 0 2px 0 var(--a); }
+    .col.b .col-head { box-shadow: inset 0 2px 0 var(--b); }
+    .col-head h2 {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (max-width: 720px) {
+      .col-head h2 { text-transform: none; letter-spacing: 0; font-size: 10px; }
+    }
+    .col.a h2 { color: var(--a); }
+    .col.b h2 { color: var(--b); }
+    .stats { margin-top: 2px; font: 11px/1.35 var(--font-mono); color: var(--muted); }
+    .stats button {
+      background: none;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: underline dotted;
+      text-underline-offset: 2px;
+    }
+    .bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 28px;
+      margin-top: 8px;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .bars i { flex: 1 1 0; min-width: 0; display: block; cursor: pointer; opacity: 0.28; border-radius: 2px 2px 0 0; }
+    .col.a .bars i { background: var(--a); }
+    .col.b .bars i { background: var(--b); }
+    .bars i.on { opacity: 1; }
+    .chunk-list { flex: 1; min-height: 0; }
+    .chunk {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+    .chunk:hover { background: rgba(127,127,127,0.08); }
+    .chunk .idx { font: 10px/1.3 var(--font-mono); color: var(--muted); }
+    .chunk p { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+    .chunk.active-a { background: var(--a-soft); box-shadow: inset 3px 0 0 var(--a); }
+    .chunk.active-b { background: var(--b-soft); box-shadow: inset 3px 0 0 var(--b); }
+
+    .section {
+      padding: 48px 0 16px;
+      text-align: center;
+    }
+    .section h2, .pipeline h2 {
+      margin: 0 0 18px;
+      font-size: 1.35rem;
+      font-weight: 650;
+      letter-spacing: -0.04em;
+      scroll-margin-top: 72px;
+    }
+    .how {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align: left;
+    }
+    .how article {
+      background: var(--desk);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 14px 14px;
+    }
+    .how .n {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--accent) 22%, transparent);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .how h3 { margin: 0 0 8px; font-size: 15px; }
+    .how p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .rag { padding-bottom: 8px; }
+    .rag p.lead {
+      margin: -12px auto 20px;
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .rag-board {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 6px;
+      width: min(860px, 100%);
+      margin: 0 auto;
+      padding: 22px 18px;
+      background: color-mix(in srgb, var(--chrome) 78%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .rag-step {
+      width: 96px;
+      padding: 14px 8px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--desk);
+      text-align: center;
+    }
+    .rag-step svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .rag-step b {
+      display: block;
+      margin-top: 8px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      font-weight: 750;
+    }
+    .rag-step small {
+      display: block;
+      margin-top: 2px;
+      font-size: 9px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .rag-step.here {
+      width: 118px;
+      border-color: rgba(129, 140, 248, 0.7);
+      background: color-mix(in srgb, var(--accent) 14%, var(--desk));
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.25), 0 0 28px rgba(129, 140, 248, 0.38);
+      animation: ragpulse 2.6s ease-in-out infinite;
+    }
+    .rag-step.here svg { stroke: var(--accent); }
+    .rag-arrow {
+      width: 22px;
+      align-self: center;
+      height: 2px;
+      position: relative;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      flex-shrink: 0;
+    }
+    .rag-arrow i {
+      position: absolute;
+      top: -3px;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      box-shadow: 0 0 10px var(--accent);
+      animation: mote 2.2s linear infinite;
+    }
+    .rag-arrow:nth-of-type(1) i { animation-delay: 0s; }
+    .rag-arrow:nth-of-type(2) i { animation-delay: 0.35s; }
+    .rag-arrow:nth-of-type(3) i { animation-delay: 0.7s; }
+    .rag-arrow:nth-of-type(4) i { animation-delay: 1.05s; }
+    .rag-arrow:nth-of-type(5) i { animation-delay: 1.4s; }
+    @keyframes ragpulse {
+      0%, 100% { box-shadow: 0 0 14px rgba(129, 140, 248, 0.28); }
+      50% { box-shadow: 0 0 32px rgba(129, 140, 248, 0.62); }
+    }
+    @keyframes mote {
+      0% { left: 0; opacity: 0; }
+      18% { opacity: 1; }
+      100% { left: 14px; opacity: 0; }
+    }
+    .rag figcaption {
+      margin: 14px auto 0;
+      max-width: 52ch;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pipeline { padding: 48px 0 72px; text-align: center; }
+    .pipeline .rule {
+      width: min(720px, 100%);
+      height: 1px;
+      background: var(--line);
+      margin: 0 auto 48px;
+    }
+    .pipeline p {
+      margin: 0 auto 22px;
+      max-width: 52ch;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .pip-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: 0;
+      cursor: pointer;
+    }
+    .destinations {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 22px;
+      text-align: left;
+    }
+    .dest {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      min-width: 0;
+      padding: 14px 16px;
+      background: color-mix(in srgb, var(--chrome) 88%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      text-decoration: none;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .dest:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .dest-art {
+      width: 84px;
+      height: 84px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #0b0b12;
+    }
+    .dest-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.28);
+    }
+    .dest h3 { margin: 0 0 4px; font-size: 15px; }
+    .dest p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+
+    .site-foot {
+      text-align: center;
+      padding: 0 20px 40px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 960px) {
+      .nav { padding: 10px 16px; }
+      .hero { padding-top: 28px; }
+      .playground { height: auto; min-height: 0; }
+      .app {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: auto auto auto;
+      }
+      .paper { grid-column: 1 / -1; grid-row: 1; min-height: 240px; }
+      .col.a { grid-column: 1; grid-row: 2; min-height: 280px; }
+      .col.b { grid-column: 2; grid-row: 2; min-height: 280px; }
+      .rail { grid-column: 1 / -1; grid-row: 3; max-height: none; }
+      .how { grid-template-columns: 1fr; }
+      .rag-board { flex-wrap: wrap; width: auto; }
+      .destinations { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .rag-step.here, .rag-arrow i { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <header class="nav">
+    <a class="brand" href="#">Chunking <em>Playground</em></a>
+    <div class="privacy"><i></i> Runs entirely in your browser</div>
+    <button type="button" class="theme-btn" id="theme"></button>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+  </header>
+
+  <section class="hero wrap">
+    <h1>Compare chunking strategies <em>side-by-side</em></h1>
+    <p>Drop a text file — or type, paste, and edit the document — and see how two algorithms split the same source. Nothing is uploaded. When you are ready, it is one pip install.</p>
+  </section>
+
+  <div class="wrap">
+    <div class="playground">
+      <div class="app">
+        <aside class="rail">
+          <div class="rail-scroll pane">
+          <div class="drop" id="drop" role="button" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 3v5h5"/>
+            </svg>
+            <h2>Drop a text file</h2>
+            <p>.txt .md .csv .json .html .py .js .css pick a format-aware default. You can always switch. Tokens / FastCDC / embeddings stay in pip.</p>
+            <span class="cta">Choose a file</span>
+            <div><span class="badge idle" id="upload-badge">Nothing uploaded</span></div>
+          </div>
+          <input id="file" type="file" accept=".txt,.md,.markdown,.py,.js,.jsx,.ts,.tsx,.json,.jsonl,.ndjson,.csv,.tsv,.xml,.html,.htm,.css,.scss,.go,.java,.c,.h,.cpp,.cc,.hpp,.yaml,.yml,.log,.toml,text/plain" />
+
+          <div class="card a">
+            <label class="pick" for="pick-a">Strategy A</label>
+            <select id="pick-a"></select>
+            <p class="why" id="why-a"></p>
+            <div class="knobs" id="knobs-a"></div>
+          </div>
+          <div class="card b">
+            <label class="pick" for="pick-b">Strategy B</label>
+            <select id="pick-b"></select>
+            <p class="why" id="why-b"></p>
+            <div class="knobs" id="knobs-b"></div>
+          </div>
+          <p class="later" id="autopick"></p>
+          <p class="later" id="nway">This tab is two columns. Three or more strategies on one file: <code>pip install chunking-strategy</code> then <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code> — or loop <code>create_chunker(name)</code>. Grey names are pip-only. Cap 150 MB here; Python streams from disk.</p>
+          <div id="status"></div>
+          </div>
+          <div class="pip">
+            <div class="pip-head">
+              <span>Python equivalent</span>
+              <span>
+                <button type="button" class="ghost" id="export">Export</button>
+                <button type="button" class="ghost" id="copy">Copy</button>
+              </span>
+            </div>
+            <pre id="snippet"></pre>
+          </div>
+        </aside>
+
+        <section class="paper" id="paper" aria-label="Source document">
+          <div class="paper-meta">
+            <strong id="source-kind">Document</strong>
+            <span class="focus-pair">
+              <button type="button" class="focus-chip a" id="focus-a">A</button>
+              <button type="button" class="focus-chip b" id="focus-b">B</button>
+            </span>
+          </div>
+          <div class="source-stack">
+            <div id="source-hl" class="source-face" aria-hidden="true"></div>
+            <textarea id="source" class="source-face pane" spellcheck="false" placeholder="Type or paste text here…"></textarea>
+          </div>
+        </section>
+
+        <section class="col a">
+          <div class="col-head">
+            <h2 id="head-a">A</h2>
+            <div class="stats" id="stats-a"></div>
+            <div class="bars" id="bars-a"></div>
+          </div>
+          <div class="chunk-list pane" id="list-a"></div>
+        </section>
+        <section class="col b">
+          <div class="col-head">
+            <h2 id="head-b">B</h2>
+            <div class="stats" id="stats-b"></div>
+            <div class="bars" id="bars-b"></div>
+          </div>
+          <div class="chunk-list pane" id="list-b"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="inset">
+    <h2>How it works</h2>
+    <div class="how">
+      <article>
+        <div class="n">1</div>
+        <h3>Drop a file — or paste</h3>
+        <p>Text files stay in this tab. Nothing is uploaded. The box on the right is a real document: type, paste, or drop a file and the chunks update.</p>
+      </article>
+      <article>
+        <div class="n">2</div>
+        <h3>Compare strategies</h3>
+        <p>Two algorithms, same source. Click a chunk to underline its range. Want a third? Swap a picker, or run N-way in the Python library — this tab stays A vs B.</p>
+      </article>
+      <article>
+        <div class="n">3</div>
+        <h3>Copy the pip command</h3>
+        <p>The snippet on the left is already Python: same strategy names, same knobs. Grey names in the dropdowns ship in the library, not this tab.</p>
+      </article>
+    </div>
+    </div>
+  </section>
+
+  <section class="section rag">
+    <h2>Where chunking sits in RAG</h2>
+    <p class="lead">Retrieval can only be as good as the pieces you embed. This lab is that first cut — before vectors, before the index, before the model.</p>
+    <figure>
+      <div class="rag-board" role="img" aria-label="RAG pipeline: document, chunking — this playground — then embed, index, retrieve, and LLM.">
+        <div class="rag-step">
+          <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+          <b>DOCUMENT</b>
+        </div>
+        <span class="rag-arrow" aria-hidden="true"><i></i></span>
+        <div class="rag-step here">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>
+          <b>CHUNKING</b>
+          <small>this playground</small>
+        </div>
+        <span class="rag-arrow" aria-hidden="true"><i></i></span>
+        <div class="rag-step">
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="6" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+          <b>EMBED</b>
+        </div>
+        <span class="rag-arrow" aria-hidden="true"><i></i></span>
+        <div class="rag-step">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="2.4"/><path d="M5 6v4c0 1.3 3.1 2.4 7 2.4s7-1.1 7-2.4V6"/><path d="M5 10v4c0 1.3 3.1 2.4 7 2.4s7-1.1 7-2.4v-4"/><path d="M5 14v4c0 1.3 3.1 2.4 7 2.4s7-1.1 7-2.4v-4"/></svg>
+          <b>INDEX</b>
+        </div>
+        <span class="rag-arrow" aria-hidden="true"><i></i></span>
+        <div class="rag-step">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/></svg>
+          <b>RETRIEVE</b>
+        </div>
+        <span class="rag-arrow" aria-hidden="true"><i></i></span>
+        <div class="rag-step">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/></svg>
+          <b>LLM</b>
+        </div>
+      </div>
+      <figcaption>Chunking is the first cut. Bad windows here become bad retrieval later.</figcaption>
+    </figure>
+  </section>
+
+  <section class="pipeline">
+    <div class="rule"></div>
+    <div class="inset">
+    <h2>Use it in your pipeline</h2>
+    <p>The browser lab caps at 150 MB. The Python library streams from disk — same strategy names, 40+ algorithms, unlimited file size, PDF and directories.</p>
+    <button type="button" class="pip-pill" id="pip-cta">pip install chunking-strategy</button>
+    <div class="destinations">
+      <a class="dest" href="https://github.com/sharanharsoor/chunking">
+        <div class="dest-art"><img src="card-github.png" alt="" width="84" height="84" loading="lazy" /></div>
+        <div>
+          <h3>Source on GitHub</h3>
+          <p>The library, issues, and pip-only strategies this tab does not fake — FastCDC, tiktoken, embeddings.</p>
+        </div>
+      </a>
+      <a class="dest" href="https://pypi.org/project/chunking-strategy/">
+        <div class="dest-art"><img src="card-pypi.png" alt="" width="84" height="84" loading="lazy" /></div>
+        <div>
+          <h3>Install from PyPI</h3>
+          <p>chunking-strategy on pip. Same names as this lab, then streams from disk — 40+ algorithms, PDF, directories, no 150 MB cap.</p>
+        </div>
+      </a>
+    </div>
+    </div>
+  </section>
+
+  <footer class="site-foot">MIT License · Lab matches chunking-strategy==0.4.2</footer>
+
+  <script>
+    var TEXT_EXT = /\.(txt|md|markdown|mdown|mkd|py|js|ts|jsx|tsx|mjs|cjs|json|jsonl|ndjson|csv|tsv|xml|html|htm|css|scss|sass|less|go|java|c|h|cpp|cc|hpp|yaml|yml|log|toml|ini|cfg|rst|tex)$/i;
+    var MAX_FILE = 150 * 1024 * 1024;
+    var MAX_DOM = 200;
+    var TIMEOUT_MS = 15000;
+    var PYPI = "0.4.2";
+    function knobNum(root, key, fallback) {
+      var el = root.querySelector('[name="' + key + '"]');
+      var v = el ? Number(el.value) : fallback;
+      return Number.isFinite(v) ? v : fallback;
+    }
+    function knobStr(root, key, fallback) {
+      var el = root.querySelector('[name="' + key + '"]');
+      return el ? el.value : fallback;
+    }
+    function knobChk(root, key) {
+      var el = root.querySelector('[name="' + key + '"]');
+      return !!(el && el.checked);
+    }
+    var LIVE = {
+      fixed_size: {
+        label: "fixed_size",
+        why: "Naive windows. Headings get cut mid-sentence.",
+        knobs: [
+          { key: "chunk_size", type: "number", min: 8, max: 4000, value: 80 },
+          { key: "overlap_size", type: "number", min: 0, max: 2000, value: 0 },
+        ],
+        params: function (root) {
+          var size = Math.max(1, knobNum(root, "chunk_size", 80));
+          var overlap = knobNum(root, "overlap_size", 0);
+          if (overlap >= size) overlap = Math.max(0, size - 1);
+          return { chunk_size: size, overlap_size: overlap };
+        },
+        call: function (root) {
+          var size = Math.max(1, knobNum(root, "chunk_size", 80));
+          var overlap = knobNum(root, "overlap_size", 0);
+          if (overlap >= size) overlap = Math.max(0, size - 1);
+          return overlap
+            ? 'create_chunker("fixed_size", chunk_size=' + size + ", overlap_size=" + overlap + ")"
+            : 'create_chunker("fixed_size", chunk_size=' + size + ")";
+        },
+      },
+      sentence_based: {
+        label: "sentence_based",
+        why: "Keeps sentence boundaries. Headings stay with the line that follows.",
+        knobs: [{ key: "max_sentences", type: "number", min: 1, max: 20, value: 2 }],
+        params: function (root) {
+          return { max_sentences: knobNum(root, "max_sentences", 2), min_sentences: 1, max_chunk_size: 2000, overlap_sentences: 0 };
+        },
+        call: function (root) {
+          return 'create_chunker("sentence_based", max_sentences=' + knobNum(root, "max_sentences", 2) + ', sentence_splitter="simple_v1")';
+        },
+      },
+      paragraph_based: {
+        label: "paragraph_based",
+        why: "Groups blank-line paragraphs. A heading glued to the next block stays together.",
+        knobs: [{ key: "max_paragraphs", type: "number", min: 1, max: 20, value: 2 }],
+        params: function (root) {
+          return { max_paragraphs: knobNum(root, "max_paragraphs", 2) };
+        },
+        call: function (root) {
+          return 'create_chunker("paragraph_based", max_paragraphs=' + knobNum(root, "max_paragraphs", 2) + ")";
+        },
+      },
+      overlapping_window: {
+        label: "overlapping_window",
+        why: "Sliding window with overlap so context repeats at the cut.",
+        knobs: [
+          { key: "window_size", type: "number", min: 2, max: 2000, value: 80 },
+          { key: "step_size", type: "number", min: 1, max: 1999, value: 40 },
+          { key: "window_unit", type: "select", options: ["characters", "words", "sentences"], value: "characters" },
+        ],
+        params: function (root) {
+          var w = knobNum(root, "window_size", 80);
+          var s = knobNum(root, "step_size", 40);
+          if (s >= w) s = Math.max(1, w - 1);
+          return { window_size: w, step_size: s, window_unit: knobStr(root, "window_unit", "characters") };
+        },
+        call: function (root) {
+          var w = knobNum(root, "window_size", 80);
+          var s = knobNum(root, "step_size", 40);
+          if (s >= w) s = Math.max(1, w - 1);
+          return 'create_chunker("overlapping_window", window_size=' + w + ", step_size=" + s + ', window_unit="' + knobStr(root, "window_unit", "characters") + '")';
+        },
+      },
+      markdown_chunker: {
+        label: "markdown_chunker",
+        why: "One chunk per header section. Naive windows ignore # structure.",
+        knobs: [{ key: "header_level", type: "number", min: 1, max: 6, value: 2 }],
+        params: function (root) {
+          return { chunk_by: "headers", header_level: knobNum(root, "header_level", 2) };
+        },
+        call: function (root) {
+          return 'create_chunker("markdown_chunker", chunk_by="headers", header_level=' + knobNum(root, "header_level", 2) + ")";
+        },
+      },
+      json_chunker: {
+        label: "json_chunker",
+        why: "Splits arrays / JSONL by objects. A single JSON object is one chunk.",
+        knobs: [{ key: "objects_per_chunk", type: "number", min: 1, max: 200, value: 5 }],
+        params: function (root) {
+          return { chunk_by: "objects", objects_per_chunk: knobNum(root, "objects_per_chunk", 5) };
+        },
+        call: function (root) {
+          return 'create_chunker("json_chunker", chunk_by="objects", objects_per_chunk=' + knobNum(root, "objects_per_chunk", 5) + ")";
+        },
+      },
+      csv_chunker: {
+        label: "csv_chunker",
+        why: "Row groups with the header copied onto each chunk. Naive windows slice mid-row.",
+        knobs: [
+          { key: "rows_per_chunk", type: "number", min: 1, max: 500, value: 15 },
+          { key: "preserve_headers", type: "checkbox", value: true },
+        ],
+        params: function (root) {
+          return {
+            chunk_by: "rows",
+            rows_per_chunk: knobNum(root, "rows_per_chunk", 15),
+            preserve_headers: knobChk(root, "preserve_headers"),
+          };
+        },
+        call: function (root) {
+          return 'create_chunker("csv_chunker", chunk_by="rows", rows_per_chunk=' + knobNum(root, "rows_per_chunk", 15) + ", preserve_headers=" + (knobChk(root, "preserve_headers") ? "True" : "False") + ")";
+        },
+      },
+      fixed_length_word: {
+        label: "fixed_length_word",
+        why: "Fixed word counts. Cuts on word boundaries, not characters.",
+        knobs: [
+          { key: "words_per_chunk", type: "number", min: 2, max: 400, value: 12 },
+          { key: "overlap_words", type: "number", min: 0, max: 200, value: 0 },
+        ],
+        params: function (root) {
+          var n = Math.max(1, knobNum(root, "words_per_chunk", 12));
+          var o = knobNum(root, "overlap_words", 0);
+          if (o >= n) o = Math.max(0, n - 1);
+          return { words_per_chunk: n, overlap_words: o };
+        },
+        call: function (root) {
+          var n = Math.max(1, knobNum(root, "words_per_chunk", 12));
+          var o = knobNum(root, "overlap_words", 0);
+          if (o >= n) o = Math.max(0, n - 1);
+          return o
+            ? 'create_chunker("fixed_length_word", words_per_chunk=' + n + ", overlap_words=" + o + ")"
+            : 'create_chunker("fixed_length_word", words_per_chunk=' + n + ")";
+        },
+      },
+      xml_html_chunker: {
+        label: "xml_html_chunker",
+        why: "One chunk per sibling tag (article/section or div/p). Nested copies are skipped.",
+        knobs: [{ key: "chunk_by", type: "select", options: ["semantic", "tags"], value: "semantic" }],
+        params: function (root) {
+          return { chunk_by: knobStr(root, "chunk_by", "semantic") };
+        },
+        call: function (root) {
+          return 'create_chunker("xml_html_chunker", chunk_by="' + knobStr(root, "chunk_by", "semantic") + '")';
+        },
+      },
+      python_code: {
+        label: "python_code",
+        why: "Top-level def/class by indent, including decorators. pip uses ast for the same cut on typical files.",
+        knobs: [],
+        params: function () { return { chunk_by: "function" }; },
+        call: function () { return 'create_chunker("python_code", chunk_by="function")'; },
+      },
+      javascript_code: {
+        label: "javascript_code",
+        why: "Functions and classes by braces. Nested methods stay inside the outer class.",
+        knobs: [],
+        params: function () { return { chunk_by: "function" }; },
+        call: function () { return 'create_chunker("javascript_code", chunk_by="function")'; },
+      },
+      css_code: {
+        label: "css_code",
+        why: "One chunk per top-level rule or @media block.",
+        knobs: [],
+        params: function () { return { chunk_by: "rule" }; },
+        call: function () { return 'create_chunker("css_code", chunk_by="rule")'; },
+      },
+      go_code: {
+        label: "go_code",
+        why: "One chunk per func, including methods with receivers.",
+        knobs: [],
+        params: function () { return { chunk_by: "function" }; },
+        call: function () { return 'create_chunker("go_code", chunk_by="function")'; },
+      },
+      java_code: {
+        label: "java_code",
+        why: "Classes (and leftover methods) by braces.",
+        knobs: [],
+        params: function () { return { chunk_by: "class" }; },
+        call: function () { return 'create_chunker("java_code", chunk_by="class")'; },
+      },
+      c_cpp_code: {
+        label: "c_cpp_code",
+        why: "Function bodies by braces. Control-flow if/for/while are skipped.",
+        knobs: [],
+        params: function () { return { chunk_by: "function" }; },
+        call: function () { return 'create_chunker("c_cpp_code", chunk_by="function")'; },
+      },
+      rolling_hash: {
+        label: "rolling_hash",
+        why: "Content-defined cuts: the boundary moves when the bytes change, not at a fixed width.",
+        knobs: [
+          { key: "min_chunk_size", type: "number", min: 8, max: 2000, value: 24 },
+          { key: "target_chunk_size", type: "number", min: 8, max: 4000, value: 64 },
+          { key: "max_chunk_size", type: "number", min: 16, max: 8000, value: 120 },
+        ],
+        params: function (root) {
+          var min = Math.max(1, knobNum(root, "min_chunk_size", 24));
+          var target = Math.max(min, knobNum(root, "target_chunk_size", 64));
+          var max = Math.max(target, knobNum(root, "max_chunk_size", 120));
+          return { min_chunk_size: min, target_chunk_size: target, max_chunk_size: max, window_size: 8, hash_function: "polynomial" };
+        },
+        call: function (root) {
+          var min = Math.max(1, knobNum(root, "min_chunk_size", 24));
+          var target = Math.max(min, knobNum(root, "target_chunk_size", 64));
+          var max = Math.max(target, knobNum(root, "max_chunk_size", 120));
+          return 'create_chunker("rolling_hash", min_chunk_size=' + min + ", target_chunk_size=" + target + ", max_chunk_size=" + max + ', hash_function="polynomial")';
+        },
+      },
+    };
+    var LIVE_GROUPS = [
+      { label: "Text", names: ["fixed_size", "sentence_based", "paragraph_based", "overlapping_window", "fixed_length_word"] },
+      { label: "Documents & data", names: ["markdown_chunker", "xml_html_chunker", "json_chunker", "csv_chunker"] },
+      { label: "Code", names: ["python_code", "javascript_code", "css_code", "go_code", "java_code", "c_cpp_code"] },
+      { label: "Content-defined", names: ["rolling_hash"] },
+    ];
+    var LATER = [
+      { name: "fastcdc", note: "gear-hash WASM" },
+      { name: "token_based", note: "tiktoken" },
+      { name: "semantic_chunker", note: "embeddings" },
+    ];
+
+    var drop = document.getElementById("drop");
+    var sourceEl = document.getElementById("source");
+    var hlEl = document.getElementById("source-hl");
+    var statusEl = document.getElementById("status");
+    var badgeEl = document.getElementById("upload-badge");
+    var kindEl = document.getElementById("source-kind");
+    var fileInput = document.getElementById("file");
+    var themeBtn = document.getElementById("theme");
+    var worker = null;
+    var jobId = 0;
+    var timer = null;
+    var knobTimer = null;
+    var editTimer = null;
+    var runStart = 0;
+    var currentText = "";
+    var lastFile = null;
+    var isDemo = true;
+    var sourceDirty = false;
+    var applyingSource = false;
+    var currentResults = { a: [], b: [] };
+    var selected = { a: null, b: null };
+    var focusSide = "b";
+    var lastAutoName = null;
+
+    function scalarToUtf16(str, n) { return Array.from(str).slice(0, n).join("").length; }
+    function setStatus(msg) { statusEl.textContent = msg || ""; }
+    function bytes(n) {
+      if (n < 1024) return n + " B";
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+      return (n / (1024 * 1024)).toFixed(1) + " MB";
+    }
+    function isTextFile(file) {
+      if (!file.name) return true;
+      if (TEXT_EXT.test(file.name)) return true;
+      return !!(file.type && file.type.indexOf("text/") === 0);
+    }
+    function strategyOf(side) { return document.getElementById("pick-" + side).value; }
+    function spawnWorker() {
+      if (worker) worker.terminate();
+      worker = new Worker("worker.js");
+      worker.onmessage = onWorkerMessage;
+    }
+    spawnWorker();
+
+    function fillSelect(sel, value) {
+      sel.replaceChildren();
+      LIVE_GROUPS.forEach(function (group) {
+        var og = document.createElement("optgroup");
+        og.label = group.label;
+        group.names.forEach(function (name) {
+          var opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = LIVE[name].label;
+          og.appendChild(opt);
+        });
+        sel.appendChild(og);
+      });
+      var later = document.createElement("optgroup");
+      later.label = "Python library — not in this tab";
+      LATER.forEach(function (item) {
+        var opt = document.createElement("option");
+        opt.disabled = true;
+        opt.textContent = item.name + " — " + item.note;
+        later.appendChild(opt);
+      });
+      sel.appendChild(later);
+      sel.value = value;
+    }
+
+    function paintKnob(side) {
+      var spec = LIVE[strategyOf(side)];
+      document.getElementById("why-" + side).textContent = spec.why;
+      document.getElementById("head-" + side).textContent = side.toUpperCase() + " · " + strategyOf(side);
+      var box = document.getElementById("knobs-" + side);
+      box.replaceChildren();
+      (spec.knobs || []).forEach(function (k) {
+        var row = document.createElement("div");
+        row.className = "knob-row" + (k.type === "checkbox" ? " knob-check" : "");
+        var id = "knob-" + side + "-" + k.key;
+        var lab = document.createElement("label");
+        lab.className = "knob-label";
+        lab.setAttribute("for", id);
+        lab.textContent = k.key;
+        var input;
+        if (k.type === "select") {
+          input = document.createElement("select");
+          (k.options || []).forEach(function (o) {
+            var opt = document.createElement("option");
+            opt.value = o;
+            opt.textContent = o;
+            input.appendChild(opt);
+          });
+          input.value = k.value;
+        } else if (k.type === "checkbox") {
+          input = document.createElement("input");
+          input.type = "checkbox";
+          input.checked = !!k.value;
+        } else {
+          input = document.createElement("input");
+          input.type = "number";
+          if (k.min != null) input.min = k.min;
+          if (k.max != null) input.max = k.max;
+          input.value = k.value;
+        }
+        input.id = id;
+        input.name = k.key;
+        row.appendChild(lab);
+        row.appendChild(input);
+        box.appendChild(row);
+      });
+      markClamp(side);
+    }
+
+    function knobsOf(side) { return document.getElementById("knobs-" + side); }
+
+    function markClamp(side) {
+      var box = knobsOf(side);
+      var name = strategyOf(side);
+      [].forEach.call(box.querySelectorAll(".knob-hint"), function (el) { el.remove(); });
+      [].forEach.call(box.querySelectorAll(".knob-row"), function (el) { el.classList.remove("bad"); });
+      function flag(key, msg) {
+        var input = box.querySelector('[name="' + key + '"]');
+        if (!input) return;
+        var row = input.closest(".knob-row");
+        row.classList.add("bad");
+        var p = document.createElement("p");
+        p.className = "knob-hint";
+        p.textContent = msg;
+        row.appendChild(p);
+      }
+      if (name === "fixed_size") {
+        var size = knobNum(box, "chunk_size", 80);
+        var overlap = knobNum(box, "overlap_size", 0);
+        if (overlap >= size) flag("overlap_size", "Must be less than chunk_size. Using " + Math.max(0, size - 1) + ".");
+      }
+      if (name === "overlapping_window") {
+        var w = knobNum(box, "window_size", 80);
+        var s = knobNum(box, "step_size", 40);
+        if (s >= w) flag("step_size", "Must be less than window_size. Using " + Math.max(1, w - 1) + ".");
+      }
+      if (name === "fixed_length_word") {
+        var n = knobNum(box, "words_per_chunk", 12);
+        var o = knobNum(box, "overlap_words", 0);
+        if (o >= n) flag("overlap_words", "Must be less than words_per_chunk. Using " + Math.max(0, n - 1) + ".");
+      }
+    }
+
+    function snippetText() {
+      var a = LIVE[strategyOf("a")].call(knobsOf("a"));
+      var b = LIVE[strategyOf("b")].call(knobsOf("b"));
+      return [
+        "pip install chunking-strategy==" + PYPI,
+        "",
+        "from chunking_strategy import create_chunker",
+        "",
+        "a = " + a,
+        "b = " + b,
+        'result = b.chunk("' + ((lastFile && lastFile.name) || "your_file.txt") + '")',
+      ].join("\n");
+    }
+
+    function fileExt(name) {
+      var m = String(name || "").toLowerCase().match(/\.([a-z0-9]+)$/);
+      return m ? m[1] : "";
+    }
+
+    function autoPlan(file) {
+      var ext = fileExt(file && file.name);
+      if (ext === "csv" || ext === "tsv") {
+        return { a: "csv_chunker", b: "fixed_size", why: ".csv → csv_chunker (rows + headers). B is the naive fallback. Override either side." };
+      }
+      if (ext === "json" || ext === "jsonl" || ext === "ndjson") {
+        return { a: "json_chunker", b: "fixed_size", why: ".json → json_chunker (objects). B is the naive fallback. Override either side." };
+      }
+      if (ext === "md" || ext === "markdown" || ext === "mdown" || ext === "mkd") {
+        return { a: "markdown_chunker", b: "fixed_size", why: ".md → markdown_chunker (headers). B is the naive fallback. Override either side." };
+      }
+      if (ext === "py") {
+        return { a: "python_code", b: "fixed_size", why: ".py → python_code (def/class). B is the naive fallback. Override either side." };
+      }
+      if (ext === "js" || ext === "jsx" || ext === "ts" || ext === "tsx" || ext === "mjs" || ext === "cjs") {
+        return { a: "javascript_code", b: "fixed_size", why: ".js → javascript_code (functions/classes). B is the naive fallback. Override either side." };
+      }
+      if (ext === "css" || ext === "scss" || ext === "sass" || ext === "less") {
+        return { a: "css_code", b: "fixed_size", why: ".css → css_code (rules). B is the naive fallback. Override either side." };
+      }
+      if (ext === "html" || ext === "htm" || ext === "xhtml" || ext === "xml" || ext === "svg") {
+        return { a: "xml_html_chunker", b: "fixed_size", why: "." + ext + " → xml_html_chunker (tags). B is the naive fallback. Override either side." };
+      }
+      if (ext === "go") {
+        return { a: "go_code", b: "fixed_size", why: ".go → go_code (func). B is the naive fallback. Override either side." };
+      }
+      if (ext === "java") {
+        return { a: "java_code", b: "fixed_size", why: ".java → java_code (class). B is the naive fallback. Override either side." };
+      }
+      if (ext === "c" || ext === "h" || ext === "cpp" || ext === "cc" || ext === "hpp") {
+        return { a: "c_cpp_code", b: "fixed_size", why: ".c/.cpp → c_cpp_code (functions). B is the naive fallback. Override either side." };
+      }
+      return { a: "fixed_size", b: "sentence_based", why: "Plain text → fixed_size vs sentence_based. Override either side." };
+    }
+
+    function setAutoWhy(msg) {
+      document.getElementById("autopick").textContent = msg || "";
+    }
+
+    function applyPlan(plan) {
+      var pickA = document.getElementById("pick-a");
+      var pickB = document.getElementById("pick-b");
+      if (LIVE[plan.a]) pickA.value = plan.a;
+      if (LIVE[plan.b]) pickB.value = plan.b;
+      paintKnob("a");
+      paintKnob("b");
+      setAutoWhy(plan.why);
+    }
+
+    function maybeAutoPick(file, demo) {
+      if (demo) {
+        lastAutoName = file && file.name;
+        setAutoWhy("Demo text → fixed_size vs sentence_based.");
+        return;
+      }
+      var name = file && file.name;
+      if (!name || name === "pasted.txt") return;
+      if (name === lastAutoName) return;
+      lastAutoName = name;
+      applyPlan(autoPlan(file));
+    }
+    function renderSnippet() {
+      document.getElementById("snippet").textContent = snippetText();
+    }
+
+    function clipName(name) {
+      if (!name || name.length <= 32) return name;
+      var dot = name.lastIndexOf(".");
+      var ext = dot > 0 && name.length - dot <= 8 ? name.slice(dot) : "";
+      var stem = ext ? name.slice(0, -ext.length) : name;
+      return stem.slice(0, 12) + "…" + stem.slice(-8) + ext;
+    }
+
+    function setBadge() {
+      badgeEl.removeAttribute("title");
+      if (!lastFile) {
+        badgeEl.className = "badge idle";
+        badgeEl.textContent = "Nothing uploaded";
+        kindEl.textContent = "Document";
+        return;
+      }
+      var size = bytes(lastFile.size);
+      if (isDemo) {
+        badgeEl.className = "badge demo";
+        badgeEl.textContent = "Demo sample · " + size + " · not uploaded";
+        kindEl.textContent = "Demo document";
+      } else if (lastFile.name === "pasted.txt") {
+        badgeEl.className = "badge local";
+        badgeEl.textContent = lastFile.size ? "Pasted text · " + size + " · in this tab only" : "Empty · 0 B";
+        kindEl.textContent = lastFile.size ? "Pasted text" : "Empty";
+      } else {
+        badgeEl.className = "badge local";
+        var shown = clipName(lastFile.name);
+        badgeEl.textContent = shown + " · " + size + " · in this tab only";
+        if (shown !== lastFile.name) badgeEl.title = lastFile.name;
+        kindEl.textContent = "Your file";
+      }
+    }
+
+    function setEditMode(on) {
+      sourceDirty = on;
+      sourceEl.classList.toggle("plain", on);
+      hlEl.classList.toggle("off", on);
+    }
+
+    function summarize(chunks) {
+      if (!chunks.length) return { n: 0, avg: 0, min: 0, max: 0, minIdx: 0, maxIdx: 0 };
+      var sizes = chunks.map(function (c) { return c.end - c.start; });
+      var sum = sizes.reduce(function (a, b) { return a + b; }, 0);
+      var mn = Math.min.apply(null, sizes);
+      var mx = Math.max.apply(null, sizes);
+      return { n: chunks.length, avg: Math.round(sum / sizes.length), min: mn, max: mx, minIdx: sizes.indexOf(mn), maxIdx: sizes.indexOf(mx) };
+    }
+
+    function renderStats(side, chunks) {
+      var el = document.getElementById("stats-" + side);
+      el.replaceChildren();
+      var st = summarize(chunks);
+      if (!st.n) return;
+      el.appendChild(document.createTextNode(st.n + " chunks · avg " + st.avg + " · "));
+      var mn = document.createElement("button");
+      mn.type = "button";
+      mn.textContent = "min " + st.min;
+      mn.title = "Jump to smallest chunk";
+      mn.addEventListener("click", function () { selectChunk(side, st.minIdx, chunks); });
+      var mx = document.createElement("button");
+      mx.type = "button";
+      mx.textContent = "max " + st.max;
+      mx.title = "Jump to largest chunk";
+      mx.addEventListener("click", function () { selectChunk(side, st.maxIdx, chunks); });
+      el.appendChild(mn);
+      el.appendChild(document.createTextNode(" · "));
+      el.appendChild(mx);
+    }
+
+    function renderBars(side, chunks, active) {
+      var root = document.getElementById("bars-" + side);
+      root.replaceChildren();
+      var n = chunks.length;
+      if (!n) return;
+      var cap = 80;
+      var mx = 1;
+      var i;
+      for (i = 0; i < n; i++) mx = Math.max(mx, chunks[i].end - chunks[i].start);
+      var count = Math.min(n, cap);
+      for (var k = 0; k < count; k++) {
+        i = count === n ? k : Math.round(k * (n - 1) / (count - 1));
+        var c = chunks[i];
+        var bar = document.createElement("i");
+        bar.style.height = Math.max(4, Math.round(((c.end - c.start) / mx) * 28)) + "px";
+        if (i === active) bar.classList.add("on");
+        bar.title = "chunk " + i + " · " + (c.end - c.start) + " chars";
+        bar.addEventListener("click", function (idx) {
+          return function (e) {
+            e.stopPropagation();
+            selectChunk(side, idx, chunks);
+          };
+        }(i));
+        root.appendChild(bar);
+      }
+    }
+
+    function ahaIndex(side, chunks) {
+      if (strategyOf(side) === "sentence_based" && chunks.length > 1) return 1;
+      return 0;
+    }
+
+    function onWorkerMessage(ev) {
+      var msg = ev.data || {};
+      if (msg.id !== jobId) return;
+      if (msg.type === "progress") return;
+      clearTimeout(timer);
+      if (msg.type === "error") { setStatus(msg.message || msg.code); return; }
+      var elapsed = Math.round(performance.now() - runStart);
+      var incoming = msg.text || "";
+      if (incoming !== currentText) focusSide = "b";
+      currentText = incoming;
+      if (sourceEl.value === currentText) setEditMode(false);
+      currentResults = msg.results || { a: [], b: [] };
+      selected = { a: ahaIndex("a", currentResults.a || []), b: ahaIndex("b", currentResults.b || []) };
+      renderAll();
+      var sa = summarize(currentResults.a || []);
+      var sb = summarize(currentResults.b || []);
+      setStatus("Processed " + bytes(lastFile ? lastFile.size : 0) + " in " + elapsed + "ms in this tab. A=" + sa.n + " · B=" + sb.n + " chunks.");
+    }
+
+    function renderFocus() {
+      ["a", "b"].forEach(function (side) {
+        var btn = document.getElementById("focus-" + side);
+        var idx = selected[side];
+        var n = (currentResults[side] || []).length;
+        btn.className = "focus-chip " + side + (focusSide === side ? " on" : "");
+        btn.textContent = side.toUpperCase() + " · " + strategyOf(side)
+          + (n && idx != null ? " #" + String(idx).padStart(2, "0") : "");
+      });
+    }
+
+    function renderAll() {
+      document.getElementById("head-a").textContent = "A · " + strategyOf("a");
+      document.getElementById("head-b").textContent = "B · " + strategyOf("b");
+      renderSource();
+      ["a", "b"].forEach(function (s) {
+        var chunks = currentResults[s] || [];
+        renderList(s, chunks);
+        renderStats(s, chunks);
+        renderBars(s, chunks, selected[s]);
+      });
+      renderSnippet();
+    }
+
+    function renderSource() {
+      renderFocus();
+      if (!sourceDirty && sourceEl.value !== currentText) {
+        applyingSource = true;
+        sourceEl.value = currentText;
+        setTimeout(function () { applyingSource = false; }, 0);
+      }
+      hlEl.replaceChildren();
+      if (!currentText) return;
+      var chunks = currentResults[focusSide] || [];
+      var chunk = chunks[selected[focusSide]];
+      if (!chunk || sourceDirty) {
+        hlEl.appendChild(document.createTextNode(currentText));
+        return;
+      }
+      var s = scalarToUtf16(currentText, chunk.start);
+      var e = scalarToUtf16(currentText, chunk.end);
+      var mark = document.createElement("mark");
+      mark.className = focusSide;
+      mark.textContent = currentText.slice(s, e);
+      hlEl.appendChild(document.createTextNode(currentText.slice(0, s)));
+      hlEl.appendChild(mark);
+      hlEl.appendChild(document.createTextNode(currentText.slice(e)));
+      requestAnimationFrame(function () {
+        var top = Math.max(0, mark.offsetTop - 28);
+        sourceEl.scrollTop = top;
+        hlEl.scrollTop = sourceEl.scrollTop;
+      });
+    }
+
+    function renderList(side, chunks) {
+      var root = document.getElementById("list-" + side);
+      root.replaceChildren();
+      var shown = chunks.slice(0, MAX_DOM);
+      if (chunks.length > MAX_DOM) {
+        var note = document.createElement("p");
+        note.className = "chunk";
+        note.textContent = "Showing " + MAX_DOM + " of " + chunks.length + ". pip for the rest.";
+        root.appendChild(note);
+      }
+      shown.forEach(function (chunk, i) {
+        var el = document.createElement("button");
+        el.type = "button";
+        el.className = "chunk" + (selected[side] === i ? " active-" + side : "");
+        var head = document.createElement("div");
+        head.className = "idx";
+        head.textContent = "#" + String(i).padStart(2, "0") + "  ·  " + (chunk.end - chunk.start) + " chars  ·  [" + chunk.start + ", " + chunk.end + ")";
+        var body = document.createElement("p");
+        var text = chunk.content || "";
+        var hdr = chunk.metadata && chunk.metadata.csv_header;
+        if (hdr && text.indexOf(hdr) !== 0) text = hdr + "\n" + text;
+        body.textContent = text.length > 280 ? text.slice(0, 280) + "…" : text;
+        el.appendChild(head);
+        el.appendChild(body);
+        el.addEventListener("click", function () { selectChunk(side, i, chunks); });
+        root.appendChild(el);
+      });
+    }
+
+    function selectChunk(side, index, chunks) {
+      selected[side] = index;
+      focusSide = side;
+      renderSource();
+      renderList(side, chunks);
+      renderBars(side, chunks, index);
+      var btn = document.getElementById("list-" + side).querySelectorAll("button.chunk")[index];
+      if (btn) btn.scrollIntoView({ block: "nearest" });
+    }
+
+    function runFile(file, demo) {
+      if (!file) return;
+      if (file.name && !isTextFile(file)) {
+        setStatus("This preview reads text. PDF/media stay in Python: pip install chunking-strategy");
+        return;
+      }
+      if (file.size > MAX_FILE) {
+        setStatus("The playground stops at 150 MB. pip install chunking-strategy streams from disk.");
+        return;
+      }
+      maybeAutoPick(file, demo);
+      lastFile = file;
+      isDemo = !!demo;
+      setBadge();
+      jobId += 1;
+      runStart = performance.now();
+      setStatus("Chunking in a worker — file stays in this tab.");
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        spawnWorker();
+        setStatus("Strategy timed out on this input");
+      }, TIMEOUT_MS);
+      worker.postMessage({
+        id: jobId,
+        file: file,
+        jobs: [
+          { key: "a", strategy: strategyOf("a"), params: LIVE[strategyOf("a")].params(knobsOf("a")) },
+          { key: "b", strategy: strategyOf("b"), params: LIVE[strategyOf("b")].params(knobsOf("b")) },
+        ],
+      });
+    }
+
+    function loadSample() {
+      fetch("sample.txt").then(function (r) { return r.blob(); }).then(function (blob) {
+        runFile(new File([blob], "demo.txt", { type: "text/plain" }), true);
+      });
+    }
+
+    function ingestText(text, name) {
+      runFile(new File([text], name || "pasted.txt", { type: "text/plain" }), false);
+    }
+
+    function editorFileName() {
+      if (!isDemo && lastFile && lastFile.name && lastFile.name !== "demo.txt") return lastFile.name;
+      return "pasted.txt";
+    }
+
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      runFile(e.dataTransfer.files && e.dataTransfer.files[0], false);
+    });
+    drop.addEventListener("click", function () { fileInput.click(); });
+    drop.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); }
+    });
+    fileInput.addEventListener("change", function () {
+      if (fileInput.files && fileInput.files[0]) runFile(fileInput.files[0], false);
+    });
+
+    var paper = document.getElementById("paper");
+    ["dragenter", "dragover"].forEach(function (ev) {
+      paper.addEventListener(ev, function (e) { e.preventDefault(); paper.classList.add("over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      paper.addEventListener(ev, function (e) { e.preventDefault(); paper.classList.remove("over"); });
+    });
+    paper.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) runFile(f, false);
+      else if (e.dataTransfer.getData("text")) ingestText(e.dataTransfer.getData("text"), "pasted.txt");
+    });
+
+    sourceEl.addEventListener("scroll", function () {
+      hlEl.scrollTop = sourceEl.scrollTop;
+      hlEl.scrollLeft = sourceEl.scrollLeft;
+    });
+    sourceEl.addEventListener("input", function () {
+      if (applyingSource) return;
+      if (sourceEl.value === currentText) return;
+      setEditMode(true);
+      clearTimeout(editTimer);
+      editTimer = setTimeout(function () {
+        ingestText(sourceEl.value, editorFileName());
+      }, 280);
+    });
+    sourceEl.addEventListener("change", function () {
+      if (applyingSource) return;
+      if (sourceEl.value !== currentText) ingestText(sourceEl.value, editorFileName());
+    });
+
+    function rerunSoon() {
+      markClamp("a");
+      markClamp("b");
+      renderSnippet();
+      clearTimeout(knobTimer);
+      knobTimer = setTimeout(function () { if (lastFile) runFile(lastFile, isDemo); }, 180);
+    }
+    ["a", "b"].forEach(function (side) {
+      document.getElementById("pick-" + side).addEventListener("change", function () {
+        paintKnob(side);
+        selected[side] = null;
+        renderFocus();
+        rerunSoon();
+      });
+      knobsOf(side).addEventListener("input", rerunSoon);
+      knobsOf(side).addEventListener("change", rerunSoon);
+    });
+    function copied(btn, label) {
+      var prev = btn.textContent;
+      btn.textContent = label;
+      setTimeout(function () { btn.textContent = prev; }, 1200);
+    }
+    document.getElementById("copy").addEventListener("click", function () {
+      var btn = document.getElementById("copy");
+      navigator.clipboard.writeText(snippetText()).then(function () { copied(btn, "Copied"); });
+    });
+    document.getElementById("export").addEventListener("click", function () {
+      var slim = function (chunks) {
+        return (chunks || []).map(function (c) {
+          return { id: c.id, start: c.start, end: c.end, content: c.content };
+        });
+      };
+      var payload = {
+        file: (lastFile && lastFile.name) || "untitled",
+        a: { strategy: strategyOf("a"), params: LIVE[strategyOf("a")].params(knobsOf("a")), chunks: slim(currentResults.a) },
+        b: { strategy: strategyOf("b"), params: LIVE[strategyOf("b")].params(knobsOf("b")), chunks: slim(currentResults.b) },
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "chunks.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      copied(document.getElementById("export"), "Saved");
+    });
+    document.getElementById("pip-cta").addEventListener("click", function () {
+      var btn = document.getElementById("pip-cta");
+      navigator.clipboard.writeText("pip install chunking-strategy").then(function () { copied(btn, "copied"); });
+    });
+
+    function paintTheme() {
+      themeBtn.textContent = document.documentElement.dataset.theme === "dark" ? "Light" : "Dark";
+    }
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+      paintTheme();
+    });
+
+    ["a", "b"].forEach(function (side) {
+      document.getElementById("focus-" + side).addEventListener("click", function () {
+        var chunks = currentResults[side] || [];
+        if (!chunks.length) {
+          focusSide = side;
+          renderFocus();
+          renderSource();
+          return;
+        }
+        var idx = selected[side];
+        if (idx == null || idx >= chunks.length) idx = 0;
+        selectChunk(side, idx, chunks);
+      });
+    });
+
+    fillSelect(document.getElementById("pick-a"), "fixed_size");
+    fillSelect(document.getElementById("pick-b"), "sentence_based");
+    paintKnob("a");
+    paintKnob("b");
+    renderSnippet();
+    loadSample();
+
+    (function stars() {
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var c = document.getElementById("stars");
+      if (!c || !c.getContext) return;
+      var ctx = c.getContext("2d");
+      var dots = [];
+      function resize() {
+        c.width = innerWidth;
+        c.height = innerHeight;
+      }
+      function seed() {
+        var n = Math.min(110, Math.max(40, Math.floor((innerWidth * innerHeight) / 16000)));
+        dots = [];
+        for (var i = 0; i < n; i++) {
+          dots.push({
+            x: Math.random() * c.width,
+            y: Math.random() * c.height,
+            r: Math.random() * 1.35 + 0.25,
+            vx: (Math.random() - 0.5) * 0.09,
+            vy: Math.random() * 0.07 + 0.015,
+            a: Math.random() * 0.45 + 0.12,
+          });
+        }
+      }
+      function tick() {
+        ctx.clearRect(0, 0, c.width, c.height);
+        var light = document.documentElement.dataset.theme === "light";
+        var rgb = light ? "39,39,42" : "199,210,254";
+        for (var i = 0; i < dots.length; i++) {
+          var d = dots[i];
+          d.x += d.vx;
+          d.y += d.vy;
+          if (d.y > c.height) { d.y = 0; d.x = Math.random() * c.width; }
+          if (d.x < 0) d.x = c.width;
+          if (d.x > c.width) d.x = 0;
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(" + rgb + "," + (light ? Math.min(0.78, d.a + 0.32) : d.a) + ")";
+          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        requestAnimationFrame(tick);
+      }
+      resize();
+      seed();
+      addEventListener("resize", function () { resize(); seed(); });
+      tick();
+    })();
+  </script>
+</body>
+</html>

@@ -24,4 +24,9 @@ Who regenerates: the person changing the algorithm. CI never `--write`.
 ```
 python tools/run_fixture.py --check
 python tools/run_fixture.py fixtures/sentence_based/simple_v1_unicode --write
+node tools/check_js_fixtures.js
 ```
+
+`check_js_fixtures.js` compares in-tab JS (`fixed_size`, `sentence_based`, `csv_chunker`) to the same `expected.json`. Text strategies must match `start` / `end` / `content` as Unicode strings (not bytes; `💩` is one scalar). CSV matches row spans (`csv_start_row`, `csv_end_row`, `csv_row_count`) because Python rewrites CSV text with `csv.writer` (`\r\n`).
+
+This is not “the browser is byte-identical to pip.” It is three strategies, these five cases. Live knobs not in a fixture (e.g. `overlap_size > 0`) and the other in-tab chunkers are unchecked here. FastCDC / tiktoken / embeddings stay Python-only.

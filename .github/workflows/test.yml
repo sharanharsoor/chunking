@@ -56,6 +56,12 @@ jobs:
         # Test CLI is available
         python -m chunking_strategy --help || echo "CLI test completed"
 
+    - name: Golden fixtures (Python + in-tab JS)
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      run: |
+        python tools/run_fixture.py --check
+        node tools/check_js_fixtures.js
+
     - name: Run tests with coverage
       run: |
         # Run tests with coverage reporting

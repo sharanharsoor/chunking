@@ -1,0 +1,9 @@
+{
+  "strategy": "fixed_size",
+  "params": {
+    "chunk_size": 4,
+    "overlap_size": 0,
+    "unit": "character",
+    "preserve_boundaries": false
+  }
+}

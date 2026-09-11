@@ -1,0 +1,55 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "hi 💩",
+      "end": 4,
+      "hash": "7256c47b8cdd161b11247880bdd89001cb677efc6fb60f36ed0a3ad8fcf558cf",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "fixed_size",
+        "extra": {
+          "end_pos": 4
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 4,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": " z\n",
+      "end": 7,
+      "hash": "0ab8f5e9374caf48de914f90e0265ca04be73bbaa46cb4bfa3657c192d41f9f7",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "fixed_size",
+        "extra": {
+          "end_pos": 7
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 3,
+      "start": 4
+    }
+  ],
+  "params": {
+    "chunk_size": 4,
+    "overlap_size": 0,
+    "preserve_boundaries": false,
+    "unit": "character"
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "90aa7834e987376e28a3ac019e5e4cc07b154d00441e0f56e26c77c95c42829c",
+    "size": 10
+  },
+  "strategy": "fixed_size"
+}
