@@ -96,12 +96,16 @@ self.onmessage = function (ev) {
   var id = msg.id;
   try {
     var file = msg.file;
-    if (!file) throw new Error("INTERNAL");
-    if (file.size > 150 * 1024 * 1024) {
+    if (file && file.size > 150 * 1024 * 1024) {
       self.postMessage({ id: id, type: "error", code: "FILE_TOO_LARGE", message: "The in-browser lab stops at 150 MB." });
       return;
     }
-    file.text().then(function (text) {
+    var incoming = typeof msg.text === "string" ? Promise.resolve(msg.text) : null;
+    if (!incoming) {
+      if (!file) throw new Error("INTERNAL");
+      incoming = file.text();
+    }
+    incoming.then(function (text) {
       var jobs = msg.jobs || [];
       var needEnc = false;
       for (var i = 0; i < jobs.length; i++) {

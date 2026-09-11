@@ -1,0 +1,5 @@
+pdf.min.js and pdf.worker.min.js are PDF.js 3.11.174
+(https://github.com/mozilla/pdf.js), Apache-2.0. Loaded on demand, not on first paint.
+
+mammoth.browser.min.js is mammoth 1.8.0
+(https://github.com/mwilliamson/mammoth.js), BSD-2-Clause. Loaded on demand, not on first paint.

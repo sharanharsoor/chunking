@@ -520,31 +520,54 @@
     #autopick { color: var(--ink); }
     #status { font-size: 11px; color: var(--muted); min-height: 2.4em; line-height: 1.4; }
 
-    .pip {
-      flex-shrink: 0;
-      margin-top: 0;
-      padding: 10px 12px 12px;
-      border-top: 1px solid var(--line);
-      background: var(--rail-bg);
+    .card.pip { box-shadow: inset 3px 0 0 var(--accent); }
+    .pip-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
-    .pip-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-    .pip-head > span:first-child { font-size: 11px; font-weight: 700; }
-    .pip-head > span:last-child { display: inline-flex; gap: 12px; font-size: 11px; font-weight: 600; }
-    .pip .ghost { border: 0; padding: 0; }
-    .pip .ghost:hover { text-decoration: underline; }
+    .pip-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .pip-actions {
+      display: inline-flex;
+      flex-shrink: 0;
+      gap: 6px;
+    }
+    .pip .ghost {
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    .pip-code {
+      overflow: hidden;
+      border-radius: 8px;
+      background: var(--code-bg);
+    }
+    .pip-cmd {
+      margin: 0;
+      padding: 8px 8px 6px;
+      color: var(--code-ink);
+      font: 10px/1.45 var(--font-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
     .pip pre {
       margin: 0;
-      padding: 8px;
-      max-height: 7.8em;
-      overflow-x: auto;
-      overflow-y: scroll;
-      scrollbar-gutter: stable;
-      background: var(--code-bg);
+      padding: 6px 8px 8px;
+      overflow: visible;
+      background: transparent;
       color: var(--code-ink);
-      font: 10.5px/1.4 var(--font-mono);
-      white-space: pre-wrap;
-      word-break: break-word;
-      border-radius: 8px;
+      font: 10.5px/1.45 var(--font-mono);
+      white-space: pre;
     }
 
     .paper {
@@ -570,12 +593,24 @@
       border-bottom: 1px solid var(--line);
     }
     .paper-meta strong { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+    .extract-note {
+      flex: 1 0 100%;
+      margin: 0;
+      font-size: 11px;
+      color: var(--warn);
+      line-height: 1.35;
+    }
+    #extract-dl {
+      font-size: 11px;
+      padding: 4px 8px;
+    }
     .retrieve {
       display: flex;
       align-items: center;
       gap: 8px;
-      min-width: 180px;
-      flex: 1 1 280px;
+      min-width: 160px;
+      flex: 1 1 180px;
+      max-width: 280px;
     }
     .retrieve span {
       font-size: 10px;
@@ -608,6 +643,7 @@
       font: 11px/1.2 var(--font-mono);
       cursor: pointer;
       color: var(--muted);
+      white-space: nowrap;
     }
     .focus-chip.a.on {
       color: var(--a);
@@ -700,6 +736,7 @@
       white-space: nowrap;
     }
     @media (max-width: 720px) {
+      .privacy { display: none; }
       .col-head h2 { text-transform: none; letter-spacing: 0; font-size: 10px; }
     }
     .col.a h2 { color: var(--a); }
@@ -819,10 +856,12 @@
       display: flex;
       align-items: stretch;
       justify-content: center;
+      flex-wrap: nowrap;
       gap: 6px;
       width: min(860px, 100%);
       margin: 0 auto;
       padding: 22px 18px;
+      overflow-x: auto;
       background: color-mix(in srgb, var(--chrome) 78%, transparent);
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -966,7 +1005,7 @@
       transform: scale(1.28);
     }
     .dest h3 { margin: 0 0 4px; font-size: 15px; }
-    .dest p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+    .dest p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; overflow-wrap: break-word; }
 
     .site-foot {
       text-align: center;
@@ -989,7 +1028,7 @@
       .col.b { grid-column: 2; grid-row: 2; min-height: 280px; }
       .rail { grid-column: 1 / -1; grid-row: 3; max-height: none; }
       .how { grid-template-columns: 1fr; }
-      .rag-board { flex-wrap: wrap; width: auto; }
+      .rag-board { width: auto; overflow-x: auto; }
       .destinations { grid-template-columns: 1fr; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1009,7 +1048,7 @@
 
   <section class="hero wrap">
     <h1>Compare chunking strategies <em>side-by-side</em></h1>
-    <p>Drop a text file, or type and paste in the editor, to see how two algorithms split the same source. Nothing is uploaded. When you are ready, it is one pip install.</p>
+    <p>Drop a file or paste into the editor to compare how two algorithms split the same source. This tab extracts PDF and Word to text first, and nothing is uploaded. Those same strategy names are one pip install away in Python.</p>
   </section>
 
   <div class="wrap">
@@ -1022,12 +1061,12 @@
               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
               <path d="M14 3v5h5"/>
             </svg>
-            <h2>Drop a text file</h2>
-            <p>Use .txt, .md, .csv, .json, .html, or code. The lab picks a matching strategy, and you can always switch. Embeddings stay in the Python library.</p>
+            <h2>Drop a file</h2>
+            <p>.txt, .md, .pdf, .docx, .csv, .json, .html, or code. PDF and Word extract here. Nothing is uploaded.</p>
             <span class="cta">Choose a file</span>
             <div><span class="badge idle" id="upload-badge">No file yet</span></div>
           </div>
-          <input id="file" type="file" accept=".txt,.md,.markdown,.py,.js,.jsx,.ts,.tsx,.json,.jsonl,.ndjson,.csv,.tsv,.xml,.html,.htm,.css,.scss,.go,.java,.c,.h,.cpp,.cc,.hpp,.yaml,.yml,.log,.toml,text/plain" />
+          <input id="file" type="file" accept=".txt,.md,.markdown,.pdf,.docx,.py,.js,.jsx,.ts,.tsx,.json,.jsonl,.ndjson,.csv,.tsv,.xml,.html,.htm,.css,.scss,.go,.java,.c,.h,.cpp,.cc,.hpp,.yaml,.yml,.log,.toml,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
           <details class="cheat">
             <summary>Which strategy to pick</summary>
             <ul>
@@ -1036,7 +1075,7 @@
               <li><code>markdown_chunker</code> and <code>python_code</code> follow headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>. Breadcrumb is H1 &gt; H2.</li>
               <li><code>overlapping_window</code> slides with overlap. The amber band is the shared range.</li>
               <li><code>regex_custom</code> is for speaker turns and log lines. The match starts the next chunk.</li>
-              <li>Drop .md, .py, .json, or .csv and the lab picks a matching strategy. You can always switch.</li>
+              <li>Drop .md, .py, .json, .csv, .pdf, or .docx. PDF and Word are extracted to text first. You can always switch.</li>
               <li>Embeddings stay in pip as <code>semantic_chunker</code>. Comparing three or more strategies is pip too.</li>
             </ul>
           </details>
@@ -1067,20 +1106,23 @@
             <p class="why" id="why-b"></p>
             <div class="knobs" id="knobs-b"></div>
           </div>
-          <p class="later" id="autopick"></p>
-          <p class="later" id="nway">This tab compares two strategies. For three or more, run <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names are pip-only. The lab caps at 150 MB. Python streams from disk.</p>
-          <div id="status"></div>
-          </div>
-          <div class="pip">
+          <div class="card pip">
             <div class="pip-head">
-              <span>Python equivalent</span>
-              <span>
+              <span class="pip-label">Python</span>
+              <span class="pip-actions">
                 <button type="button" class="ghost" id="share" title="Copies A vs B and the knobs. Never your file.">Link</button>
                 <button type="button" class="ghost" id="export">Export</button>
                 <button type="button" class="ghost" id="copy">Copy</button>
               </span>
             </div>
-            <pre id="snippet"></pre>
+            <div class="pip-code">
+              <div class="pip-cmd" id="snippet-pip"></div>
+              <pre id="snippet"></pre>
+            </div>
+          </div>
+          <p class="later" id="autopick"></p>
+          <p class="later" id="nway">This tab compares two strategies. For three or more, run <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names are pip-only. The lab caps at 150 MB. Python streams from disk.</p>
+          <div id="status"></div>
           </div>
         </aside>
 
@@ -1096,6 +1138,8 @@
               <button type="button" class="focus-chip a" id="focus-a">A</button>
               <button type="button" class="focus-chip b" id="focus-b">B</button>
             </span>
+            <button type="button" class="ghost" id="extract-dl" hidden>Download extracted text</button>
+            <p class="extract-note" id="extract-note" hidden></p>
           </div>
           <div class="source-stack">
             <div id="source-hl" class="source-face" aria-hidden="true"></div>
@@ -1130,7 +1174,7 @@
       <article>
         <div class="n">1</div>
         <h3>Drop a file or paste</h3>
-        <p>Text files stay in this tab. Nothing is uploaded. The editor is a real document: type, paste, or drop a file, and the chunks update.</p>
+        <p>Files stay in this tab. Nothing is uploaded. Type, paste, or drop a file, including PDF and Word. The chunks update from the text the browser extracted.</p>
       </article>
       <article>
         <div class="n">2</div>
@@ -1190,21 +1234,21 @@
     <div class="rule"></div>
     <div class="inset">
     <h2>Use it in your pipeline</h2>
-    <p>The browser lab caps at 150 MB. The Python library streams from disk, with the same strategy names, 40+ algorithms, unlimited file size, plus PDF and directories.</p>
+    <p>The browser lab caps at 150 MB. It extracts PDF and Word to text here. The Python library streams from disk, with the same strategy names, 40+ algorithms, unlimited file size, plus layout, images, OCR, and directories.</p>
     <button type="button" class="pip-pill" id="pip-cta">pip install chunking-strategy</button>
     <div class="destinations">
       <a class="dest" href="https://github.com/sharanharsoor/chunking">
         <div class="dest-art"><img src="card-github.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Source on GitHub</h3>
-          <p>The library, issues, and the pip-only strategies this tab does not fake, including embeddings. Token counts here are cl100k_base after you run token_based once, never a chars/4 guess.</p>
+          <p>The library, issues, and the pip-only strategies this tab does not fake, including embeddings and PDF layout. Token counts here are cl100k_base after you run token_based once, never a chars/4 guess.</p>
         </div>
       </a>
       <a class="dest" href="https://pypi.org/project/chunking-strategy/">
         <div class="dest-art"><img src="card-pypi.png" alt="" width="84" height="84" loading="lazy" /></div>
         <div>
           <h3>Install from PyPI</h3>
-          <p>Install chunking-strategy from pip. Same names as this lab, then it streams from disk: 40+ algorithms, PDF, directories, and no 150 MB cap.</p>
+          <p>Install chunking-strategy from pip. Same names as this lab, then it streams from disk: 40+ algorithms, PDF layout, directories, and no 150 MB cap.</p>
         </div>
       </a>
     </div>
@@ -1213,6 +1257,7 @@
 
   <footer class="site-foot" id="lab-ver">MIT License · Lab matches chunking-strategy==0.4.2</footer>
 
+  <script src="engines/extract.js"></script>
   <script>
     var TEXT_EXT = /\.(txt|md|markdown|mdown|mkd|py|js|ts|jsx|tsx|mjs|cjs|json|jsonl|ndjson|csv|tsv|xml|html|htm|css|scss|sass|less|go|java|c|h|cpp|cc|hpp|yaml|yml|log|toml|ini|cfg|rst|tex)$/i;
     var MAX_FILE = 150 * 1024 * 1024;
@@ -1602,6 +1647,7 @@
     var runStart = 0;
     var currentText = "";
     var lastFile = null;
+    var lastExtract = null;
     var isStarter = true;
     var sourceDirty = false;
     var applyingSource = false;
@@ -1993,22 +2039,80 @@
       }
     }
 
-    function snippetText() {
+    function snippetFileName() {
+      if (lastExtract && lastExtract.kind && lastExtract.kind !== "text" && lastFile && lastFile.name) {
+        return lastFile.name.replace(/\.[^.]+$/, "") + ".extracted.txt";
+      }
+      if (isStarter || !lastFile) return "your_file.txt";
+      return lastFile.name;
+    }
+
+    function prettyCall(expr) {
+      var m = /^create_chunker\((.*)\)$/.exec(String(expr || ""));
+      if (!m) return expr;
+      var inner = m[1];
+      var parts = [];
+      var buf = "";
+      var quote = "";
+      for (var i = 0; i < inner.length; i++) {
+        var c = inner[i];
+        if (quote) {
+          buf += c;
+          if (c === "\\") {
+            i += 1;
+            if (i < inner.length) buf += inner[i];
+            continue;
+          }
+          if (c === quote) quote = "";
+          continue;
+        }
+        if (c === '"' || c === "'") {
+          quote = c;
+          buf += c;
+          continue;
+        }
+        if (c === ",") {
+          parts.push(buf.trim());
+          buf = "";
+          continue;
+        }
+        buf += c;
+      }
+      if (buf.trim()) parts.push(buf.trim());
+      if (!parts.length) return expr;
+      return "create_chunker(\n    " + parts.join(",\n    ") + "\n)";
+    }
+
+    function snippetPip() {
+      var extra = usesTiktoken("a") || usesTiktoken("b") ? " tiktoken" : "";
+      return "pip install chunking-strategy==" + PYPI + extra;
+    }
+
+    function snippetPipView() {
+      return usesTiktoken("a") || usesTiktoken("b")
+        ? "pip install chunking-strategy tiktoken"
+        : "pip install chunking-strategy";
+    }
+
+    function snippetBody() {
       var a = LIVE[strategyOf("a")].call(knobsOf("a"));
       var b = LIVE[strategyOf("b")].call(knobsOf("b"));
-      var token = usesTiktoken("a") || usesTiktoken("b");
-      var pip = token
-        ? "pip install chunking-strategy==" + PYPI + " tiktoken"
-        : "pip install chunking-strategy==" + PYPI;
-      return [
-        pip,
-        "",
-        "from chunking_strategy import create_chunker",
-        "",
-        "a = " + a,
-        "b = " + b,
-        'result = b.chunk("' + ((isStarter || !lastFile) ? "your_file.txt" : lastFile.name) + '")',
-      ].join("\n");
+      var replay = snippetFileName();
+      var lines = [];
+      if (lastExtract && lastExtract.kind && lastExtract.kind !== "text") {
+        lines.push("# " + (lastExtract.note || "Extracted in the browser."));
+        lines.push("# Replay: chunking-strategy chunk " + replay);
+      }
+      lines.push("from chunking_strategy import (");
+      lines.push("    create_chunker)");
+      lines.push("a = " + prettyCall(a));
+      lines.push("b = " + prettyCall(b));
+      lines.push('result = b.chunk("' + replay + '")');
+      return lines.join("\n");
+    }
+
+    function snippetText() {
+      return snippetPip() + "\n" + snippetBody();
     }
 
     function fileExt(name) {
@@ -2018,6 +2122,12 @@
 
     function autoPlan(file) {
       var ext = fileExt(file && file.name);
+      if (ext === "pdf") {
+        return { a: "recursive_character", b: "sentence_based", why: "This PDF is extracted with PDF.js, then chunked as text. B keeps sentence boundaries. Python pdf_chunker can keep pages, images, and tables." };
+      }
+      if (ext === "docx") {
+        return { a: "paragraph_based", b: "sentence_based", why: "This Word file is extracted with mammoth, then chunked as text. B keeps sentence boundaries. You can switch either side." };
+      }
       if (ext === "csv" || ext === "tsv") {
         return { a: "csv_chunker", b: "fixed_size", why: "This .csv file uses csv_chunker (rows plus headers). B is the naive fallback. You can switch either side." };
       }
@@ -2079,7 +2189,8 @@
       applyPlan(autoPlan(file));
     }
     function renderSnippet() {
-      document.getElementById("snippet").textContent = snippetText();
+      document.getElementById("snippet-pip").textContent = snippetPipView();
+      document.getElementById("snippet").textContent = snippetBody();
     }
 
     function clipName(name) {
@@ -2096,6 +2207,7 @@
         badgeEl.className = "badge idle";
         badgeEl.textContent = "No file yet";
         kindEl.textContent = "Document";
+        paintExtract();
         return;
       }
       var size = bytes(lastFile.size);
@@ -2103,6 +2215,12 @@
         badgeEl.className = "badge starter";
         badgeEl.textContent = size + " · demo text, not uploaded";
         kindEl.textContent = "Document";
+      } else if (lastExtract && lastExtract.kind && lastExtract.kind !== "text") {
+        badgeEl.className = "badge local";
+        var extractedName = clipName(lastFile.name);
+        badgeEl.textContent = extractedName + " · " + size + " · extracted in this tab";
+        if (extractedName !== lastFile.name) badgeEl.title = lastFile.name;
+        kindEl.textContent = lastExtract.kind === "pdf" ? "Extracted PDF" : "Extracted Word";
       } else if (lastFile.name === "pasted.txt") {
         badgeEl.className = "badge local";
         badgeEl.textContent = lastFile.size ? "Pasted text · " + size + " · stays in this tab" : "Empty · 0 B";
@@ -2212,8 +2330,9 @@
         var idx = selected[side];
         var n = (currentResults[side] || []).length;
         btn.className = "focus-chip " + side + (focusSide === side ? " on" : "");
-        btn.textContent = side.toUpperCase() + " · " + strategyOf(side)
+        btn.textContent = side.toUpperCase()
           + (n && idx != null ? " #" + String(idx).padStart(2, "0") : "");
+        btn.title = strategyOf(side);
       });
     }
 
@@ -2499,46 +2618,95 @@
       if (btn) btn.scrollIntoView({ block: "nearest" });
     }
 
+    function paintExtract() {
+      var note = document.getElementById("extract-note");
+      var dl = document.getElementById("extract-dl");
+      var show = !!(lastExtract && lastExtract.kind && lastExtract.kind !== "text" && lastExtract.text);
+      if (note) {
+        note.hidden = !(show && lastExtract.note);
+        note.textContent = show ? (lastExtract.note || "") : "";
+      }
+      if (dl) dl.hidden = !show;
+    }
+
+    function prepareSource(file) {
+      if (lastExtract && lastExtract.file === file && lastExtract.text) {
+        return Promise.resolve({ extract: lastExtract, text: lastExtract.text });
+      }
+      var namedExtract = /\.(pdf|docx)$/i.test(file.name || "");
+      if (isTextFile(file) && !namedExtract) {
+        return Promise.resolve({ extract: { file: file, kind: "text", text: null, note: "" }, text: null });
+      }
+      return file.arrayBuffer().then(function (buf) {
+        var kind = ChunkExtract.sniffKind(file.name, buf);
+        if (kind === "text") {
+          if (isTextFile(file)) {
+            return { extract: { file: file, kind: "text", text: null, note: "" }, text: null };
+          }
+          return Promise.reject({ message: ChunkExtract.pipOnlyMessage(kind) });
+        }
+        setStatus(kind === "pdf" ? "Extracting PDF text in this tab." : "Extracting Word text in this tab.");
+        return ChunkExtract.extractFromBuffer(file.name, buf).then(function (out) {
+          return {
+            extract: { file: file, kind: out.kind, text: out.text, note: out.note || "", pages: out.pages },
+            text: out.text,
+          };
+        });
+      });
+    }
+
     function runFile(file, starter) {
       if (!file) return;
-      if (file.name && !isTextFile(file)) {
-        setStatus("This preview reads text. For PDF and media, use pip install chunking-strategy");
-        return;
-      }
       if (file.size > MAX_FILE) {
         setStatus("The playground stops at 150 MB. pip install chunking-strategy streams from disk.");
         return;
       }
-      maybeAutoPick(file, starter);
-      lastFile = file;
-      isStarter = !!starter;
-      setBadge();
-      writeShareUrl();
       jobId += 1;
-      runStart = performance.now();
-      setStatus("Chunking in a worker. The file stays in this tab.");
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        spawnWorker();
-        setStatus("That strategy timed out on this input.");
-      }, TIMEOUT_MS);
-      worker.postMessage({
-        id: jobId,
-        file: file,
-        jobs: [
-          { key: "a", strategy: strategyOf("a"), params: LIVE[strategyOf("a")].params(knobsOf("a")) },
-          { key: "b", strategy: strategyOf("b"), params: LIVE[strategyOf("b")].params(knobsOf("b")) },
-        ],
+      var id = jobId;
+      setStatus("Reading the file in this tab.");
+      prepareSource(file).then(function (prep) {
+        if (id !== jobId) return;
+        lastExtract = prep.extract;
+        maybeAutoPick(file, starter);
+        lastFile = file;
+        isStarter = !!starter;
+        setBadge();
+        paintExtract();
+        writeShareUrl();
+        runStart = performance.now();
+        setStatus("Chunking in a worker. The file stays in this tab.");
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          spawnWorker();
+          setStatus("That strategy timed out on this input.");
+        }, TIMEOUT_MS);
+        var payload = {
+          id: id,
+          jobs: [
+            { key: "a", strategy: strategyOf("a"), params: LIVE[strategyOf("a")].params(knobsOf("a")) },
+            { key: "b", strategy: strategyOf("b"), params: LIVE[strategyOf("b")].params(knobsOf("b")) },
+          ],
+        };
+        if (prep.text != null) payload.text = prep.text;
+        else payload.file = file;
+        worker.postMessage(payload);
+      }).catch(function (err) {
+        if (id !== jobId) return;
+        var msg = (err && err.message) || String(err);
+        if (msg === "ENGINE") msg = "Could not load the extract engine. Serve this lab over http, not file://.";
+        setStatus(msg);
       });
     }
 
     function loadStarter() {
-      fetch("sample.txt").then(function (r) { return r.blob(); }).then(function (blob) {
+      fetch("sample.txt", { cache: "no-store" }).then(function (r) { return r.blob(); }).then(function (blob) {
         runFile(new File([blob], "sample.txt", { type: "text/plain" }), true);
       });
     }
 
     function ingestText(text, name) {
+      lastExtract = null;
+      paintExtract();
       runFile(new File([text], name || "pasted.txt", { type: "text/plain" }), false);
     }
 
@@ -2669,6 +2837,15 @@
       btn.textContent = label;
       setTimeout(function () { btn.textContent = prev; }, 1200);
     }
+    document.getElementById("extract-dl").addEventListener("click", function () {
+      if (!lastExtract || !lastExtract.text) return;
+      var blob = new Blob([lastExtract.text], { type: "text/plain" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = snippetFileName();
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
     document.getElementById("copy").addEventListener("click", function () {
       var btn = document.getElementById("copy");
       navigator.clipboard.writeText(snippetText()).then(function () { copied(btn, "Copied"); });
