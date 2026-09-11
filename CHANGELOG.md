@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
+
 ### Added
 - Lab hierarchical `recursive`: parent/child tree (paragraph then sentence), matched to the Python golden. This is not `recursive_character`.
 - Lab `python_code` uses tree-sitter for module-level `def`/`class` (indent fallback). pip stays stdlib `ast`; nested methods are separate chunks. Compared on `symbol_name` / `symbol_kind` / `line_start` / `line_end`.
