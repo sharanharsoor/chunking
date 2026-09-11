@@ -873,7 +873,7 @@
             <ul>
               <li><code>recursive_character</code> — RAG default (paragraphs → lines → spaces). Not hierarchical <code>recursive</code>.</li>
               <li><code>token_based</code> — cl100k_base windows. Loads the tokenizer once in this tab.</li>
-              <li><code>markdown_chunker</code> / <code>python_code</code> — headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>.</li>
+              <li><code>markdown_chunker</code> / <code>python_code</code> — headers and <code>def</code>/<code>class</code>. Naive B is <code>fixed_size</code>. Breadcrumb is H1 &gt; H2.</li>
               <li><code>overlapping_window</code> — sliding overlap. Amber band is the shared range.</li>
               <li><code>regex_custom</code> — speaker turns, log lines; the match starts the next chunk.</li>
               <li>Drop .md .py .json .csv — the lab picks a matching strategy. You can always switch.</li>
@@ -1083,13 +1083,34 @@
       },
       sentence_based: {
         label: "sentence_based",
-        why: "Keeps sentence boundaries. Headings stay with the line that follows.",
-        knobs: [{ key: "max_sentences", type: "number", min: 1, max: 20, value: 2 }],
+        why: "Keeps sentence boundaries. Headings stay with the line that follows. max_tokens packs those sentences on cl100k_base — 0 means off.",
+        knobs: [
+          { key: "max_sentences", type: "number", min: 1, max: 20, value: 2 },
+          { key: "max_tokens", type: "number", min: 0, max: 8000, value: 0 },
+          { key: "overlap_tokens", type: "number", min: 0, max: 4000, value: 0 },
+        ],
         params: function (root) {
-          return { max_sentences: knobNum(root, "max_sentences", 2), min_sentences: 1, max_chunk_size: 2000, overlap_sentences: 0 };
+          var out = { max_sentences: knobNum(root, "max_sentences", 2), min_sentences: 1, max_chunk_size: 2000, overlap_sentences: 0 };
+          var mt = knobNum(root, "max_tokens", 0);
+          if (mt > 0) {
+            var ot = knobNum(root, "overlap_tokens", 0);
+            if (ot >= mt) ot = Math.max(0, mt - 1);
+            out.max_tokens = mt;
+            out.overlap_tokens = ot;
+            out.encoding = "cl100k_base";
+          }
+          return out;
         },
         call: function (root) {
-          return 'create_chunker("sentence_based", max_sentences=' + knobNum(root, "max_sentences", 2) + ', sentence_splitter="simple_v1")';
+          var base = 'create_chunker("sentence_based", max_sentences=' + knobNum(root, "max_sentences", 2) + ', sentence_splitter="simple_v1"';
+          var mt = knobNum(root, "max_tokens", 0);
+          if (mt > 0) {
+            var ot = knobNum(root, "overlap_tokens", 0);
+            if (ot >= mt) ot = Math.max(0, mt - 1);
+            base += ", max_tokens=" + mt;
+            if (ot) base += ", overlap_tokens=" + ot;
+          }
+          return base + ")";
         },
       },
       paragraph_based: {
@@ -1105,11 +1126,11 @@
       },
       overlapping_window: {
         label: "overlapping_window",
-        why: "Sliding window with overlap so context repeats at the cut.",
+        why: "Sliding window with overlap so context repeats at the cut. window_unit=tokens uses cl100k_base.",
         knobs: [
           { key: "window_size", type: "number", min: 2, max: 2000, value: 80 },
           { key: "step_size", type: "number", min: 1, max: 1999, value: 40 },
-          { key: "window_unit", type: "select", options: ["characters", "words", "sentences"], value: "characters" },
+          { key: "window_unit", type: "select", options: ["characters", "words", "sentences", "tokens"], value: "characters" },
         ],
         params: function (root) {
           var w = knobNum(root, "window_size", 80);
@@ -1194,13 +1215,34 @@
       },
       markdown_chunker: {
         label: "markdown_chunker",
-        why: "One chunk per header section. Naive windows ignore # structure.",
-        knobs: [{ key: "header_level", type: "number", min: 1, max: 6, value: 2 }],
+        why: "One chunk per header section. Breadcrumb is H1 > H2. contextualize prefixes [{breadcrumb}]. max_tokens packs without cutting tables or fences.",
+        knobs: [
+          { key: "header_level", type: "number", min: 1, max: 6, value: 2 },
+          { key: "breadcrumb", type: "checkbox", value: true },
+          { key: "contextualize", type: "checkbox", value: false },
+          { key: "max_tokens", type: "number", min: 0, max: 8000, value: 0 },
+        ],
         params: function (root) {
-          return { chunk_by: "headers", header_level: knobNum(root, "header_level", 2) };
+          var out = {
+            chunk_by: "headers",
+            header_level: knobNum(root, "header_level", 2),
+            breadcrumb: knobChk(root, "breadcrumb"),
+            contextualize: knobChk(root, "contextualize"),
+          };
+          var mt = knobNum(root, "max_tokens", 0);
+          if (mt > 0) {
+            out.max_tokens = mt;
+            out.encoding = "cl100k_base";
+          }
+          return out;
         },
         call: function (root) {
-          return 'create_chunker("markdown_chunker", chunk_by="headers", header_level=' + knobNum(root, "header_level", 2) + ")";
+          var line = 'create_chunker("markdown_chunker", chunk_by="headers", header_level=' + knobNum(root, "header_level", 2);
+          if (!knobChk(root, "breadcrumb")) line += ", breadcrumb=False";
+          if (knobChk(root, "contextualize")) line += ", contextualize=True";
+          var mt = knobNum(root, "max_tokens", 0);
+          if (mt > 0) line += ", max_tokens=" + mt;
+          return line + ")";
         },
       },
       json_chunker: {
@@ -1491,6 +1533,12 @@
       return !!(file.type && file.type.indexOf("text/") === 0);
     }
     function strategyOf(side) { return document.getElementById("pick-" + side).value; }
+    function usesTiktoken(side) {
+      var name = strategyOf(side);
+      if (name === "token_based") return true;
+      var p = LIVE[name].params(knobsOf(side));
+      return !!(p.max_tokens || p.window_unit === "tokens");
+    }
     function spawnWorker() {
       if (worker) worker.terminate();
       worker = new Worker("worker.js");
@@ -1605,6 +1653,11 @@
         var to = knobNum(box, "overlap_tokens", 0);
         if (to >= tn) flag("overlap_tokens", "Must be less than tokens_per_chunk. Using " + Math.max(0, tn - 1) + ".");
       }
+      if (name === "sentence_based") {
+        var smt = knobNum(box, "max_tokens", 0);
+        var sot = knobNum(box, "overlap_tokens", 0);
+        if (smt > 0 && sot >= smt) flag("overlap_tokens", "Must be less than max_tokens. Using " + Math.max(0, smt - 1) + ".");
+      }
       if (name === "overlapping_window") {
         var w = knobNum(box, "window_size", 80);
         var s = knobNum(box, "step_size", 40);
@@ -1634,7 +1687,7 @@
     function snippetText() {
       var a = LIVE[strategyOf("a")].call(knobsOf("a"));
       var b = LIVE[strategyOf("b")].call(knobsOf("b"));
-      var token = strategyOf("a") === "token_based" || strategyOf("b") === "token_based";
+      var token = usesTiktoken("a") || usesTiktoken("b");
       var pip = token
         ? "pip install chunking-strategy==" + PYPI + " tiktoken"
         : "pip install chunking-strategy==" + PYPI;
@@ -2117,6 +2170,8 @@
         var text = chunk.content || "";
         var hdr = chunk.metadata && chunk.metadata.csv_header;
         if (hdr && text.indexOf(hdr) !== 0) text = hdr + "\n" + text;
+        var crumb = chunk.metadata && chunk.metadata.breadcrumb;
+        if (crumb && text.indexOf("[" + crumb + "]") !== 0) text = crumb + "\n" + text;
         body.textContent = text.length > 280 ? text.slice(0, 280) + "…" : text;
         el.appendChild(head);
         el.appendChild(body);

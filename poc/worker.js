@@ -1,6 +1,7 @@
 importScripts(
   "chunkers/offsets.js",
   "chunkers/braces.js",
+  "chunkers/token_packing.js",
   "chunkers/fixed_size.js",
   "chunkers/sentence.js",
   "chunkers/paragraph.js",
@@ -73,11 +74,19 @@ function annotateTokenCounts(chunks, enc) {
   }
 }
 
+function jobNeedsEncoder(job) {
+  if (job.strategy === "token_based") return true;
+  var p = job.params || {};
+  if (Number(p.max_tokens) > 0) return true;
+  if (p.window_unit === "tokens") return true;
+  return false;
+}
+
 function runJob(text, job, enc) {
   var fn = RUNNERS[job.strategy];
   if (!fn) throw new Error("UNSUPPORTED");
   var params = Object.assign({ source: "upload" }, job.params || {});
-  var chunks = job.strategy === "token_based" ? fn(text, params, enc) : fn(text, params);
+  var chunks = fn(text, params, enc);
   if (enc) annotateTokenCounts(chunks, enc);
   return chunks;
 }
@@ -96,9 +105,9 @@ self.onmessage = function (ev) {
       var jobs = msg.jobs || [];
       var needEnc = false;
       for (var i = 0; i < jobs.length; i++) {
-        if (jobs[i].strategy === "token_based") needEnc = true;
+        if (jobNeedsEncoder(jobs[i])) needEnc = true;
       }
-      // First paint never fetches ranks. After token_based once, self._enc stays and every later job gets token_count.
+      // First paint never fetches ranks. After token_based or max_tokens once, self._enc stays.
       var ready = needEnc || self._enc ? getEncoder() : Promise.resolve(self._enc || null);
       if (needEnc && !self._enc) {
         self.postMessage({ id: id, type: "progress", phase: "tokenizer" });

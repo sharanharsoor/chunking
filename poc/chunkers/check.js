@@ -8,7 +8,7 @@ var root = { TextEncoder: TextEncoder, TextDecoder: TextDecoder, console: consol
 root.self = root;
 root.console = console;
 var ctx = vm.createContext(root);
-["offsets.js", "braces.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
+["offsets.js", "braces.js", "token_packing.js", "fixed_size.js", "sentence.js", "paragraph.js", "overlapping.js", "markdown.js", "csv.js", "json.js", "words.js", "xml.js", "code.js", "rolling.js", "fastcdc.js", "recursive_character.js", "token_based.js", "regex_custom.js", "tiktoken_bundle.js"].forEach(function (name) {
   var file = path.join(__dirname, name);
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: name });
 });
@@ -28,6 +28,9 @@ eq("paragraph first end", paras[0].end, ctx.utf16ToScalar("one\n\ntwo\n\nthree",
 var md = ctx.chunkMarkdown("# A\nhello\n## B\nworld\n### Deep\nstill B", { header_level: 2 });
 eq("markdown sections", md.length, 2);
 eq("markdown first starts at title", md[0].content.indexOf("# A") === 0, true);
+eq("markdown breadcrumb", md[1].metadata.breadcrumb, "A > B");
+var mdCtx = ctx.chunkMarkdown("# A\nhello\n## B\nworld", { header_level: 2, contextualize: true });
+eq("markdown contextualize", mdCtx[0].content.indexOf("[A]") === 0, true);
 
 var csvText = "h1,h2\na,1\nb,2\nc,3\nd,4";
 var csv = ctx.chunkCsv(csvText, { rows_per_chunk: 2, preserve_headers: true });
@@ -109,6 +112,22 @@ eq("token_based has token_count", tok[0].metadata.token_count > 0, true);
 eq("token_based first tokens", tok[0].metadata.token_count, 4);
 var tokOv = ctx.chunkTokenBased("hello world hello world hello world hello world", { tokens_per_chunk: 4, overlap_tokens: 2, min_chunk_tokens: 1 }, enc);
 eq("token_based overlap", tokOv.length > 1 && tokOv[1].start < tokOv[0].end, true);
+
+var sentTok = ctx.chunkSentenceBased("Alpha is one. Beta is two. Gamma is three. Delta is four.", {
+  max_sentences: 10, min_sentences: 1, max_chunk_size: 8000, overlap_sentences: 0, max_tokens: 8
+}, enc);
+eq("sentence max_tokens splits", sentTok.length, 2);
+eq("sentence max_tokens count", sentTok[0].metadata.token_count, 8);
+
+var ovTok = ctx.chunkOverlappingWindow("The quick brown fox jumps over the lazy dog.\n", { max_tokens: 8, overlap_tokens: 2 }, enc);
+eq("overlap tokens splits", ovTok.length, 2);
+
+var tableMd = ctx.chunkMarkdown("# Prices\n\n| item | cost |\n|------|------|\n| aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | 1 |\n| bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 2 |\n", { header_level: 2, max_tokens: 12 }, enc);
+var tableHeld = tableMd.some(function (c) {
+  return c.content.indexOf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") >= 0
+    && c.content.indexOf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb") >= 0;
+});
+eq("markdown table stays atomic", tableHeld, true);
 
 var rx = ctx.chunkRegexCustom("# A\nhello\n\n# B\nworld\n", { pattern: "^# ", multiline: true });
 eq("regex_custom splits", rx.length, 2);

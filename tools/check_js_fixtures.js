@@ -46,6 +46,7 @@ vm.createContext(ctx);
 [
   "offsets.js",
   "braces.js",
+  "token_packing.js",
   "fixed_size.js",
   "sentence.js",
   "paragraph.js",
@@ -122,7 +123,7 @@ iterFixtures(FIXTURES).forEach(function (folder) {
     console.log("skip (Python-only golden) " + path.relative(REPO, folder));
     return;
   }
-  var got = strategy === "token_based" ? ctx[fnName](text, params, tokenEnc) : ctx[fnName](text, params);
+  var got = ctx[fnName](text, params, tokenEnc);
   if (!Array.isArray(got)) {
     fail(path.relative(REPO, folder) + ": " + fnName + " did not return an array");
     return;

@@ -91,54 +91,74 @@
     return sentences;
   }
 
-  function chunkSentenceBased(text, params) {
+  function pushChunk(chunks, chars, spans, idxs, n, params, enc) {
+    var start = spans[idxs[0]][0];
+    var end = spans[idxs[idxs.length - 1]][1];
+    var content = chars.slice(start, end).join("");
+    var meta = {
+      chunker_used: "sentence_based",
+      source: params.source || "paste",
+      sentence_spec: "simple_v1",
+    };
+    if (enc) meta.token_count = enc.encode(content).length;
+    chunks.push({
+      id: "sentence_based_" + n,
+      content: content,
+      start: start,
+      end: end,
+      size: content.length,
+      offset_unit: "char",
+      metadata: meta,
+    });
+  }
+
+  function chunkSentenceBased(text, params, enc) {
     var maxSentences = Math.max(1, Number(params.max_sentences) || 5);
     var minSentences = Math.max(1, Number(params.min_sentences) || 1);
     var maxChunkSize = Math.max(1, Number(params.max_chunk_size) || 2000);
     var overlapSentences = Math.max(0, Number(params.overlap_sentences) || 0);
+    var maxTokens = Number(params.max_tokens) || 0;
+    var overlapTokens = Math.max(0, Number(params.overlap_tokens) || 0);
+    if (maxTokens && overlapTokens >= maxTokens) overlapTokens = Math.max(0, maxTokens - 1);
     text = normalizeNewlines(text);
     var sentences = maybeDictionaryLines(text, splitSentencesSimpleV1(text));
     var spans = locateSentences(text, sentences);
     var chunks = [];
+    var chars = Array.from(text);
+    if (maxTokens) {
+      if (!enc || typeof enc.encode !== "function") throw new Error("TOKENIZER");
+      var sizes = sentences.map(function (s) { return enc.encode(s).length; });
+      var ranges = root.packUnitRanges(sizes, maxTokens, overlapTokens, maxSentences);
+      for (var r = 0; r < ranges.length; r++) {
+        var idxs = [];
+        for (var j = ranges[r][0]; j < ranges[r][1]; j++) idxs.push(j);
+        if (idxs.length) pushChunk(chunks, chars, spans, idxs, chunks.length, params, enc);
+      }
+      return chunks;
+    }
     var i = 0;
     var n = 0;
-    var chars = Array.from(text);
     while (i < sentences.length) {
       var group = [];
-      var idxs = [];
+      var idxs2 = [];
       var size = 0;
       var added = 0;
       while (i < sentences.length && added < maxSentences && size < maxChunkSize) {
         var sentence = sentences[i];
         if (size + sentence.length > maxChunkSize && group.length) break;
         group.push(sentence);
-        idxs.push(i);
+        idxs2.push(i);
         size += sentence.length;
         added += 1;
         i += 1;
       }
       while (group.length < minSentences && i < sentences.length) {
         group.push(sentences[i]);
-        idxs.push(i);
+        idxs2.push(i);
         i += 1;
       }
       if (group.length) {
-        var start = spans[idxs[0]][0];
-        var end = spans[idxs[idxs.length - 1]][1];
-        var content = chars.slice(start, end).join("");
-        chunks.push({
-          id: "sentence_based_" + n,
-          content: content,
-          start: start,
-          end: end,
-          size: content.length,
-          offset_unit: "char",
-          metadata: {
-            chunker_used: "sentence_based",
-            source: params.source || "paste",
-            sentence_spec: "simple_v1",
-          },
-        });
+        pushChunk(chunks, chars, spans, idxs2, n, params, enc);
         n += 1;
         if (overlapSentences > 0 && i < sentences.length) {
           var overlapStart = Math.max(0, group.length - overlapSentences);
