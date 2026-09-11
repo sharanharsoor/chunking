@@ -1,0 +1,194 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "Alpha sentence one is here.",
+      "end": 27,
+      "hash": "6207bd43299531e91ca1f80cba8bf6b5e0ae2418ab9d6e7c650028bf33885c54",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "0.0",
+          "level": 1,
+          "level_name": "sentence",
+          "level_strategy": "sentence"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": "chunk-0002",
+      "size": 27,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "Alpha sentence two is here.",
+      "end": 55,
+      "hash": "719eb10d92ff2a79d872f92448b63889d225b6fa2fc29bb43553071d45aaf7b6",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "0.1",
+          "level": 1,
+          "level_name": "sentence",
+          "level_strategy": "sentence"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": "chunk-0002",
+      "size": 27,
+      "start": 28
+    },
+    {
+      "children_ids": [
+        "chunk-0000",
+        "chunk-0001"
+      ],
+      "content": "Alpha sentence one is here. Alpha sentence two is here.",
+      "end": null,
+      "hash": "c3d41e440b5f7b09478d16fa0951403d83053a798bcfe6a486ee5c1cb753a17a",
+      "id": "chunk-0002",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "0",
+          "level": 0,
+          "level_name": "paragraph",
+          "level_strategy": "paragraph"
+        },
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 55,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "Beta sentence one is here.",
+      "end": 26,
+      "hash": "a065aae9d0ff01a60e4769acb1190e185bb8a046bcd5491f46a0ba2d9bc62401",
+      "id": "chunk-0003",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "1.0",
+          "level": 1,
+          "level_name": "sentence",
+          "level_strategy": "sentence"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": "chunk-0005",
+      "size": 26,
+      "start": 0
+    },
+    {
+      "children_ids": [],
+      "content": "Beta sentence two is here.",
+      "end": 53,
+      "hash": "a6e6b0c3f8e017c02b7e9a893a1bc9af1e4222154f5235af860502cb0c5eec4b",
+      "id": "chunk-0004",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "1.1",
+          "level": 1,
+          "level_name": "sentence",
+          "level_strategy": "sentence"
+        },
+        "offset_unit": "char",
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": "chunk-0005",
+      "size": 26,
+      "start": 27
+    },
+    {
+      "children_ids": [
+        "chunk-0003",
+        "chunk-0004"
+      ],
+      "content": "Beta sentence one is here. Beta sentence two is here.",
+      "end": null,
+      "hash": "f8f6d2d975ee28a180eddd48404ea3369de26b9febc61faacc49858cdbee41c8",
+      "id": "chunk-0005",
+      "metadata": {
+        "chunker_used": "recursive",
+        "extra": {
+          "chunker_used": "recursive",
+          "chunking_strategy": "recursive",
+          "hierarchy_path": "1",
+          "level": 0,
+          "level_name": "paragraph",
+          "level_strategy": "paragraph"
+        },
+        "source": "string"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 53,
+      "start": null
+    }
+  ],
+  "params": {
+    "adaptive_depth": false,
+    "hierarchy_levels": [
+      {
+        "max_chunk_size": 5000,
+        "min_chunk_size": 1,
+        "name": "paragraph",
+        "parameters": {
+          "max_paragraphs": 1,
+          "merge_short_paragraphs": false,
+          "min_paragraph_length": 1,
+          "min_paragraphs": 1
+        },
+        "quality_threshold": 0,
+        "strategy": "paragraph",
+        "target_chunk_size": 80
+      },
+      {
+        "max_chunk_size": 5000,
+        "min_chunk_size": 1,
+        "name": "sentence",
+        "parameters": {
+          "max_chunk_size": 5000,
+          "max_sentences": 1,
+          "min_sentences": 1,
+          "sentence_splitter": "simple_v1"
+        },
+        "quality_threshold": 0,
+        "strategy": "sentence",
+        "target_chunk_size": 40
+      }
+    ],
+    "max_depth": 2,
+    "quality_threshold": 0
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "c5bf9a92d2f36aef7dfa37d27eaaf19fa6f234c3c255d6ca4322890ec02bd540",
+    "size": 111
+  },
+  "strategy": "recursive"
+}

@@ -1,0 +1,11 @@
+{
+  "strategy": "markdown_chunker",
+  "python_only": true,
+  "params": {
+    "chunk_by": "headers",
+    "header_level": 2,
+    "min_chunk_size": 1,
+    "max_chunk_size": 60,
+    "preserve_tables": true
+  }
+}

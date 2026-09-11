@@ -1,0 +1,6 @@
+# Prices
+
+| item | cost |
+|------|------|
+| aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | 1 |
+| bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 2 |

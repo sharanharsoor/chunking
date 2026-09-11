@@ -20,6 +20,88 @@ from chunking_strategy.core.registry import register_chunker, ComplexityLevel, S
 from chunking_strategy.core.streaming import StreamableChunker
 from chunking_strategy.core.adaptive import AdaptableChunker
 
+_GFM_ROW = re.compile(r"^\s*\|.*\|\s*$")
+_SETEXT = re.compile(r"^(?P<title>.+)\n(?P<underline>=+|-+)[ \t]*$", re.MULTILINE)
+
+
+def mask_fences(text: str) -> str:
+    """Replace fenced-code interiors with spaces so `#` inside fences is not a header."""
+    chars = list(text)
+    i = 0
+    n = len(text)
+    while i < n:
+        if text.startswith("```", i) or text.startswith("~~~", i):
+            delim = text[i : i + 3]
+            nl = text.find("\n", i)
+            if nl < 0:
+                break
+            close = text.find("\n" + delim, nl)
+            end = n if close < 0 else close + 1 + len(delim)
+            for p in range(i, min(end, n)):
+                if chars[p] != "\n":
+                    chars[p] = " "
+            i = end
+            continue
+        i += 1
+    return "".join(chars)
+
+
+def atomic_spans(text: str) -> List[Tuple[int, int, str]]:
+    """Non-overlapping spans: fenced code, HTML tables, GFM tables, then text."""
+    if not text:
+        return []
+    lines: List[Tuple[int, int, str]] = []
+    pos = 0
+    for line in text.splitlines(keepends=True):
+        lines.append((pos, pos + len(line), line))
+        pos += len(line)
+    if pos < len(text):
+        lines.append((pos, len(text), text[pos:]))
+    spans: List[Tuple[int, int, str]] = []
+    i = 0
+    while i < len(lines):
+        start, end, line = lines[i]
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            delim = stripped[:3]
+            j = i + 1
+            while j < len(lines) and not lines[j][2].lstrip().startswith(delim):
+                j += 1
+            if j < len(lines):
+                j += 1
+            spans.append((start, lines[j - 1][1], "code"))
+            i = j
+            continue
+        if re.search(r"<table\b", line, re.I):
+            j = i
+            while j < len(lines) and not re.search(r"</table>", lines[j][2], re.I):
+                j += 1
+            if j < len(lines):
+                j += 1
+            spans.append((start, lines[max(i, j - 1)][1], "html_table"))
+            i = max(j, i + 1)
+            continue
+        if _GFM_ROW.match(line.rstrip("\n")):
+            j = i + 1
+            while j < len(lines) and _GFM_ROW.match(lines[j][2].rstrip("\n")):
+                j += 1
+            spans.append((start, lines[j - 1][1], "gfm_table"))
+            i = j
+            continue
+        j = i + 1
+        while j < len(lines):
+            nxt = lines[j][2]
+            if not nxt.strip():
+                j += 1
+                break
+            ns = nxt.lstrip()
+            if ns.startswith("```") or ns.startswith("~~~") or re.search(r"<table\b", nxt, re.I) or _GFM_ROW.match(nxt.rstrip("\n")):
+                break
+            j += 1
+        spans.append((start, lines[j - 1][1], "text"))
+        i = j
+    return spans
+
 
 @register_chunker(
     name="markdown_chunker",
@@ -56,6 +138,11 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
         chunk_overlap: int = 200,
         min_chunk_size: int = 100,
         max_chunk_size: int = 8000,
+        breadcrumb: bool = True,
+        contextualize: bool = False,
+        max_tokens: Optional[int] = None,
+        overlap_tokens: int = 0,
+        encoding: str = "cl100k_base",
         **kwargs
     ):
         """
@@ -91,6 +178,12 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
         self.chunk_overlap = chunk_overlap
         self.min_chunk_size = min_chunk_size
         self.max_chunk_size = max_chunk_size
+        self.breadcrumb = breadcrumb
+        self.contextualize = contextualize
+        self.max_tokens = max_tokens
+        self.overlap_tokens = overlap_tokens
+        self.encoding = encoding
+        self._enc = None
 
         self.logger = logging.getLogger(__name__)
 
@@ -125,6 +218,61 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
             r'^---\s*\n(.*?)\n---\s*\n',
             re.DOTALL
         )
+
+    def _tiktoken(self):
+        if self._enc is None:
+            from chunking_strategy.core.token_packing import require_encoding
+            self._enc = require_encoding(self.encoding)
+        return self._enc
+
+    def _collect_headers(self, content: str) -> List[Dict[str, Any]]:
+        masked = mask_fences(content)
+        headers: List[Dict[str, Any]] = []
+        for match in self.header_pattern.finditer(masked):
+            if match.group(0).strip() == "":
+                continue
+            headers.append({
+                "level": len(match.group(1)),
+                "title": match.group(2).strip(),
+                "start": match.start(),
+                "end": match.end(),
+            })
+        for match in _SETEXT.finditer(masked):
+            underline = match.group("underline")
+            title = match.group("title").strip()
+            if "|" in title or "|" in underline:
+                continue
+            if not title or title.startswith("#"):
+                continue
+            headers.append({
+                "level": 1 if underline.startswith("=") else 2,
+                "title": title,
+                "start": match.start(),
+                "end": match.end(),
+            })
+        headers.sort(key=lambda h: h["start"])
+        return headers
+
+    def _header_path(self, headers: List[Dict[str, Any]], at: Dict[str, Any]) -> List[str]:
+        stack: List[Dict[str, Any]] = []
+        for header in headers:
+            if header["start"] > at["start"]:
+                break
+            while stack and stack[-1]["level"] >= header["level"]:
+                stack.pop()
+            stack.append(header)
+        return [h["title"] for h in stack]
+
+    def _decorate(self, body: str, header_path: List[str]) -> Tuple[str, Dict[str, Any]]:
+        extra: Dict[str, Any] = {}
+        if self.breadcrumb and header_path:
+            extra["header_path"] = list(header_path)
+            extra["breadcrumb"] = " > ".join(header_path)
+        content = body
+        if self.contextualize and extra.get("breadcrumb"):
+            extra["raw_content"] = body
+            content = "[{}]\n\n{}".format(extra["breadcrumb"], body)
+        return content, extra
 
     def chunk(
         self,
@@ -271,38 +419,30 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
         """Chunk by header hierarchy."""
         chunks = []
 
-        # Find all headers up to the specified level
-        headers = []
-        for match in self.header_pattern.finditer(content):
-            level = len(match.group(1))
-            if level <= self.header_level:
-                headers.append({
-                    'level': level,
-                    'title': match.group(2).strip(),
-                    'start': match.start(),
-                    'end': match.end()
-                })
+        all_headers = self._collect_headers(content)
+        headers = [h for h in all_headers if h["level"] <= self.header_level]
 
         if not headers:
-            # No headers found, treat as single chunk
             return self._create_single_chunk(content, frontmatter, source_info, 0)
 
-        # Create chunks between headers
         for i, header in enumerate(headers):
-            # Determine chunk boundaries
             chunk_start = header['start']
             chunk_end = headers[i + 1]['start'] if i + 1 < len(headers) else len(content)
-
             chunk_content = content[chunk_start:chunk_end].strip()
+            header_path = self._header_path(all_headers, header)
 
-            # Skip empty chunks
             if not chunk_content or len(chunk_content) < self.min_chunk_size:
                 continue
 
-            # Handle oversized chunks
-            if len(chunk_content) > self.max_chunk_size:
-                sub_chunks = self._split_large_chunk(chunk_content, i)
-                chunks.extend(sub_chunks)
+            too_big = len(chunk_content) > self.max_chunk_size
+            if self.max_tokens is not None:
+                from chunking_strategy.core.token_packing import count_tokens
+                too_big = too_big or count_tokens(chunk_content, self._tiktoken()) > self.max_tokens
+
+            if too_big:
+                chunks.extend(self._split_large_chunk(
+                    chunk_content, i, header_path=header_path, source_info=source_info
+                ))
             else:
                 chunk = self._create_chunk(
                     chunk_content,
@@ -310,7 +450,8 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
                     header['title'],
                     header['level'],
                     frontmatter if i == 0 and self.include_frontmatter else None,
-                    source_info
+                    source_info,
+                    header_path=header_path,
                 )
                 chunks.append(chunk)
 
@@ -603,7 +744,8 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
         header_title: str,
         header_level: int,
         frontmatter: Optional[Dict[str, Any]],
-        source_info: Dict[str, Any]
+        source_info: Dict[str, Any],
+        header_path: Optional[List[str]] = None,
     ) -> Chunk:
         """Create a header-based chunk."""
         # Include frontmatter if this is the first chunk
@@ -616,18 +758,23 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
                 frontmatter_text = frontmatter.get('raw', str(frontmatter))
                 content = f"---\n{frontmatter_text}\n---\n\n{content}"
 
+        path = header_path if header_path is not None else [header_title] if header_title else []
+        content, crumb = self._decorate(content, path)
+        extra = {
+            "markdown_header": header_title,
+            "markdown_level": header_level,
+            "section_index": index,
+            "has_frontmatter": frontmatter is not None and index == 0,
+            "chunk_type": "header_based"
+        }
+        extra.update(crumb)
+
         metadata = ChunkMetadata(
             source=source_info.get("source", "unknown"),
             source_type=source_info.get("source_type", "content"),
             position=f"section {index + 1}",
             length=len(content),
-            extra={
-                "markdown_header": header_title,
-                "markdown_level": header_level,
-                "section_index": index,
-                "has_frontmatter": frontmatter is not None and index == 0,
-                "chunk_type": "header_based"
-            }
+            extra=extra,
         )
 
         return Chunk(
@@ -772,58 +919,84 @@ class MarkdownChunker(StreamableChunker, AdaptableChunker):
 
         return [chunk]
 
-    def _split_large_chunk(self, content: str, base_index: int) -> List[Chunk]:
-        """Split a large chunk into smaller ones."""
-        chunks = []
-        words = content.split()
-        current_chunk = ""
-        sub_index = 0
+    def _split_large_chunk(
+        self,
+        content: str,
+        base_index: int,
+        header_path: Optional[List[str]] = None,
+        source_info: Optional[Dict[str, Any]] = None,
+    ) -> List[Chunk]:
+        """Split a large section without cutting GFM/HTML tables or fenced code."""
+        from chunking_strategy.core.token_packing import count_tokens
 
-        for word in words:
-            if len(current_chunk) + len(word) + 1 > self.max_chunk_size and current_chunk:
-                chunk = Chunk(
-                    id=f"md_header_{base_index}_{sub_index}",
-                    content=current_chunk.strip(),
-                    metadata=ChunkMetadata(
-                        source="large_chunk_split",
-                        source_type="content",
-                        position=f"split {sub_index + 1}",
-                        length=len(current_chunk.strip()),
-                        extra={
-                            "chunk_type": "oversized_split",
-                            "original_index": base_index,
-                            "split_index": sub_index
-                        }
-                    ),
-                    modality=ModalityType.TEXT
-                )
-                chunks.append(chunk)
+        source_info = source_info or {}
+        path = header_path or []
+        spans = atomic_spans(content)
+        if not spans:
+            spans = [(0, len(content), "text")]
+        enc = self._tiktoken() if self.max_tokens is not None else None
+        packed: List[Tuple[int, int]] = []
+        cur: List[Tuple[int, int, str]] = []
+        cur_chars = 0
+        cur_tok = 0
 
-                current_chunk = word
-                sub_index += 1
-            else:
-                current_chunk += " " + word if current_chunk else word
+        def flush() -> None:
+            nonlocal cur_chars, cur_tok
+            if not cur:
+                return
+            packed.append((cur[0][0], cur[-1][1]))
+            cur.clear()
+            cur_chars = 0
+            cur_tok = 0
 
-        # Add final sub-chunk
-        if current_chunk.strip():
-            chunk = Chunk(
-                id=f"md_header_{base_index}_{sub_index}",
-                content=current_chunk.strip(),
-                metadata=ChunkMetadata(
-                    source="large_chunk_split",
-                    source_type="content",
-                    position=f"split {sub_index + 1}",
-                    length=len(current_chunk.strip()),
-                    extra={
-                        "chunk_type": "oversized_split",
-                        "original_index": base_index,
-                        "split_index": sub_index
-                    }
-                ),
-                modality=ModalityType.TEXT
+        for span in spans:
+            piece = content[span[0]:span[1]]
+            plen = len(piece)
+            ptok = count_tokens(piece, enc) if enc is not None else 0
+            over = bool(cur) and (
+                cur_chars + plen > self.max_chunk_size
+                or (self.max_tokens is not None and cur_tok + ptok > self.max_tokens)
             )
-            chunks.append(chunk)
+            if over:
+                flush()
+            cur.append(span)
+            cur_chars += plen
+            cur_tok += ptok
+            if len(cur) == 1 and (
+                plen > self.max_chunk_size
+                or (self.max_tokens is not None and ptok > self.max_tokens)
+            ):
+                flush()
+        flush()
 
+        chunks = []
+        title = path[-1] if path else ""
+        level = len(path) if path else 1
+        for sub_index, (start, end) in enumerate(packed):
+            body = content[start:end].strip()
+            if not body:
+                continue
+            text, crumb = self._decorate(body, path)
+            extra = {
+                "chunk_type": "oversized_split",
+                "original_index": base_index,
+                "split_index": sub_index,
+                "markdown_header": title,
+                "markdown_level": level,
+            }
+            extra.update(crumb)
+            chunks.append(Chunk(
+                id=f"md_header_{base_index}_{sub_index}",
+                content=text,
+                metadata=ChunkMetadata(
+                    source=source_info.get("source", "unknown"),
+                    source_type=source_info.get("source_type", "content"),
+                    position=f"split {sub_index + 1}",
+                    length=len(text),
+                    extra=extra,
+                ),
+                modality=ModalityType.TEXT,
+            ))
         return chunks
 
     def _get_overlap_content(self, content: str, overlap_size: int) -> str:

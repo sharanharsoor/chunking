@@ -2,9 +2,9 @@
   "chunks": [
     {
       "children_ids": [],
-      "content": "# A\nhello",
+      "content": "[A]\n\n# A\nhello",
       "end": null,
-      "hash": "05e90a02e2cd88ff4e623384367a1f6aeed96e6397b2bfea32cfda3bfe3d6086",
+      "hash": "a917e520b4b98b449cce1f12831ea83523e69f99448258837847c026a708c0b6",
       "id": "chunk-0000",
       "metadata": {
         "breadcrumb": "A",
@@ -14,6 +14,7 @@
           "has_frontmatter": false,
           "markdown_header": "A",
           "markdown_level": 1,
+          "raw_content": "# A\nhello",
           "section_index": 0
         },
         "header_path": [
@@ -23,14 +24,14 @@
       },
       "modality": "text",
       "parent_id": null,
-      "size": 9,
+      "size": 14,
       "start": null
     },
     {
       "children_ids": [],
-      "content": "## B\nworld\n### Deep\nstill B",
+      "content": "[A > B]\n\n## B\nworld\n### Deep\nstill B",
       "end": null,
-      "hash": "5ade9d91cb299167fd127900ece0d9f21d68ca61e6cf3a5e6bdfa133212538a1",
+      "hash": "b5bcd03b7c0ebe3ab4a69bc95905ac41bce20401bd64e205a9d9b4555c6a36e1",
       "id": "chunk-0001",
       "metadata": {
         "breadcrumb": "A > B",
@@ -40,6 +41,7 @@
           "has_frontmatter": false,
           "markdown_header": "B",
           "markdown_level": 2,
+          "raw_content": "## B\nworld\n### Deep\nstill B",
           "section_index": 1
         },
         "header_path": [
@@ -50,12 +52,14 @@
       },
       "modality": "text",
       "parent_id": null,
-      "size": 27,
+      "size": 36,
       "start": null
     }
   ],
   "params": {
+    "breadcrumb": true,
     "chunk_by": "headers",
+    "contextualize": true,
     "header_level": 2,
     "max_chunk_size": 8000,
     "min_chunk_size": 1

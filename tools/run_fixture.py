@@ -34,11 +34,15 @@ def run_one(folder: Path, *, write: bool) -> str:
     strategy = params_doc["strategy"]
     params = dict(params_doc.get("params") or {})
     if strategy == "token_based" and (params.get("tokenizer_type") or "tiktoken") == "tiktoken":
+        need_tiktoken = True
+    else:
+        need_tiktoken = params.get("max_tokens") is not None or params.get("window_unit") == "tokens"
+    if need_tiktoken:
         try:
             import tiktoken  # noqa: F401
         except ImportError as exc:
             raise RuntimeError(
-                "token_based goldens need tiktoken (pip install tiktoken)"
+                "this golden needs tiktoken (pip install tiktoken)"
             ) from exc
     source_path = _input_path(folder)
     raw = source_path.read_bytes()

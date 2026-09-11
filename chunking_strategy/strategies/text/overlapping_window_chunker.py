@@ -43,6 +43,7 @@ class WindowUnit(str, Enum):
     CHARACTERS = "characters"
     WORDS = "words"
     SENTENCES = "sentences"
+    TOKENS = "tokens"
 
 
 @register_chunker(
@@ -74,7 +75,7 @@ class WindowUnit(str, Enum):
         },
         "window_unit": {
             "type": "string",
-            "enum": ["characters", "words", "sentences"],
+            "enum": ["characters", "words", "sentences", "tokens"],
             "default": "words",
             "description": "Unit for window and step sizes"
         },
@@ -102,6 +103,22 @@ class WindowUnit(str, Enum):
             "items": {"type": "string"},
             "default": [".", "!", "?", "。", "！", "？"],
             "description": "Custom sentence separators"
+        },
+        "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "default": None,
+            "description": "Sliding window in cl100k_base tokens. Requires tiktoken."
+        },
+        "overlap_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Token overlap when max_tokens or window_unit=tokens"
+        },
+        "encoding": {
+            "type": "string",
+            "default": "cl100k_base"
         }
     }
 )
@@ -122,6 +139,9 @@ class OverlappingWindowChunker(StreamableChunker, AdaptableChunker):
         min_window_size: int = 50,
         max_chunk_chars: int = 8000,
         sentence_separators: Optional[List[str]] = None,
+        max_tokens: Optional[int] = None,
+        overlap_tokens: int = 0,
+        encoding: str = "cl100k_base",
         **kwargs
     ):
         # Extract name from kwargs or use default
@@ -136,20 +156,33 @@ class OverlappingWindowChunker(StreamableChunker, AdaptableChunker):
         # Core parameters
         self.window_size = window_size
         self.step_size = step_size
-        self.window_unit = WindowUnit(window_unit)
         self.preserve_boundaries = preserve_boundaries
         self.min_window_size = min_window_size
         self.max_chunk_chars = max_chunk_chars
         self.sentence_separators = sentence_separators or [".", "!", "?", "。", "！", "？"]
+        self.encoding = encoding
+        self.overlap_tokens = overlap_tokens
+        if window_unit == "tokens" and max_tokens is None:
+            max_tokens = window_size
+            overlap_tokens = max(0, window_size - step_size)
+            self.overlap_tokens = overlap_tokens
+        self.max_tokens = max_tokens
+        if max_tokens is not None:
+            self.window_unit = WindowUnit.TOKENS
+            if max_tokens < 1:
+                raise ValueError("max_tokens must be at least 1")
+            if self.overlap_tokens < 0:
+                raise ValueError("overlap_tokens must be non-negative")
+            if self.overlap_tokens >= max_tokens:
+                raise ValueError("overlap_tokens must be less than max_tokens")
+        else:
+            self.window_unit = WindowUnit(window_unit)
+            if self.step_size >= self.window_size:
+                raise ValueError("step_size must be less than window_size to create overlap")
+            if self.min_window_size > self.window_size:
+                raise ValueError("min_window_size must be less than or equal to window_size")
 
-        # Adaptation tracking
         self._adaptation_history: List[Dict[str, Any]] = []
-
-        # Validate parameters
-        if self.step_size >= self.window_size:
-            raise ValueError("step_size must be less than window_size to create overlap")
-        if self.min_window_size > self.window_size:
-            raise ValueError("min_window_size must be less than or equal to window_size")
 
         # Compile patterns for efficiency
         self._sentence_pattern = re.compile(
@@ -272,6 +305,9 @@ class OverlappingWindowChunker(StreamableChunker, AdaptableChunker):
             )
 
         source_info = source_info or {"source": "string", "source_type": "content"}
+
+        if self.max_tokens is not None:
+            return self._chunk_by_tokens(content, source_info, start_time)
 
         # Split text into units
         units = self._split_into_units(content)
@@ -402,6 +438,77 @@ class OverlappingWindowChunker(StreamableChunker, AdaptableChunker):
 
         logger.info(f"Created {len(chunks)} overlapping chunks in {processing_time:.3f}s, {overlap_ratio:.1%} overlap")
         return result
+
+    def _chunk_by_tokens(self, content: str, source_info: Dict[str, Any], start_time: float) -> ChunkingResult:
+        from chunking_strategy.core.canonical import sha256_text
+        from chunking_strategy.core.token_packing import require_encoding, token_windows
+
+        enc = require_encoding(self.encoding)
+        token_ids = enc.encode(content)
+        windows = token_windows(len(token_ids), self.max_tokens, self.overlap_tokens)
+        chunks = []
+        locate_hint = 0
+        for i, (t0, t1) in enumerate(windows):
+            piece_ids = token_ids[t0:t1]
+            window_content = enc.decode(piece_ids)
+            start = end = None
+            if window_content:
+                idx = content.find(window_content, locate_hint)
+                if idx < 0:
+                    idx = content.find(window_content)
+                if idx >= 0:
+                    start = idx
+                    end = idx + len(window_content)
+                    locate_hint = start + 1 if self.overlap_tokens else end
+            extra = {
+                "chunk_index": i,
+                "unit_count": len(piece_ids),
+                "overlap_with_previous": i > 0,
+                "chunker_used": self.name,
+                "token_count": len(piece_ids),
+                "start_token_index": t0,
+                "window_info": {
+                    "window_start": t0,
+                    "window_end": t1,
+                    "unit_type": "tokens",
+                    "step_size": max(1, self.max_tokens - self.overlap_tokens),
+                },
+                "chunking_strategy": "overlapping_window",
+            }
+            if start is not None:
+                extra["offset_unit"] = "char"
+            chunk = Chunk(
+                id=f"{self.name}_chunk_{i}",
+                content=window_content,
+                modality=ModalityType.TEXT,
+                metadata=ChunkMetadata(
+                    source=source_info.get("source", "unknown"),
+                    source_type=source_info.get("source_type", "content"),
+                    position=f"window {i}",
+                    offset=start,
+                    length=(end - start) if start is not None and end is not None else len(window_content),
+                    extra=extra,
+                ),
+                hash=sha256_text(window_content) if window_content else None,
+                start=start,
+                end=end,
+                token_count=len(piece_ids),
+            )
+            chunks.append(chunk)
+        processing_time = time.time() - start_time
+        return ChunkingResult(
+            chunks=chunks,
+            processing_time=processing_time,
+            strategy_used=self.name,
+            source_info={
+                **source_info,
+                "total_units": len(token_ids),
+                "total_chars": len(content),
+                "window_size": self.max_tokens,
+                "step_size": max(1, self.max_tokens - self.overlap_tokens),
+                "window_unit": "tokens",
+            },
+        )
 
     def chunk_stream(
         self,

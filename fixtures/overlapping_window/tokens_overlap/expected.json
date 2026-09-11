@@ -1,0 +1,80 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "The quick brown fox jumps over the lazy",
+      "end": 39,
+      "hash": "e79df309e6b0e98a1b677e5d47765063170fd0fbe136d305230dca2ca1ade525",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "overlapping_window",
+        "extra": {
+          "chunk_index": 0,
+          "chunker_used": "overlapping_window",
+          "chunking_strategy": "overlapping_window",
+          "overlap_with_previous": false,
+          "start_token_index": 0,
+          "token_count": 8,
+          "unit_count": 8,
+          "window_info": {
+            "step_size": 6,
+            "unit_type": "tokens",
+            "window_end": 8,
+            "window_start": 0
+          }
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 39,
+      "start": 0,
+      "token_count": 8
+    },
+    {
+      "children_ids": [],
+      "content": " the lazy dog.\n",
+      "end": 45,
+      "hash": "1037f399d7ec7adecdef57df4f84d38fbed4215eecda5f7366bdc5524ffbe93f",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "overlapping_window",
+        "extra": {
+          "chunk_index": 1,
+          "chunker_used": "overlapping_window",
+          "chunking_strategy": "overlapping_window",
+          "overlap_with_previous": true,
+          "start_token_index": 6,
+          "token_count": 4,
+          "unit_count": 4,
+          "window_info": {
+            "step_size": 6,
+            "unit_type": "tokens",
+            "window_end": 10,
+            "window_start": 6
+          }
+        },
+        "offset_unit": "char",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 15,
+      "start": 30,
+      "token_count": 4
+    }
+  ],
+  "params": {
+    "encoding": "cl100k_base",
+    "max_tokens": 8,
+    "overlap_tokens": 2
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "b47cc0f104b62d4c7c30bcd68fd8e67613e287dc4ad8c310ef10cbadea9c4380",
+    "size": 45
+  },
+  "strategy": "overlapping_window"
+}

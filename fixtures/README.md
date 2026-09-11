@@ -32,7 +32,8 @@ node tools/check_js_fixtures.js
 | Strategy | What must match |
 |---|---|
 | `fixed_size`, `sentence_based`, `overlapping_window` (characters, `preserve_boundaries: false`) | `start` / `end` / `content` (Unicode strings, not bytes; `💩` is one scalar) |
-| `markdown_chunker` (`chunk_by=headers`, no preamble, no fenced `#`) | `content` after trim; Python does not set offsets |
+| `recursive` | parent_id / children_ids (Python-only; hierarchical, not `recursive_character`) |
+| `markdown_chunker` (`chunk_by=headers`, no preamble, no fenced `#`) | `content` after trim; Python does not set offsets. Breadcrumb metadata is extra. `contextualize` / `max_tokens` / table splits are Python-only. |
 | `csv_chunker` | `csv_start_row` / `csv_end_row` / `csv_row_count` (Python `csv.writer` uses `\r\n`) |
 | `json_chunker` | `json_start_index` / `json_end_index` / `json_object_count` (Python re-dumps JSON) |
 | `paragraph_based` | `paragraph_count` (`merge_short_paragraphs: false`; Python collapses whitespace) |

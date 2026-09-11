@@ -1,0 +1,13 @@
+{
+  "strategy": "sentence_based",
+  "params": {
+    "sentence_splitter": "simple_v1",
+    "max_sentences": 10,
+    "min_sentences": 1,
+    "max_chunk_size": 8000,
+    "overlap_sentences": 0,
+    "max_tokens": 8,
+    "overlap_tokens": 0,
+    "encoding": "cl100k_base"
+  }
+}

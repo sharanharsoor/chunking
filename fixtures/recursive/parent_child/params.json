@@ -1,0 +1,39 @@
+{
+  "strategy": "recursive",
+  "python_only": true,
+  "params": {
+    "adaptive_depth": false,
+    "quality_threshold": 0,
+    "max_depth": 2,
+    "hierarchy_levels": [
+      {
+        "name": "paragraph",
+        "strategy": "paragraph",
+        "parameters": {
+          "max_paragraphs": 1,
+          "min_paragraphs": 1,
+          "merge_short_paragraphs": false,
+          "min_paragraph_length": 1
+        },
+        "min_chunk_size": 1,
+        "max_chunk_size": 5000,
+        "target_chunk_size": 80,
+        "quality_threshold": 0
+      },
+      {
+        "name": "sentence",
+        "strategy": "sentence",
+        "parameters": {
+          "max_sentences": 1,
+          "min_sentences": 1,
+          "sentence_splitter": "simple_v1",
+          "max_chunk_size": 5000
+        },
+        "min_chunk_size": 1,
+        "max_chunk_size": 5000,
+        "target_chunk_size": 40,
+        "quality_threshold": 0
+      }
+    ]
+  }
+}

@@ -93,6 +93,10 @@ var ran = 0;
 iterFixtures(FIXTURES).forEach(function (folder) {
   var paramsDoc = JSON.parse(fs.readFileSync(path.join(folder, "params.json"), "utf8"));
   var strategy = paramsDoc.strategy;
+  if (paramsDoc.python_only) {
+    console.log("skip (Python-only golden) " + path.relative(REPO, folder));
+    return;
+  }
   var fnName = RUNNERS[strategy];
   if (!fnName) {
     console.log("skip (Python-only golden) " + path.relative(REPO, folder));
@@ -114,6 +118,10 @@ iterFixtures(FIXTURES).forEach(function (folder) {
   var text = fileBuf.toString("utf8");
   var expected = JSON.parse(fs.readFileSync(expectedPath, "utf8"));
   var params = Object.assign({ source: "input.txt" }, paramsDoc.params || {});
+  if (params.max_tokens != null || params.contextualize || params.window_unit === "tokens") {
+    console.log("skip (Python-only golden) " + path.relative(REPO, folder));
+    return;
+  }
   var got = strategy === "token_based" ? ctx[fnName](text, params, tokenEnc) : ctx[fnName](text, params);
   if (!Array.isArray(got)) {
     fail(path.relative(REPO, folder) + ": " + fnName + " did not return an array");

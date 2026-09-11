@@ -1,0 +1,8 @@
+{
+  "strategy": "overlapping_window",
+  "params": {
+    "max_tokens": 8,
+    "overlap_tokens": 2,
+    "encoding": "cl100k_base"
+  }
+}

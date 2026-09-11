@@ -1,0 +1,70 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "# Prices",
+      "end": null,
+      "hash": "f8c250402f73275f54bbe41d676f019ea65f0fffc8aded7fbaa57ee402ed1860",
+      "id": "chunk-0000",
+      "metadata": {
+        "breadcrumb": "Prices",
+        "chunker_used": null,
+        "extra": {
+          "chunk_type": "oversized_split",
+          "markdown_header": "Prices",
+          "markdown_level": 1,
+          "original_index": 0,
+          "split_index": 0
+        },
+        "header_path": [
+          "Prices"
+        ],
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 8,
+      "start": null
+    },
+    {
+      "children_ids": [],
+      "content": "| item | cost |\n|------|------|\n| aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | 1 |\n| bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 2 |",
+      "end": null,
+      "hash": "052944fb047c213e67c5a48810c496ff14ebce465dd077c31713338f32a99bd0",
+      "id": "chunk-0001",
+      "metadata": {
+        "breadcrumb": "Prices",
+        "chunker_used": null,
+        "extra": {
+          "chunk_type": "oversized_split",
+          "markdown_header": "Prices",
+          "markdown_level": 1,
+          "original_index": 0,
+          "split_index": 1
+        },
+        "header_path": [
+          "Prices"
+        ],
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 153,
+      "start": null
+    }
+  ],
+  "params": {
+    "chunk_by": "headers",
+    "header_level": 2,
+    "max_chunk_size": 60,
+    "min_chunk_size": 1,
+    "preserve_tables": true
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "5f0f2ebaacce93f62bd3aa6f76333f3bbcc15e2a3e9567bed691a5b37a36ad69",
+    "size": 164
+  },
+  "strategy": "markdown_chunker"
+}

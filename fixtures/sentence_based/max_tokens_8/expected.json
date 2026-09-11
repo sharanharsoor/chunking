@@ -1,0 +1,67 @@
+{
+  "chunks": [
+    {
+      "children_ids": [],
+      "content": "Alpha is one. Beta is two.",
+      "end": 26,
+      "hash": "2f6dfa5e2013a02a77f7e41c411bbcbb17e6c44c46bb2dbcbbd12baeec49a1fa",
+      "id": "chunk-0000",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 13.0,
+          "first_sentence": "Alpha is one.",
+          "sentence_count": 2
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 26,
+      "start": 0,
+      "token_count": 8
+    },
+    {
+      "children_ids": [],
+      "content": "Gamma is three. Delta is four.",
+      "end": 57,
+      "hash": "0ebce7e6efe1084e2ccd78bb4f63f502e2c3238391983f499e3a8bc8412aefbe",
+      "id": "chunk-0001",
+      "metadata": {
+        "chunker_used": "sentence_based",
+        "extra": {
+          "avg_sentence_length": 15.0,
+          "first_sentence": "Gamma is three.",
+          "sentence_count": 2
+        },
+        "offset_unit": "char",
+        "sentence_spec": "simple_v1",
+        "source": "input.txt"
+      },
+      "modality": "text",
+      "parent_id": null,
+      "size": 30,
+      "start": 27,
+      "token_count": 8
+    }
+  ],
+  "params": {
+    "encoding": "cl100k_base",
+    "max_chunk_size": 8000,
+    "max_sentences": 10,
+    "max_tokens": 8,
+    "min_sentences": 1,
+    "overlap_sentences": 0,
+    "overlap_tokens": 0,
+    "sentence_splitter": "simple_v1"
+  },
+  "schema": "chunking.v1",
+  "source": {
+    "name": "input.txt",
+    "sha256": "894dd09b339a5662ff20dc53e45c70a13e1985b6393ae6184b7e707ce453e353",
+    "size": 58
+  },
+  "strategy": "sentence_based"
+}

@@ -352,7 +352,7 @@ class RecursiveChunker(StreamableChunker, AdaptableChunker):
 
             # Create recursive chunk
             recursive_chunk = RecursiveChunk(
-                id=f"recursive_{level}_{chunk_idx}_{hash(chunk.content) % 10000}",
+                id=f"recursive_{current_path.replace('.', '_')}",
                 content=chunk.content,
                 modality=chunk.modality,
                 metadata=ChunkMetadata(

@@ -87,6 +87,9 @@ def chunk_to_canonical(chunk: Chunk, index: int, fixture: bool) -> Dict[str, Any
             meta[key] = extra.pop(key)
 
     leftover = {k: v for k, v in extra.items() if k not in ("start", "end", "processing_time")}
+    if fixture:
+        leftover.pop("quality_score", None)
+        leftover.pop("parent_id", None)
     if leftover:
         meta["extra"] = leftover
 
@@ -134,6 +137,15 @@ def result_to_canonical_dict(
         "source": src,
         "chunks": [chunk_to_canonical(c, i, fixture) for i, c in enumerate(result.chunks)],
     }
+    if fixture:
+        id_map = {c.id: f"chunk-{i:04d}" for i, c in enumerate(result.chunks)}
+        for row in doc["chunks"]:
+            parent = row.get("parent_id")
+            if parent in id_map:
+                row["parent_id"] = id_map[parent]
+            row["children_ids"] = [
+                id_map[cid] for cid in (row.get("children_ids") or []) if cid in id_map
+            ]
     return _round_floats(doc)
 
 

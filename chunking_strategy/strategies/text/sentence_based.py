@@ -153,6 +153,23 @@ def _locate_sentences(text: str, sentences: List[str]) -> List[tuple]:
             "enum": ["simple", "simple_v1", "nltk", "spacy"],
             "default": "simple",
             "description": "Method to use for sentence splitting"
+        },
+        "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "default": None,
+            "description": "Pack sentences up to this many cl100k_base tokens. Requires tiktoken."
+        },
+        "overlap_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Token overlap between packed sentence windows"
+        },
+        "encoding": {
+            "type": "string",
+            "default": "cl100k_base",
+            "description": "tiktoken encoding name when max_tokens is set"
         }
     },
     default_parameters={
@@ -213,6 +230,9 @@ class SentenceBasedChunker(StreamableChunker):
         overlap_sentences: int = 0,
         sentence_splitter: str = "simple",
         max_text_buffer_size: int = 2 * 1024 * 1024,  # 2MB buffer limit for streaming protection
+        max_tokens: Optional[int] = None,
+        overlap_tokens: int = 0,
+        encoding: str = "cl100k_base",
         **kwargs
     ):
         """
@@ -249,12 +269,23 @@ class SentenceBasedChunker(StreamableChunker):
                 "sentence_splitter must be 'simple', 'simple_v1', 'nltk', or 'spacy'"
             )
 
+        if max_tokens is not None and max_tokens < 1:
+            raise ValueError("max_tokens must be at least 1")
+        if overlap_tokens < 0:
+            raise ValueError("overlap_tokens must be non-negative")
+        if max_tokens is not None and overlap_tokens >= max_tokens:
+            raise ValueError("overlap_tokens must be less than max_tokens")
+
         self.max_sentences = max_sentences
         self.min_sentences = min_sentences
         self.max_chunk_size = max_chunk_size
         self.overlap_sentences = overlap_sentences
         self.sentence_splitter = sentence_splitter
         self.max_text_buffer_size = max_text_buffer_size
+        self.max_tokens = max_tokens
+        self.overlap_tokens = overlap_tokens
+        self.encoding = encoding
+        self._enc = None
 
         # Initialize sentence splitter
         self._init_sentence_splitter()
@@ -263,6 +294,12 @@ class SentenceBasedChunker(StreamableChunker):
             f"Initialized SentenceBasedChunker: max_sentences={max_sentences}, "
             f"overlap={overlap_sentences}, splitter={sentence_splitter}"
         )
+
+    def _tiktoken(self):
+        if self._enc is None:
+            from chunking_strategy.core.token_packing import require_encoding
+            self._enc = require_encoding(self.encoding)
+        return self._enc
 
     def chunk(
         self,
@@ -555,6 +592,34 @@ class SentenceBasedChunker(StreamableChunker):
         chunk_counter = 0
         i = 0
         spans = _locate_sentences(text, sentences)
+        sizes = None
+        if self.max_tokens is not None:
+            from chunking_strategy.core.token_packing import count_tokens, pack_unit_ranges
+            enc = self._tiktoken()
+            sizes = [count_tokens(s, enc) for s in sentences]
+            ranges = pack_unit_ranges(
+                sizes,
+                max_tokens=self.max_tokens,
+                overlap_tokens=self.overlap_tokens,
+                max_units=self.max_sentences,
+            )
+            for start_i, end_i in ranges:
+                chunk_sentences = sentences[start_i:end_i]
+                chunk_indices = list(range(start_i, end_i))
+                start = spans[chunk_indices[0]][0] if chunk_indices else None
+                end = spans[chunk_indices[-1]][1] if chunk_indices else None
+                chunk = self._create_chunk_from_sentences(
+                    chunk_sentences,
+                    chunk_counter,
+                    {"source": source},
+                    text=text,
+                    start=start,
+                    end=end,
+                )
+                chunk.token_count = count_tokens(chunk.content, enc)
+                chunks.append(chunk)
+                chunk_counter += 1
+            return chunks
 
         while i < len(sentences):
             chunk_sentences = []
