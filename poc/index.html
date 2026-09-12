@@ -647,16 +647,21 @@
       padding: 3px 9px;
       font: 11px/1.2 var(--font-mono);
       cursor: pointer;
-      color: var(--muted);
       white-space: nowrap;
     }
-    .focus-chip.a.on {
+    .focus-chip.a {
       color: var(--a);
+      border-color: color-mix(in srgb, var(--a) 45%, var(--line));
+    }
+    .focus-chip.b {
+      color: var(--b);
+      border-color: color-mix(in srgb, var(--b) 45%, var(--line));
+    }
+    .focus-chip.a.on {
       border-color: var(--a);
       background: var(--a-soft);
     }
     .focus-chip.b.on {
-      color: var(--b);
       border-color: var(--b);
       background: var(--b-soft);
     }
@@ -2529,8 +2534,8 @@
         var n = (currentResults[side] || []).length;
         btn.className = "focus-chip " + side + (focusSide === side ? " on" : "");
         btn.textContent = side.toUpperCase()
-          + (n && idx != null ? " #" + String(idx).padStart(2, "0") : "");
-        btn.title = strategyOf(side);
+          + (n && idx != null ? " " + String(idx).padStart(2, "0") : "");
+        btn.title = strategyOf(side) + (idx != null ? " · chunk " + idx : "");
       });
     }
 
@@ -2721,9 +2726,9 @@
         el.textContent = "No chunk matches that";
         return;
       }
-      el.textContent = (a == null ? "A: none" : "A #" + String(a).padStart(2, "0"))
+      el.textContent = (a == null ? "A: none" : "A " + String(a).padStart(2, "0"))
         + " · "
-        + (b == null ? "B: none" : "B #" + String(b).padStart(2, "0"));
+        + (b == null ? "B: none" : "B " + String(b).padStart(2, "0"));
     }
 
     function applyRetrieve(jump) {
