@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formats — chunking-strategy docs</title>
+  <meta name="description" content="What the lab extracts in-browser vs pdf_chunker, Tika, and media on pip." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a class="here" href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Extract vs chunk</p>
+      <h1>The tab extracts. pip can see layout.</h1>
+      <p class="lede">A PDF in the playground becomes text via PDF.js, then a text strategy runs. That is useful and honest. It is not <code>pdf_chunker</code>. Same story for Word via mammoth. If you need tables, images, scene cuts, or silence, you are on pip.</p>
+
+      <table>
+        <thead><tr><th>Input</th><th>Lab</th><th>pip</th></tr></thead>
+        <tbody>
+          <tr><td>txt, md, html, json, csv, code</td><td>Native, same names</td><td>Same names, streaming</td></tr>
+          <tr><td>PDF</td><td>PDF.js extract → text strategy. No <code>pdf_chunker</code></td><td><code>chunking-strategy[pdf]</code> then <code>pdf_chunker</code> (layout, images, tables) or extract + any text strategy</td></tr>
+          <tr><td>docx</td><td>mammoth extract → text strategy</td><td><code>doc_chunker</code> when you want structure; otherwise extract</td></tr>
+          <tr><td>OLE .doc, xlsx, pptx</td><td>Not in the tab</td><td>Library / Tika</td></tr>
+          <tr><td>images</td><td>Not in the tab</td><td><code>grid_based_image</code>, <code>patch_based_image</code> via <code>[media]</code></td></tr>
+          <tr><td>audio</td><td>Not in the tab</td><td><code>time_based_audio</code>, <code>silence_based_audio</code></td></tr>
+          <tr><td>video</td><td>Not in the tab</td><td><code>time_based_video</code>, <code>scene_based_video</code></td></tr>
+          <tr><td>anything else</td><td>—</td><td><code>[tika]</code> / <code>universal_document</code>, POSIX</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Offsets</h2>
+      <p>Lab goldens compare Unicode scalar offsets, not UTF-16 code units. If you port a chunker, fixtures under <code>fixtures/</code> are the contract. See <code>fixtures/README.md</code>.</p>
+
+      <h2>Size</h2>
+      <p>Lab cap is 150 MB because the bytes sit in the tab. pip <code>StreamingChunker</code> / mmap reads from disk. Dropping a 2 GB PDF into the playground is the wrong tool; <code>chunk_file</code> is the right one.</p>
+
+      <div class="note">No PyMuPDF or Ghostscript WASM in the lab. Those licenses are a trap for a static GitHub Pages file. Extract-to-text is the compromise that stays MIT.</div>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

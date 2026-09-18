@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install — chunking-strategy docs</title>
+  <meta name="description" content="Install chunking-strategy from PyPI. Core vs extras. Same names as the lab." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a class="here" href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Python 3.8+</p>
+      <h1>Install the library, not a remix</h1>
+      <p class="lede">The tab already printed the pip line. Core is enough to chunk text, markdown, JSON, CSV, HTML, and the code strategies. Extras pull the heavy stuff only when you ask.</p>
+<pre><code>pip install chunking-strategy
+pip install chunking-strategy[tiktoken]   # cl100k_base windows
+pip install chunking-strategy[pdf]
+pip install chunking-strategy[ml]         # embeddings / semantic
+pip install chunking-strategy[media]      # audio / video / images; POSIX
+pip install chunking-strategy[tika]       # POSIX, 1400+ formats</code></pre>
+      <div class="warn"><code>[all]</code> pulls torch, OpenCV, and Tika. Do not recommend it to strangers. If a strategy needs an extra, you get <code>MissingExtraError</code> with the one-line pip hint.</div>
+
+      <h2>Thirty seconds in Python</h2>
+<pre><code>from chunking_strategy import create_chunker, ChunkerOrchestrator
+
+chunker = create_chunker("sentence_based", max_sentences=2)
+print(chunker.chunk("Hello. This is two sentences.").chunks)
+
+# Or let the orchestrator pick from the path
+result = ChunkerOrchestrator().chunk_file("report.pdf")
+print(result.strategy_used, len(result.chunks), result.quality_score)</code></pre>
+
+      <h2>Thirty seconds on the CLI</h2>
+<pre><code>python -m chunking_strategy --version
+python -m chunking_strategy list-strategies --tier lab
+python -m chunking_strategy chunk doc.txt --strategy sentence_based
+python -m chunking_strategy compare doc.txt -s fixed_size,sentence_based,markdown_chunker</code></pre>
+
+      <h2>Windows vs POSIX</h2>
+      <p>Core is cross-platform. <code>[media]</code>, <code>[tika]</code>, and <code>[hardware]</code> stay POSIX-oriented. CI smokes core on Windows: import, <code>fixed_size</code> / <code>sentence_based</code>, <code>list-strategies --tier lab</code>.</p>
+
+      <h2>From a clone</h2>
+<pre><code>git clone https://github.com/sharanharsoor/chunking.git
+cd chunking
+pip install -e ".[dev]"
+pytest tests/ -q</code></pre>
+      <p>Contributing a lab strategy means a Python chunker, a golden fixture, then a JS port. The tab is not the place to prototype by pasting generated worker code. See <a href="custom.html">Bring your own</a> and <a href="https://github.com/sharanharsoor/chunking/blob/main/DEVELOPER_GUIDE.md">DEVELOPER_GUIDE.md</a>.</p>
+    </article>
+  </div>
+  <p class="site-foot">Package: <a href="https://pypi.org/project/chunking-strategy/">chunking-strategy on PyPI</a>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

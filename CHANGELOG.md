@@ -2,13 +2,16 @@
 
 ## Unreleased
 
-### Changed
-- Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
-
 ### Added
+- Docs site at `poc/docs/` (GitHub Pages `/docs/`): lab, install, strategies, N-way compare, bring-your-own, Python API, CLI, formats. Linked from the playground.
+- Lab toolbox points N-way compare and custom strategies at pip, with links into those docs.
 - Lab hierarchical `recursive`: parent/child tree (paragraph then sentence), matched to the Python golden. This is not `recursive_character`.
 - Lab `python_code` uses tree-sitter for module-level `def`/`class` (indent fallback). pip stays stdlib `ast`; nested methods are separate chunks. Compared on `symbol_name` / `symbol_kind` / `line_start` / `line_end`.
 - Lab `semantic` loads Transformers.js MiniLM from Hugging Face (~25 MB) on first pick. Grey until that load finishes. Cuts are not claimed to match pip `[ml]`.
+
+### Changed
+- Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
+- Lab sidebar width can be dragged so the source and A/B lists get more of the screen.
 
 ## 0.5.0 (2026-09-11)
 

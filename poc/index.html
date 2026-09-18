@@ -193,7 +193,7 @@
     select:focus-visible, textarea:focus-visible, .drop:focus-visible,
     .chunk:focus-visible, .cta:focus-visible, .pip-pill:focus-visible,
     .dest:focus-visible, .focus-chip:focus-visible, .picker-btn:focus-visible,
-    .picker-opt:focus-visible {
+    .picker-opt:focus-visible, .split-rail:focus-visible {
       outline: 2px solid var(--focus);
       outline-offset: 2px;
     }
@@ -239,16 +239,53 @@
       flex-direction: column;
     }
     .app {
+      --rail-w: 280px;
       flex: 1;
       min-height: 0;
       min-width: 0;
       display: grid;
-      grid-template-columns: minmax(0, 280px) minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-rows: minmax(200px, 42%) 1fr;
+      grid-template-columns: var(--rail-w) 8px minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
       gap: 12px;
       padding: 12px;
       background: color-mix(in srgb, var(--desk) 92%, transparent);
       overflow: hidden;
+    }
+    .app.dragging-split { cursor: col-resize; user-select: none; }
+    .split-rail {
+      grid-column: 2;
+      grid-row: 1;
+      position: relative;
+      z-index: 2;
+      width: 8px;
+      margin: 0 -4px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: col-resize;
+    }
+    .split-rail::after {
+      content: "";
+      position: absolute;
+      inset: 18% 3px;
+      border-radius: 99px;
+      background: var(--line);
+    }
+    .split-rail:hover::after,
+    .split-rail:focus::after,
+    .split-rail:focus-visible::after,
+    .app.dragging-split .split-rail::after {
+      background: var(--accent);
+    }
+    .stage {
+      grid-column: 3;
+      grid-row: 1;
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: minmax(200px, 42%) 1fr;
+      gap: 12px;
     }
     .rail, .paper, .col {
       min-width: 0;
@@ -261,7 +298,7 @@
 
     .rail {
       grid-column: 1;
-      grid-row: 1 / 3;
+      grid-row: 1;
       background: var(--rail-bg);
       display: flex;
       flex-direction: column;
@@ -517,6 +554,10 @@
     .knob-row.bad input, .knob-row.bad select { border-color: var(--a); }
     .knob-hint { margin: 4px 0 0; font-size: 10px; color: var(--a); line-height: 1.3; }
     .later { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .later a, .libhint a { color: var(--accent); font-weight: 650; }
+    .card.libhint { box-shadow: inset 3px 0 0 var(--accent); }
+    .libhint p { margin: 0 0 8px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .libhint p:last-child { margin: 0; }
     .later code, #nway code {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -576,7 +617,7 @@
     }
 
     .paper {
-      grid-column: 2 / 4;
+      grid-column: 1 / -1;
       grid-row: 1;
       display: flex;
       flex-direction: column;
@@ -726,8 +767,8 @@
     #source.plain { color: var(--paper-ink); }
 
     .col { display: flex; flex-direction: column; background: var(--col); }
-    .col.a { grid-column: 2; grid-row: 2; }
-    .col.b { grid-column: 3; grid-row: 2; }
+    .col.a { grid-column: 1; grid-row: 2; }
+    .col.b { grid-column: 2; grid-row: 2; }
     .col-head {
       min-width: 0;
       padding: 10px 12px 8px;
@@ -972,6 +1013,7 @@
       color: var(--muted);
       font-size: 14px;
     }
+    .pipeline p a { color: var(--accent); font-weight: 650; }
     .pip-pill {
       display: inline-block;
       font-family: var(--font-mono);
@@ -1034,12 +1076,18 @@
       .app {
         min-height: 0;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto;
       }
-      .paper { grid-column: 1 / -1; grid-row: 1; min-height: 240px; }
-      .col.a { grid-column: 1; grid-row: 2; min-height: 280px; }
-      .col.b { grid-column: 2; grid-row: 2; min-height: 280px; }
-      .rail { grid-column: 1 / -1; grid-row: 3; max-height: none; }
+      .split-rail { display: none; }
+      .stage {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        grid-template-rows: auto auto;
+      }
+      .paper { min-height: 240px; }
+      .col.a { min-height: 280px; }
+      .col.b { min-height: 280px; }
+      .rail { grid-column: 1 / -1; grid-row: 2; max-height: none; }
       .how { grid-template-columns: 1fr; }
       .rag-board { width: auto; overflow-x: auto; }
       .destinations { grid-template-columns: 1fr; }
@@ -1055,6 +1103,7 @@
     <a class="brand" href="#">Chunking <em>Playground</em></a>
     <div class="privacy"><i></i> Runs entirely in your browser</div>
     <button type="button" class="theme-btn" id="theme"></button>
+    <a class="link-btn" href="docs/">Docs</a>
     <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
     <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
   </header>
@@ -1120,6 +1169,11 @@
             <p class="why" id="why-b"></p>
             <div class="knobs" id="knobs-b"></div>
           </div>
+          <div class="card libhint">
+            <span class="pip-label">Python library</span>
+            <p>This tab is two columns. N-way compare (three or more) and a strategy you wrote yourself run in pip, not in this JS UI.</p>
+            <p><a href="docs/compare.html">N-way compare</a> · <a href="docs/custom.html">Bring your own</a> · <a href="docs/">All docs</a></p>
+          </div>
           <div class="card pip">
             <div class="pip-head">
               <span class="pip-label">Python</span>
@@ -1135,10 +1189,12 @@
             </div>
           </div>
           <p class="later" id="autopick"></p>
-          <p class="later" id="nway">This tab compares two strategies. For three or more, run <code>chunking-strategy benchmark FILE --strategies csv_chunker,fixed_size,sentence_based</code>. Grey names stay pip-only until you load them. The lab caps at 150 MB. Python streams from disk.</p>
+          <p class="later" id="nway">Two strategies here. Three or more: <code>chunking-strategy compare FILE -s a,b,c</code>. Your own chunker: <code>@register_chunker</code> then the same <code>compare</code> / <code>benchmark</code>. Grey names stay pip-only until a real JS port exists. Cap 150 MB. Python streams from disk. <a href="docs/">Docs</a></p>
           <div id="status"></div>
           </div>
         </aside>
+        <button type="button" class="split-rail" id="split-rail" role="separator" aria-label="Resize the sidebar" aria-orientation="vertical" aria-valuemin="196" aria-valuemax="420" aria-valuenow="280"></button>
+        <div class="stage">
 
         <section class="paper" id="paper" aria-label="Source document">
           <div class="paper-meta">
@@ -1177,6 +1233,7 @@
           </div>
           <div class="chunk-list pane" id="list-b"></div>
         </section>
+        </div>
       </div>
     </div>
   </div>
@@ -1248,7 +1305,7 @@
     <div class="rule"></div>
     <div class="inset">
     <h2>Use it in your pipeline</h2>
-    <p>The browser lab caps at 150 MB. It extracts PDF and Word to text here. The Python library streams from disk, with the same strategy names, 40+ algorithms, unlimited file size, plus layout, images, OCR, and directories.</p>
+    <p>The browser lab caps at 150 MB. It extracts PDF and Word to text here. The Python library streams from disk, with the same strategy names, 40+ algorithms, unlimited file size, plus layout, images, OCR, and directories. N-way compare and a custom strategy are pip; the <a href="docs/">docs</a> cover both.</p>
     <button type="button" class="pip-pill" id="pip-cta">pip install chunking-strategy</button>
     <div class="destinations">
       <a class="dest" href="https://github.com/sharanharsoor/chunking">
@@ -1263,6 +1320,13 @@
         <div>
           <h3>Install from PyPI</h3>
           <p>Install chunking-strategy from pip. Same names as this lab, then it streams from disk: 40+ algorithms, PDF layout, directories, and no 150 MB cap.</p>
+        </div>
+      </a>
+      <a class="dest" href="docs/">
+        <div class="dest-art"><img src="favicon.svg" alt="" width="84" height="84" loading="lazy" /></div>
+        <div>
+          <h3>Docs</h3>
+          <p>N-way compare, bring-your-own strategies, every registry name, CLI, and what this tab will not fake.</p>
         </div>
       </a>
     </div>
@@ -3146,6 +3210,68 @@
       localStorage.setItem("theme", next);
       paintTheme();
     });
+
+    (function bindRailSplit() {
+      var app = document.querySelector(".app");
+      var handle = document.getElementById("split-rail");
+      var rail = app && app.querySelector(".rail");
+      if (!app || !handle || !rail) return;
+      var KEY = "lab-rail-w";
+      var MIN = 196;
+      function narrow() {
+        return matchMedia("(max-width: 960px)").matches;
+      }
+      function maxW() {
+        return Math.max(MIN, Math.min(420, Math.floor(app.clientWidth * 0.42)));
+      }
+      function apply(px) {
+        var w = Math.max(MIN, Math.min(maxW(), Math.round(px)));
+        app.style.setProperty("--rail-w", w + "px");
+        handle.setAttribute("aria-valuemin", String(MIN));
+        handle.setAttribute("aria-valuemax", String(maxW()));
+        handle.setAttribute("aria-valuenow", String(w));
+        return w;
+      }
+      function restore() {
+        if (narrow()) return;
+        var saved = parseInt(localStorage.getItem(KEY) || "", 10);
+        apply(saved || 280);
+      }
+      restore();
+      addEventListener("resize", restore);
+      handle.addEventListener("pointerdown", function (e) {
+        if (narrow()) return;
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        app.classList.add("dragging-split");
+        var startX = e.clientX;
+        var startW = rail.getBoundingClientRect().width;
+        function move(ev) {
+          apply(startW + (ev.clientX - startX));
+        }
+        function up(ev) {
+          handle.releasePointerCapture(ev.pointerId);
+          app.classList.remove("dragging-split");
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", up);
+          localStorage.setItem(KEY, String(apply(rail.getBoundingClientRect().width)));
+        }
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", up);
+      });
+      handle.addEventListener("keydown", function (e) {
+        if (narrow()) return;
+        var cur = rail.getBoundingClientRect().width;
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          localStorage.setItem(KEY, String(apply(cur - 16)));
+        }
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          localStorage.setItem(KEY, String(apply(cur + 16)));
+        }
+      });
+    })();
 
     ["a", "b"].forEach(function (side) {
       document.getElementById("focus-" + side).addEventListener("click", function () {

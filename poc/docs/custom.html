@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bring your own — chunking-strategy docs</title>
+  <meta name="description" content="Register a custom chunker in Python. The lab will not eval JavaScript you paste." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a class="here" href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Library, not the tab</p>
+      <h1>Your strategy is Python. The tab will not eval it.</h1>
+      <p class="lede">If the cut you want is not in the dropdown, do not paste a generated worker into the playground. Register a <code>BaseChunker</code>. Then <code>create_chunker</code>, the CLI, <code>compare</code>, and <code>benchmark</code> all see it. If it belongs in the lab later, port it with a golden fixture. That order is the point.</p>
+
+      <h2>Minimum chunker</h2>
+<pre><code>from chunking_strategy.core.base import (
+    BaseChunker, Chunk, ChunkingResult, ChunkMetadata, ModalityType,
+)
+from chunking_strategy.core.registry import register_chunker
+
+@register_chunker(
+    name="my_word_count_chunker",
+    category="text",
+    description="Chunks on a word budget",
+    default_parameters={"words_per_chunk": 50},
+)
+class MyWordCountChunker(BaseChunker):
+    def __init__(self, words_per_chunk=50, **kwargs):
+        super().__init__(name="my_word_count_chunker", category="text", **kwargs)
+        self.words_per_chunk = words_per_chunk
+
+    def chunk(self, content, source_info=None, **kwargs):
+        if isinstance(content, bytes):
+            content = content.decode("utf-8")
+        words = str(content).split()
+        chunks = []
+        for i in range(0, len(words), self.words_per_chunk):
+            text = " ".join(words[i:i + self.words_per_chunk])
+            chunks.append(Chunk(
+                id=f"word_{i // self.words_per_chunk}",
+                content=text,
+                modality=ModalityType.TEXT,
+                metadata=ChunkMetadata(
+                    source=(source_info or {}).get("source", "unknown"),
+                    chunker_used="my_word_count_chunker",
+                    extra={"word_count": len(text.split())},
+                ),
+            ))
+        return ChunkingResult(chunks=chunks)</code></pre>
+<pre><code>from chunking_strategy import create_chunker
+print(create_chunker("my_word_count_chunker", words_per_chunk=40).chunk(text).chunks)</code></pre>
+
+      <h2>CLI</h2>
+<pre><code>chunking-strategy custom load ./my_chunker.py
+chunking-strategy custom load-dir ./examples/custom_algorithms
+chunking-strategy custom benchmark ./my_chunker.py --compare-with fixed_size --compare-with sentence_based
+chunking-strategy benchmark doc.txt --custom-algorithms ./my_chunker.py</code></pre>
+
+      <h2>Worked examples in the repo</h2>
+      <table>
+        <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><code>examples/custom_algorithms/balanced_length_chunker.py</code></td><td>Target length with sentence/word tolerance.</td></tr>
+          <tr><td><code>examples/custom_algorithms/regex_pattern_chunker.py</code></td><td>Ordered regex splits with a size fallback.</td></tr>
+          <tr><td><code>examples/custom_algorithms/sentiment_based_chunker.py</code></td><td>Domain signal (sentiment shifts) as boundaries.</td></tr>
+          <tr><td><code>examples/08_extensibility_demo.py</code></td><td>Register, preprocess, plug into the orchestrator.</td></tr>
+        </tbody>
+      </table>
+      <p><code>CUSTOM_ALGORITHMS_GUIDE.md</code> is the long form (validation, YAML, parallel custom runs). Start with the three files above.</p>
+
+      <h2>Getting it into the lab later</h2>
+      <ol class="steps">
+        <li>Python chunker + tests.</li>
+        <li>A golden under <code>fixtures/</code> so JS and Python agree on offsets (Unicode scalar offsets, not UTF-16).</li>
+        <li>A JS port in <code>poc/chunkers/</code>, then move the name from <code>lab_later</code> / <code>python_only</code> to <code>lab</code> in <code>schemas/strategy-tiers.yaml</code>.</li>
+      </ol>
+      <div class="warn">The tab will not run pasted JS, and it will not <code>eval</code> a custom algorithm. That is how you keep <code>browser ⊆ python</code> and keep other people's files off a script you did not ship.</div>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

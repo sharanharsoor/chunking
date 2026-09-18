@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python API — chunking-strategy docs</title>
+  <meta name="description" content="create_chunker, ChunkerOrchestrator, streaming, embeddings, config YAML." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a class="here" href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Library</p>
+      <h1>Python is the pipeline. The tab is the preview.</h1>
+      <p class="lede">Most calls are <code>create_chunker(name, **kwargs).chunk(text)</code>. The orchestrator is for files, auto-pick, batch, and streaming. Config YAML is for repeating that choice across a directory. Full signatures live in <code>API_REFERENCE.md</code>; this page is the path you actually type.</p>
+
+      <h2>create_chunker</h2>
+<pre><code>from chunking_strategy import create_chunker, list_chunkers
+
+list_chunkers(category="text")          # also: list_strategies
+c = create_chunker("markdown_chunker", chunk_by="headers", header_level=2)
+result = c.chunk(open("README.md").read())
+for ch in result.chunks:
+    print(ch.id, ch.content[:80], ch.metadata)</code></pre>
+      <p><code>result.quality_score</code> is 0.4 size + 0.4 sentence-boundary + 0.2 span coverage. CDC / code / JSON skip the sentence term.</p>
+
+      <h2>Orchestrator</h2>
+<pre><code>from chunking_strategy import ChunkerOrchestrator
+
+orch = ChunkerOrchestrator(config={"strategies": {"primary": "auto"}})
+r = orch.chunk_file("script.py")        # auto: paragraph for code
+r = orch.chunk_file("notes.txt", strategy_override="sentence_based")
+orch.chunk_files_batch(["a.txt", "b.md"], workers=4)</code></pre>
+      <p>Auto-pick (file extension + size) is a starting point, not magic: code → paragraph, text → sentence, data → fixed_size, large files → rolling_hash. Override when you already know.</p>
+
+      <h2>Any strategy on any file</h2>
+<pre><code>from chunking_strategy import apply_universal_strategy
+apply_universal_strategy("sentence", "document.pdf")
+apply_universal_strategy("fixed_size", "script.py", chunk_size=1000)</code></pre>
+      <p>Universal extract-then-chunk is how you keep one window size across a mixed corpus. Specialized chunkers (<code>python_code</code>, <code>pdf_chunker</code>) still win when you care about structure.</p>
+
+      <h2>Streaming and mmap</h2>
+      <p>The tab caps at 150 MB because the file is in RAM. On disk, <code>StreamingChunker</code> yields as it reads; <code>MemoryMappedStreamer</code> uses mmap for huge files. Orchestrator switches to a streaming path for large inputs. See <code>examples/06_streaming_benefits_demo.py</code> and <code>10_enhanced_streaming_demo.py</code>.</p>
+<pre><code>from chunking_strategy.core.streaming import StreamingChunker
+for chunk in StreamingChunker("sentence_based").stream_file("huge.txt"):
+    index(chunk)</code></pre>
+
+      <h2>Embeddings</h2>
+<pre><code>python -m chunking_strategy embed doc.txt --strategy sentence_based
+python -m chunking_strategy list-models</code></pre>
+      <p><code>[ml]</code> pulls sentence-transformers. The lab <code>semantic</code> path is Transformers.js MiniLM in the tab; do not claim those cuts match. Helpers: <code>examples/03_embedding_workflows.py</code>, <code>05_embeddings_integration_demo.py</code>, <code>18_langchain_integration_demo.py</code>.</p>
+
+      <h2>Config YAML</h2>
+      <p>Eight profiles under <code>config_examples/</code>. Start with <code>enhanced_auto_strategy.yaml</code>. Others: <code>code_focused</code>, <code>document_first</code>, <code>large_files_streaming</code>, <code>embedding_optimized</code>, <code>rag_system</code>, <code>multimodal_embeddings</code>, <code>basic_example</code>.</p>
+<pre><code>python -m chunking_strategy init-config
+python -m chunking_strategy chunk report.pdf --config config_examples/document_first_config.yaml</code></pre>
+
+      <h2>Examples in order</h2>
+      <p><code>01_basic_usage.py</code> through <code>22_adaptive_chunking_learning_demo.py</code>. Beginner 01–04, integration 05–08, performance 09–13, production 14–16, then embeddings, Streamlit, LangChain, metrics. Run them from the repo root after <code>pip install -e .</code>.</p>
+    </article>
+  </div>
+  <p class="site-foot">Long form: <code>API_REFERENCE.md</code>, <code>CONFIGURATION_GUIDE.md</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

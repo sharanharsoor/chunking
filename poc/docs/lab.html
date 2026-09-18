@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The lab — chunking-strategy docs</title>
+  <meta name="description" content="How the in-browser chunking playground works: two columns, extract, knobs, share, privacy." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a class="here" href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Playground</p>
+      <h1>The lab is a pair of eyes, not a fiddle</h1>
+      <p class="lede">Open <a href="../">the playground</a>. Drop a file or paste. Two strategies run in a worker. Click a chunk and the source underlines that Unicode range. Nothing is uploaded. The snippet on the left is already the pip you would run next.</p>
+
+      <h2>What you actually do</h2>
+      <ol class="steps">
+        <li>Drop <code>.txt</code>, <code>.md</code>, <code>.py</code>, <code>.json</code>, <code>.csv</code>, <code>.html</code>, code, PDF, or Word. PDF.js and mammoth extract text in the tab. There is no lab strategy named <code>pdf_chunker</code>.</li>
+        <li>The lab picks A and B from the extension. You can switch either side. Grey names are pip-only until a real JS port exists.</li>
+        <li>Knobs match the Python kwargs. The snippet updates as you type.</li>
+        <li>Click a chunk. Focus chips read <code>A 00</code> / <code>B 01</code>, not hex colors. Find ranks chunks in both lists; that query also stays local.</li>
+        <li>Link copies A vs B and the knobs. It never puts your file in the URL.</li>
+      </ol>
+
+      <h2>Layout</h2>
+      <p>Desktop is a three-column grid: toolbox, an 8px divider, then source on top of A | B. Drag the divider, or Tab to it and use ArrowLeft / ArrowRight (16px steps). Width is stored as <code>lab-rail-w</code>. Floor 196px, ceiling min(420px, 42% of the app). Below 960px the divider hides and the toolbox stacks under the stage.</p>
+
+      <h2>Names that surprise people</h2>
+      <ul>
+        <li><code>recursive_character</code> is the RAG default: paragraphs, then lines, then spaces. It is not hierarchical <code>recursive</code>.</li>
+        <li><code>recursive</code> is a parent/child tree (paragraph then sentence). The list is a tree. pip <code>compare</code> is still how you run three or more.</li>
+        <li><code>python_code</code> in the tab is tree-sitter (indent fallback). pip uses stdlib <code>ast</code>. Nested methods are separate chunks. Compare on <code>symbol_name</code> / <code>symbol_kind</code> / <code>line_start</code> / <code>line_end</code>.</li>
+        <li><code>token_based</code> loads cl100k_base once. Counts are not chars/4.</li>
+        <li><code>semantic</code> is grey until Transformers.js MiniLM loads from Hugging Face (~25 MB). Cuts will not match pip <code>[ml]</code>.</li>
+        <li><code>overlapping_window</code> paints the shared range in amber.</li>
+        <li><code>regex_custom</code> starts the next chunk at the match (speaker turns, log lines).</li>
+      </ul>
+
+      <h2>Hard limits on purpose</h2>
+      <ul>
+        <li>150 MB. Python streams from disk; the tab will not pretend to.</li>
+        <li>Two columns. N-way is <a href="compare.html">pip compare</a>.</li>
+        <li>No eval of custom JS. A strategy you wrote is <a href="custom.html">pip register_chunker</a>.</li>
+        <li>No analytics, no sendBeacon, no files in the share URL.</li>
+        <li>Images, xlsx, pptx, OLE <code>.doc</code>, layout PDFs, audio, and video stay pip-only. See <a href="formats.html">Formats</a>.</li>
+      </ul>
+
+      <div class="ok">The lab is the funnel. If the cut looks right, copy the snippet. That is the whole product motion.</div>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

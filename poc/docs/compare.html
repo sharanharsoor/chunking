@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>N-way compare — chunking-strategy docs</title>
+  <meta name="description" content="The lab is two columns. N-way compare and benchmark live in pip install chunking-strategy." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a class="here" href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">Library, not the tab</p>
+      <h1>N-way is pip. The lab stays two.</h1>
+      <p class="lede">A vs B in a browser is the right default: you can see the cut. Three, four, ten strategies on the same file is a table, not ten columns of cards. That table already ships.</p>
+
+      <h2>Why the tab refuses a third column</h2>
+      <p>Each extra column is another full pass, another list to scroll, another color, another focus chip. The moment you want N-way you also want avg size, quality, and elapsed, which is a spreadsheet. The playground would become a JS fiddle. The library already prints that spreadsheet.</p>
+
+      <h2>compare: one file, many names, one table</h2>
+<pre><code>chunking-strategy compare doc.txt -s fixed_size,sentence_based,recursive_character
+
+# JSON if you are piping into something else
+chunking-strategy compare doc.txt -s fixed_size,sentence_based,markdown_chunker --format json</code></pre>
+      <p>Each row is <code>strategy</code>, <code>n_chunks</code>, <code>avg_size</code>, <code>quality_score</code> (0.4 size consistency + 0.4 sentence-boundary + 0.2 span coverage; CDC / code / JSON skip the <code>.!?</code> term), and <code>elapsed</code>.</p>
+      <p>Python equivalent:</p>
+<pre><code>from chunking_strategy import create_chunker
+for name in ["fixed_size", "sentence_based", "recursive_character"]:
+    r = create_chunker(name).chunk(text)
+    print(name, len(r.chunks), r.quality_score)</code></pre>
+
+      <h2>benchmark: timings, repeats, custom files</h2>
+      <p>When you care about speed across files, or you want a custom algorithm in the same run:</p>
+<pre><code>chunking-strategy benchmark doc.txt --strategies "fixed_size,sentence_based"
+chunking-strategy benchmark --quick doc.txt
+chunking-strategy benchmark doc.txt --custom-algorithms ./my_chunker.py
+chunking-strategy custom benchmark my_chunker.py --compare-with fixed_size --compare-with sentence_based</code></pre>
+      <p>Reports land in <code>chunking_benchmarks/</code> (or <code>--output-dir</code> / <code>CHUNKING_BENCHMARK_OUTPUT_DIR</code>) as console + JSON + CSV. See <code>examples/17_benchmark_demo.py</code> and <code>BENCHMARKING.md</code> in the repo if you need every flag.</p>
+
+      <h2>What to do in the lab instead</h2>
+      <p>Pick the two names you are actually arguing about. Look at the underline. Copy the snippet. Then run <code>compare</code> on the full corpus with those names plus the ones you did not put on screen. Hierarchical <code>recursive</code> still compares as two columns; the tree is the parent/child list, not a third strategy slot.</p>
+
+      <div class="note">Bring-your-own strategies plug into the same <code>compare</code> / <code>benchmark</code> commands. That path is <a href="custom.html">Bring your own</a>.</div>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

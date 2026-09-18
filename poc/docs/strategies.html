@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Strategies — chunking-strategy docs</title>
+  <meta name="description" content="All chunking-strategy registry names: 22 live in the lab, grey until ported, pip-only for the rest." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a class="here" href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+    <article class="article">
+      <p class="kicker">43 names in the registry</p>
+      <h1>Same string in the dropdown and in pip</h1>
+      <p class="lede"><code>list-strategies --tier lab|python_only|all</code> is the source of truth. Public copy says 40+ because a few names are aliases. The lab runs 22. Everything else is honest grey or pip-only.</p>
+<pre><code>chunking-strategy list-strategies --tier lab
+chunking-strategy list-strategies --tier python_only
+chunking-strategy list-strategies --tier all</code></pre>
+
+      <h2>Live in the lab <span class="badge lab">lab</span></h2>
+      <table>
+        <thead><tr><th>Name</th><th>What the cut actually is</th></tr></thead>
+        <tbody>
+          <tr><td><code>fixed_size</code></td><td>Character windows. Naive baseline. Headings get sliced.</td></tr>
+          <tr><td><code>sentence_based</code></td><td>Sentence groups. Default splitter <code>simple_v1</code> since 0.5.0. Optional cl100k packing via <code>max_tokens</code>.</td></tr>
+          <tr><td><code>paragraph_based</code></td><td>Blank-line / paragraph groups.</td></tr>
+          <tr><td><code>overlapping_window</code></td><td>Sliding window. Amber band is the overlap.</td></tr>
+          <tr><td><code>recursive_character</code></td><td>Market “recursive”: paragraphs, then lines, then spaces. Not a tree.</td></tr>
+          <tr><td><code>recursive</code></td><td>Hierarchical parent/child (paragraph then sentence). The list is a tree.</td></tr>
+          <tr><td><code>token_based</code></td><td>Real cl100k_base windows. Tokenizer loads once. Never chars/4.</td></tr>
+          <tr><td><code>fixed_length_word</code></td><td>Word-count windows.</td></tr>
+          <tr><td><code>regex_custom</code></td><td>Match starts the next chunk (turns, logs).</td></tr>
+          <tr><td><code>markdown_chunker</code></td><td>ATX headers. Breadcrumb + optional contextualize prefix.</td></tr>
+          <tr><td><code>python_code</code></td><td>Module-level <code>def</code>/<code>class</code>. Tab: tree-sitter. pip: stdlib ast.</td></tr>
+          <tr><td><code>javascript_code</code> <code>css_code</code> <code>go_code</code> <code>java_code</code> <code>c_cpp_code</code></td><td>Language-aware code splits.</td></tr>
+          <tr><td><code>json_chunker</code></td><td>JSON value / array structure, not a raw window.</td></tr>
+          <tr><td><code>csv_chunker</code></td><td>Row groups; optional header copied onto each chunk.</td></tr>
+          <tr><td><code>xml_html_chunker</code></td><td>Element-aware markup.</td></tr>
+          <tr><td><code>rolling_hash</code> <code>fastcdc</code></td><td>Content-defined boundaries.</td></tr>
+          <tr><td><code>semantic</code></td><td>Grey until MiniLM loads in the tab. pip needs <code>[ml]</code>. Cuts will not match.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Grey in the tab <span class="badge grey">lab_later</span></h2>
+      <p>Shown so you know the name exists. Locked until a JS port with a golden exists.</p>
+      <p><code>universal_code</code>, <code>rabin_fingerprinting</code>, <code>buzhash</code>, <code>gear_cdc</code>, <code>tttd</code>, <code>ml_cdc</code>, <code>enhanced_pdf_chunker</code>, <code>doc_chunker</code>, <code>boundary_aware</code>, <code>context_enriched</code>, <code>embedding_based</code>, <code>discourse_aware</code>, <code>grid_based_image</code>, <code>patch_based_image</code>, <code>time_based_audio</code>, <code>silence_based_audio</code>, <code>time_based_video</code>.</p>
+
+      <h2>Pip-only <span class="badge pip">python_only</span></h2>
+      <p><code>pdf_chunker</code> (layout, images, tables), <code>universal_document</code> (Tika), <code>adaptive</code>, <code>scene_based_video</code>. The lab extracts PDF/Word to text, then runs a text strategy. It will not grow a fake <code>pdf_chunker</code>.</p>
+
+      <div class="warn">Do not call LangChain’s separator cascade <code>recursive</code> in this project. Here <code>recursive</code> is the tree, <code>recursive_character</code> is the cascade. Mixing those words in an interview is how you look like you copied a blog post.</div>
+    </article>
+  </div>
+  <p class="site-foot">Tiers live in <code>schemas/strategy-tiers.yaml</code>.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

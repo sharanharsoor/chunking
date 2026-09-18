@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Docs — chunking-strategy</title>
+  <meta name="description" content="Natural-language docs for the in-browser chunking lab and pip install chunking-strategy. Same names. Honest about what the tab cannot do." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+
+  <div class="shell">
+    <nav class="side" aria-label="Docs">
+      <p>Start</p>
+      <a class="here" href="./">Overview</a>
+      <a href="lab.html">The lab</a>
+      <a href="install.html">Install</a>
+      <p>The library can, the tab cannot</p>
+      <a href="compare.html">N-way compare</a>
+      <a href="custom.html">Bring your own</a>
+      <p>Reference</p>
+      <a href="strategies.html">Strategies</a>
+      <a href="python.html">Python API</a>
+      <a href="cli.html">CLI</a>
+      <a href="formats.html">Formats</a>
+    </nav>
+
+    <article class="article">
+      <p class="kicker">chunking-strategy 0.5.0</p>
+      <h1>Two surfaces. <em>One set of names.</em></h1>
+      <p class="lede">The playground is a tab that compares two chunkers on a file you never upload. The library is the same names on disk: N-way compare, a chunker you wrote, streaming, layout PDFs, audio, video. This site is the map. The repo READMEs stay as the long form; you should not need them to get moving.</p>
+
+      <div class="cards">
+        <a class="card lab" href="lab.html">
+          <h3>The lab</h3>
+          <p>Drop a file. Two columns. Click a chunk, see the span. Cap 150 MB. Nothing leaves the browser.</p>
+        </a>
+        <a class="card pip" href="install.html">
+          <h3>pip install chunking-strategy</h3>
+          <p>Same strategy names, then directories, extras, and no 150 MB cap. This is the product.</p>
+        </a>
+      </div>
+
+      <h2>What the tab will not do</h2>
+      <p>Colleagues often ask for two things that already exist in Python and will not be faked in JavaScript:</p>
+      <div class="cards">
+        <a class="card pip" href="compare.html">
+          <h3>N-way compare</h3>
+          <p>The lab is A vs B. Three or more strategies is <code>chunking-strategy compare FILE -s a,b,c</code>.</p>
+        </a>
+        <a class="card pip" href="custom.html">
+          <h3>Bring your own strategy</h3>
+          <p>Subclass <code>BaseChunker</code>, <code>@register_chunker</code>, then <code>compare</code> / <code>benchmark</code> against the builtins. The tab will not eval your JS.</p>
+        </a>
+      </div>
+
+      <h2>Five minutes</h2>
+      <ol class="steps">
+        <li>Open the <a href="../">lab</a>. Starter text is already <code>fixed_size</code> vs <code>sentence_based</code>. Click a chunk. The underline is that span. Drag the divider if the lists feel tight.</li>
+        <li><code>pip install chunking-strategy</code> then:
+<pre><code>from chunking_strategy import create_chunker
+result = create_chunker("sentence_based", max_sentences=2).chunk(open("doc.txt").read())
+print(len(result.chunks), result.quality_score)</code></pre>
+        </li>
+        <li>Need three names on one file?
+<pre><code>chunking-strategy compare doc.txt -s fixed_size,sentence_based,recursive_character</code></pre>
+        </li>
+        <li>Need a cut this registry does not have? Copy <code>examples/custom_algorithms/</code> and register it. Details in <a href="custom.html">Bring your own</a>.</li>
+      </ol>
+
+      <h2>How the two surfaces sit</h2>
+      <div class="ascii">file ─┬─► lab tab ── A | B ── your eyes
+      │     (22 live names, 150 MB, PDF/Word extract)
+      │
+      └─► pip chunking-strategy
+            create_chunker / CLI / orchestrator
+            N-way compare · custom · stream · media
+            40+ names, extras, no tab cap</div>
+      <p>The contract is <strong>browser ⊆ python</strong>. Every live lab name is a real pip name. Grey names in the dropdowns ship in the library and stay grey until a real JS port exists. The lab will not invent token counts as chars/4, and it will not run <code>semantic</code> until MiniLM actually loads.</p>
+
+      <h2>Chapters</h2>
+      <table>
+        <thead>
+          <tr><th>Page</th><th>When you open it</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="lab.html">The lab</a></td><td>Drop, extract, knobs, share URL (never the file), Find, rail width, privacy.</td></tr>
+          <tr><td><a href="install.html">Install</a></td><td>Core vs extras. Do not start strangers on <code>[all]</code>.</td></tr>
+          <tr><td><a href="strategies.html">Strategies</a></td><td>All 43 registry names, lab / grey / pip-only, and the recursive naming trap.</td></tr>
+          <tr><td><a href="compare.html">N-way compare</a></td><td><code>compare</code> table vs <code>benchmark</code> timings, including custom files.</td></tr>
+          <tr><td><a href="custom.html">Bring your own</a></td><td><code>@register_chunker</code>, CLI <code>custom</code>, worked examples.</td></tr>
+          <tr><td><a href="python.html">Python API</a></td><td><code>create_chunker</code>, orchestrator, universal, streaming, embeddings, config YAML.</td></tr>
+          <tr><td><a href="cli.html">CLI</a></td><td><code>chunk</code>, <code>batch</code>, <code>list-strategies --tier</code>, <code>embed</code>.</td></tr>
+          <tr><td><a href="formats.html">Formats</a></td><td>What the tab extracts vs what <code>pdf_chunker</code> / Tika / media do on disk.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">The long Markdown in the repo (<code>API_REFERENCE.md</code>, <code>CUSTOM_ALGORITHMS_GUIDE.md</code>, <code>examples/01_*.py</code>) is still there. These pages are the path you read first.</div>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>. Nothing in the playground is uploaded.</p>
+  <script>
+    document.getElementById("theme").addEventListener("click", function () {
+      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  </script>
+</body>
+</html>

@@ -16,6 +16,8 @@ Transform your documents into perfectly sized chunks for RAG systems, vector dat
 
 [Open the playground](https://sharanharsoor.github.io/chunking/) — compare two strategies on the same text, in the browser. Nothing is uploaded. Cap 150 MB here; `pip install chunking-strategy` streams from disk.
 
+[Docs](https://sharanharsoor.github.io/chunking/docs/) — the lab, every strategy name, N-way `compare`, and how to register a chunker the tab will not run.
+
 ---
 
 ## 🚀 **Quick Start**
