@@ -12,6 +12,7 @@
 - Lab `semantic` loads Transformers.js MiniLM from Hugging Face (~25 MB) on first pick. Grey until that load finishes. Cuts are not claimed to match pip `[ml]`.
 
 ### Changed
+- Docs dark theme: snippet panels, tables, and inline code have a lifted fill and a visible border so copy blocks are not the same black as the page.
 - Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
 - Lab sidebar width can be dragged so the source and A/B lists get more of the screen.
 
