@@ -47,6 +47,12 @@
         </tbody>
       </table>
 
+      <h2>Extract in Python without picking a chunker</h2>
+<pre><code>from chunking_strategy import extract_content
+extracted = extract_content("report.pdf")
+print(extracted.text_content[:400])</code></pre>
+      <p>That is the library extract path (PDF, Office, Tika when installed). Then pass <code>extracted.content</code> to any text strategy. The lab does the same job with PDF.js / mammoth instead.</p>
+
       <h2>Offsets</h2>
       <p>Lab goldens compare Unicode scalar offsets, not UTF-16 code units. If you port a chunker, fixtures under <code>fixtures/</code> are the contract. See <code>fixtures/README.md</code>.</p>
 

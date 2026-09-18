@@ -74,8 +74,16 @@ print(create_chunker("my_word_count_chunker", words_per_chunk=40).chunk(text).ch
       <h2>CLI</h2>
 <pre><code>chunking-strategy custom load ./my_chunker.py
 chunking-strategy custom load-dir ./examples/custom_algorithms
+chunking-strategy custom list --detailed
+chunking-strategy custom create-template ./my_chunker.py --algorithm-name my_word_count
+chunking-strategy custom validate ./my_chunker.py
+chunking-strategy custom validate-batch ./examples/custom_algorithms
+chunking-strategy custom validate-config ./my-config.yaml
 chunking-strategy custom benchmark ./my_chunker.py --compare-with fixed_size --compare-with sentence_based
 chunking-strategy benchmark doc.txt --custom-algorithms ./my_chunker.py</code></pre>
+<pre><code>from chunking_strategy import load_custom_algorithm, create_chunker
+load_custom_algorithm("./my_chunker.py")
+print(create_chunker("my_word_count_chunker").chunk(text).chunks)</code></pre>
 
       <h2>Worked examples in the repo</h2>
       <table>

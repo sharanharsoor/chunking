@@ -56,6 +56,10 @@
           <h3>Config and scale</h3>
           <p>YAML profiles, workers, streaming. How a corpus actually runs.</p>
         </a>
+        <a class="card pip" href="logging.html">
+          <h3>Logs and debug</h3>
+          <p>JSON lines for a log stack. A zip of JSON files for a bug report.</p>
+        </a>
         <a class="card pip" href="install.html">
           <h3>pip install chunking-strategy</h3>
           <p>Same strategy names, then directories, extras, and no 150 MB cap.</p>
@@ -111,15 +115,27 @@ print(len(result.chunks), result.quality_score)</code></pre>
           <tr><td><a href="json.html">JSON</a></td><td>Output JSON for pipelines, and <code>json_chunker</code> for JSON/JSONL inputs.</td></tr>
           <tr><td><a href="ml.html">ML and embeddings</a></td><td><code>semantic</code> cuts, <code>embed</code> vectors, lab MiniLM vs pip <code>[ml]</code>.</td></tr>
           <tr><td><a href="config.html">Config and scale</a></td><td>YAML profiles, workers, streaming, directories.</td></tr>
+          <tr><td><a href="logging.html">Logs and debug</a></td><td>JSON log lines, <code>debug collect</code>, what is in the zip.</td></tr>
           <tr><td><a href="strategies.html">Strategies</a></td><td>All 43 registry names, lab / grey / pip-only. <code>recursive</code> vs <code>recursive_character</code>.</td></tr>
           <tr><td><a href="compare.html">N-way compare</a></td><td><code>compare</code> table vs <code>benchmark</code> timings, including custom files.</td></tr>
           <tr><td><a href="custom.html">Bring your own</a></td><td><code>@register_chunker</code>, CLI <code>custom</code>, worked examples.</td></tr>
-          <tr><td><a href="python.html">Python API</a></td><td><code>create_chunker</code>, orchestrator, universal, streaming. Details in JSON / ML / Config.</td></tr>
+          <tr><td><a href="python.html">Python API</a></td><td><code>create_chunker</code>, orchestrator, pipeline, adaptive, metrics, streaming.</td></tr>
           <tr><td><a href="formats.html">Formats</a></td><td>What the tab extracts vs what <code>pdf_chunker</code> / Tika / media do on disk.</td></tr>
         </tbody>
       </table>
 
-      <div class="note">The long Markdown in the repo (<code>API_REFERENCE.md</code>, <code>CUSTOM_ALGORITHMS_GUIDE.md</code>, <code>examples/01_*.py</code>) is still there. These pages are the path you read first.</div>
+      <h2>Still only in the repo</h2>
+      <p>Checked against the library public API and CLI. These pages now cover every command people actually run and every name in <code>chunking_strategy.__all__</code> that is a getting-started surface. Left as runnable files, not extra HTML:</p>
+      <ul>
+        <li>LangChain: <code>examples/18_langchain_integration_demo.py</code></li>
+        <li>Streamlit UI: <code>examples/19_streamlit_app_demo.py</code></li>
+        <li>Per-knob audio / video / image parameters: strategy modules under <code>chunking_strategy/strategies/multimedia/</code></li>
+        <li>Detectors (encoding, language, file type): used by the orchestrator; not a separate product</li>
+        <li><code>token_packing</code>, <code>multi_strategy</code>, <code>production_benchmark</code>, <code>enhanced_orchestrator</code>: internals / extras, not first-run</li>
+      </ul>
+      <p><code>CLI_REFERENCE.md</code> lists <code>hardware --json</code> and <code>debug system-info</code>. Those flags are not in <code>cli.py</code>. Trust these pages and <code>--help</code>.</p>
+
+      <div class="note">The long Markdown in the repo (<code>API_REFERENCE.md</code>, <code>DEBUGGING_GUIDE.md</code>, <code>CUSTOM_ALGORITHMS_GUIDE.md</code>, <code>examples/01_*.py</code>) is still there. These pages are the path you read first.</div>
     </article>
   </div>
   <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>. Nothing in the playground is uploaded.</p>

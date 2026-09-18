@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logs and debug — chunking-strategy docs</title>
+  <meta name="description" content="JSON logs, log levels, debug archives, and how to collect a bug report." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs"></nav>
+    <article class="article">
+      <p class="kicker">Logging</p>
+      <h1>Text logs on the CLI. JSON when you ask.</h1>
+      <p class="lede">The CLI writes human text unless you pass <code>--log-file</code>. Structured JSON is a Python switch: <code>format_json=True</code>. A debug archive is a zip of JSON files you can attach to an issue. The CLI has no <code>--json-logs</code> flag.</p>
+
+      <h2>CLI: levels and a log file</h2>
+<pre><code>python -m chunking_strategy --log-level silent|minimal|normal|verbose|debug|trace chunk doc.txt
+python -m chunking_strategy --quiet chunk doc.txt
+python -m chunking_strategy --verbose chunk doc.txt
+python -m chunking_strategy --debug chunk doc.txt
+python -m chunking_strategy --log-level debug --log-file chunking.log chunk doc.txt</code></pre>
+      <p><code>--debug</code> is DEBUG plus a default file <code>chunking_debug.log</code>, and it turns on performance and metrics collection. <code>--quiet</code> is MINIMAL and no console. Rotating file handler: 10 MB, 3 backups, unless you change that in Python.</p>
+
+      <h2>JSON lines for a log stack</h2>
+<pre><code>import chunking_strategy as cs
+
+cs.configure_logging(
+    level=cs.LogLevel.VERBOSE,
+    file_output=True,
+    log_file="chunking_metrics.jsonl",
+    format_json=True,
+    collect_performance=True,
+    collect_metrics=True,
+)
+
+cs.user_info("Processing started")
+result = cs.create_chunker("sentence_based").chunk(open("doc.txt").read())
+cs.user_success(f"{len(result.chunks)} chunks")
+cs.performance_log("sentence_chunking", 0.12, n_chunks=len(result.chunks))
+cs.metrics_log({"quality_score": result.quality_score})</code></pre>
+      <p>Each line is one JSON object:</p>
+<pre><code>{"timestamp": "2026-09-18T08:00:00", "level": "INFO", "module": "chunking_strategy.user", "message": "Processing started", "filename": "...", "line_number": 12, "function": "..."}</code></pre>
+      <p>That is what you ship to Elasticsearch, Splunk, or a file you grep. Full <code>LogConfig</code> also has <code>max_file_size</code> (default <code>10MB</code>) and <code>backup_count</code> (3).</p>
+
+      <h2>Collect logs for a bug report</h2>
+<pre><code>python -m chunking_strategy debug enable --log-file my-debug.log
+python -m chunking_strategy --debug chunk the-bad-file.pdf
+python -m chunking_strategy debug collect -d "PDF extract throws on page 12" -o ./debug-archives/
+python -m chunking_strategy debug archive "PDF extract throws on page 12"
+python -m chunking_strategy debug test-logging</code></pre>
+      <p>The zip contains:</p>
+      <table>
+        <thead><tr><th>File</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><code>system_info.json</code></td><td>Platform, Python, session.</td></tr>
+          <tr><td><code>config.json</code></td><td>The active <code>LogConfig</code>.</td></tr>
+          <tr><td><code>recent_logs.jsonl</code></td><td>Up to the last 1000 collected records (DEBUG/TRACE).</td></tr>
+          <tr><td><code>performance_logs.json</code></td><td>Timed operations if collection was on.</td></tr>
+        </tbody>
+      </table>
+<pre><code>import chunking_strategy as cs
+
+cs.enable_debug_mode()
+cs.create_chunker("sentence_based").chunk(open("doc.txt").read())
+info = cs.create_debug_archive("sentence_based returned empty")
+print(info["debug_archive"], info["session_id"])</code></pre>
+      <p>Return key is <code>debug_archive</code> (path to the zip), not <code>archive_path</code>.</p>
+
+      <h2>Hardware (not JSON on the CLI)</h2>
+<pre><code>python -m chunking_strategy hardware
+python -m chunking_strategy hardware --detailed --recommendations</code></pre>
+      <p>There is no <code>hardware --json</code> in the shipped CLI. If you need a machine record in JSON, use the debug zip’s <code>system_info.json</code> or call <code>get_hardware_info()</code> from Python yourself.</p>
+    </article>
+  </div>
+  <p class="site-foot">Long form: <code>DEBUGGING_GUIDE.md</code>.</p>
+  <script src="docs.js"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Python API — chunking-strategy docs</title>
-  <meta name="description" content="create_chunker, ChunkerOrchestrator, streaming, embeddings, config YAML." />
+  <meta name="description" content="create_chunker, orchestrator, pipeline, adaptive, metrics, streaming, JSON logs." />
   <meta name="theme-color" content="#09090b" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
@@ -74,8 +74,41 @@ python -m chunking_strategy list-models</code></pre>
 <pre><code>python -m chunking_strategy init-config
 python -m chunking_strategy chunk report.pdf --config config_examples/document_first_config.yaml</code></pre>
 
+      <h2>Pipeline (chunk, then filter, then merge)</h2>
+<pre><code>from chunking_strategy import ChunkingPipeline
+from chunking_strategy.core.pipeline import ChunkerStep, FilterStep, MergeStep
+
+pipeline = ChunkingPipeline([
+    ("chunker", ChunkerStep("sentence_chunker", "sentence_based", max_sentences=2)),
+    ("filter", FilterStep("size_filter", min_size=10)),
+    ("merge", MergeStep("merge_small", min_chunk_size=80)),
+])
+result = pipeline.process(open("doc.txt").read())</code></pre>
+      <p><code>ChunkingPipeline.from_config({...})</code> is the JSON import of the same steps. This is a processing chain. It is not the registry strategy named <code>adaptive</code>.</p>
+
+      <h2>Adaptive wrapper vs <code>adaptive</code> strategy</h2>
+<pre><code>from chunking_strategy import AdaptiveChunker
+from chunking_strategy.core.adaptive import FeedbackType
+
+chunker = AdaptiveChunker("sentence_based")
+result = chunker.chunk(open("doc.txt").read())
+result = chunker.chunk_with_feedback(open("doc.txt").read(), 0.3, FeedbackType.QUALITY)</code></pre>
+      <p><code>AdaptiveChunker</code> wraps another strategy and retunes it from quality/latency feedback. <code>create_chunker("adaptive")</code> is a separate python-only strategy. Demo: <code>examples/22_adaptive_chunking_learning_demo.py</code>.</p>
+
+      <h2>Quality metrics</h2>
+<pre><code>from chunking_strategy import create_chunker
+from chunking_strategy.core.metrics import ChunkingQualityEvaluator
+
+result = create_chunker("sentence_based").chunk(open("doc.txt").read())
+metrics = ChunkingQualityEvaluator().evaluate(result, open("doc.txt").read())
+print(metrics.overall_score, metrics.size_consistency, metrics.coherence)</code></pre>
+      <p>CLI: <code>chunk notes.md --validate --quality-report</code>. That report reads the file as UTF-8 text. Scores live on 0–1. Same evaluator as <code>examples/07_metrics_collection_demo.py</code> and <code>21_comprehensive_metrics_demo.py</code>.</p>
+
+      <h2>JSON logs</h2>
+      <p><code>configure_logging(..., format_json=True, log_file="chunking_metrics.jsonl")</code> then <code>debug collect</code> for a zip. Full path: <a href="logging.html">Logs and debug</a>.</p>
+
       <h2>Examples in order</h2>
-      <p><code>01_basic_usage.py</code> through <code>22_adaptive_chunking_learning_demo.py</code>. Beginner 01–04, integration 05–08, performance 09–13, production 14–16, then embeddings, Streamlit, LangChain, metrics. Run them from the repo root after <code>pip install -e .</code>.</p>
+      <p><code>01_basic_usage.py</code> through <code>22_adaptive_chunking_learning_demo.py</code>. Beginner 01–04, integration 05–08, performance 09–13, production 14–16, then embeddings, Streamlit, LangChain, metrics. Run them from the repo root after <code>pip install -e .</code>. Streamlit is <code>examples/19_streamlit_app_demo.py</code>. LangChain is <code>18_langchain_integration_demo.py</code>. Those two stay as runnable demos, not extra HTML pages.</p>
     </article>
   </div>
   <p class="site-foot">Long form: <code>API_REFERENCE.md</code>, <code>CONFIGURATION_GUIDE.md</code>.</p>

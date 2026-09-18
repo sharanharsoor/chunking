@@ -16,7 +16,8 @@
     ["Worked paths", [
       ["json.html", "JSON"],
       ["ml.html", "ML and embeddings"],
-      ["config.html", "Config and scale"]
+      ["config.html", "Config and scale"],
+      ["logging.html", "Logs and debug"]
     ]],
     ["Reference", [
       ["strategies.html", "Strategies"],

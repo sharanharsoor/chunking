@@ -38,17 +38,20 @@
 python -m chunking_strategy --version
 python -m chunking_strategy --help
 python -m chunking_strategy list-strategies --tier lab
-python -m chunking_strategy list-strategies --tier all</code></pre>
-      <p>Global flags on every command: <code>-v</code> / <code>-q</code>, <code>--debug</code>, <code>--log-level silent|minimal|normal|verbose|debug|trace</code>, <code>--log-file PATH</code>.</p>
+python -m chunking_strategy list-strategies --tier all
+python -m chunking_strategy list-strategies --format json
+python -m chunking_strategy list-strategies --format simple</code></pre>
+      <p>Global flags on every command: <code>-v</code> / <code>-q</code>, <code>--debug</code>, <code>--log-level silent|minimal|normal|verbose|debug|trace</code>, <code>--log-file PATH</code>. <code>--log-file</code> is human text. JSON lines are Python: <a href="logging.html">Logs and debug</a>.</p>
 
       <h2>1. One file → JSON</h2>
 <pre><code>python -m chunking_strategy chunk notes.md
 python -m chunking_strategy chunk notes.md --strategy markdown_chunker --format json -o chunks.json
 python -m chunking_strategy chunk notes.md -s sentence_based --max-sentences 3
-python -m chunking_strategy chunk report.pdf --strategy pdf_chunker --format json --validate --quality-report
+python -m chunking_strategy chunk notes.md --validate --quality-report
 python -m chunking_strategy chunk huge.txt --summary-only
-python -m chunking_strategy test-strategy sentence_based</code></pre>
-      <p><code>--format</code> is <code>json</code> (default), <code>text</code>, or <code>yaml</code>. How that JSON is shaped: <a href="json.html">JSON</a>. <code>pdf_chunker</code> needs <code>pip install chunking-strategy[pdf]</code>.</p>
+python -m chunking_strategy test-strategy sentence_based
+python -m chunking_strategy chunk report.pdf --strategy pdf_chunker --format json -o chunks.json</code></pre>
+      <p><code>--format</code> is <code>json</code> (default), <code>text</code>, or <code>yaml</code>. How that JSON is shaped: <a href="json.html">JSON</a>. <code>--quality-report</code> reads the file as UTF-8 text, so use it on markdown/txt, not on a PDF. <code>pdf_chunker</code> needs <code>pip install chunking-strategy[pdf]</code>.</p>
 
       <h2>2. A directory</h2>
 <pre><code>python -m chunking_strategy batch *.txt --strategy sentence_based --workers 4 --show-progress
@@ -76,14 +79,25 @@ python -m chunking_strategy embed-batch ./corpus --strategy recursive_character 
       <h2>5. Your own chunker, still CLI</h2>
 <pre><code>python -m chunking_strategy custom load ./my_chunker.py
 python -m chunking_strategy custom load-dir ./examples/custom_algorithms
+python -m chunking_strategy custom list --detailed
+python -m chunking_strategy custom create-template ./my_chunker.py --algorithm-name my_word_count
+python -m chunking_strategy custom validate ./my_chunker.py
+python -m chunking_strategy custom validate-batch ./examples/custom_algorithms
+python -m chunking_strategy custom validate-config ./my-config.yaml
 python -m chunking_strategy custom benchmark ./my_chunker.py --compare-with sentence_based --compare-with fixed_size</code></pre>
       <p>How to write the file: <a href="custom.html">Bring your own</a>.</p>
 
-      <h2>Everything else on the CLI</h2>
+      <h2>6. Logs, debug zip, hardware</h2>
 <pre><code>python -m chunking_strategy init-config
-python -m chunking_strategy hardware
-python -m chunking_strategy debug</code></pre>
-      <p>Recipes in the repo: <code>examples/04_cli_examples.py</code>. Flag-by-flag: <code>CLI_REFERENCE.md</code>.</p>
+python -m chunking_strategy --log-file chunking.log chunk notes.md
+python -m chunking_strategy --debug chunk the-bad-file.pdf
+python -m chunking_strategy debug enable --log-file my-debug.log
+python -m chunking_strategy debug collect -d "PDF extract throws" -o ./debug-archives/
+python -m chunking_strategy debug archive "PDF extract throws"
+python -m chunking_strategy debug test-logging
+python -m chunking_strategy hardware --detailed --recommendations</code></pre>
+      <p>JSON log lines and what is inside the zip: <a href="logging.html">Logs and debug</a>. There is no <code>hardware --json</code> and no <code>debug system-info</code> in the shipped CLI; <code>CLI_REFERENCE.md</code> is wrong on those two. Hardware JSON is <code>system_info.json</code> in the debug zip, or <code>get_hardware_info()</code> in Python.</p>
+      <p>Recipes in the repo: <code>examples/04_cli_examples.py</code>.</p>
     </article>
   </div>
   <p class="site-foot">Long form: <code>CLI_REFERENCE.md</code>.</p>

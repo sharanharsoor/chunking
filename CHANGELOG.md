@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Added
-- Docs site at `poc/docs/` (GitHub Pages `/docs/`): lab, install, CLI-only, JSON, ML, config/scale, strategies, N-way compare, bring-your-own, Python API, formats. Linked from the playground.
+- Docs site at `poc/docs/` (GitHub Pages `/docs/`): lab, install, CLI-only, JSON, ML, config/scale, logs/debug, strategies, N-way compare, bring-your-own, Python API, formats. Linked from the playground.
+- Docs: JSON log lines (`format_json=True`), `debug collect` zip contents, pipeline / adaptive / quality metrics, extra `custom` CLI commands.
 - Lab toolbox points N-way compare and custom strategies at pip, with links into those docs.
 - Lab source editor height can be dragged (and ArrowUp / ArrowDown) so the paste box can grow.
 - Lab hierarchical `recursive`: parent/child tree (paragraph then sentence), matched to the Python golden. This is not `recursive_character`.
