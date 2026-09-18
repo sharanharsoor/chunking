@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CLI — chunking-strategy docs</title>
-  <meta name="description" content="chunk, batch, compare, benchmark, list-strategies, custom, embed." />
+  <meta name="description" content="Use chunking-strategy from the terminal only: chunk, batch, compare, benchmark, embed, custom." />
   <meta name="theme-color" content="#09090b" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
@@ -27,70 +27,66 @@
     <button type="button" class="theme-btn" id="theme">Theme</button>
   </header>
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a href="strategies.html">Strategies</a>
-      <a href="python.html">Python API</a>
-      <a class="here" href="cli.html">CLI</a>
-      <a href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
     <article class="article">
-      <p class="kicker">python -m chunking_strategy</p>
-      <h1>One CLI for files, directories, and N-way</h1>
-      <p class="lede">Every command the lab cannot grow into lives here. <code>CLI_REFERENCE.md</code> lists every flag. This page is the set people actually run.</p>
-<pre><code>python -m chunking_strategy --help
-python -m chunking_strategy --version</code></pre>
+      <p class="kicker">No Python file required</p>
+      <h1>CLI only: install, chunk, ship JSON</h1>
+      <p class="lede">If you do not want an API session, this is the whole path. Copy any block with the button on the snippet.</p>
 
-      <h2>Chunk one file</h2>
-<pre><code>python -m chunking_strategy chunk report.pdf --strategy paragraph_based --format json -o chunks.json
-python -m chunking_strategy chunk notes.md -s markdown_chunker</code></pre>
-
-      <h2>Many files</h2>
-<pre><code>python -m chunking_strategy batch *.txt --strategy sentence_based --workers 4
-python -m chunking_strategy batch-directory ./corpus --strategy auto
-python -m chunking_strategy process-directory ./corpus --config config_examples/enhanced_auto_strategy.yaml</code></pre>
-
-      <h2>See the registry</h2>
-<pre><code>python -m chunking_strategy list-strategies
+      <h2>0. Install and prove it</h2>
+<pre><code>pip install chunking-strategy
+python -m chunking_strategy --version
+python -m chunking_strategy --help
 python -m chunking_strategy list-strategies --tier lab
+python -m chunking_strategy list-strategies --tier all</code></pre>
+      <p>Global flags on every command: <code>-v</code> / <code>-q</code>, <code>--debug</code>, <code>--log-level silent|minimal|normal|verbose|debug|trace</code>, <code>--log-file PATH</code>.</p>
+
+      <h2>1. One file → JSON</h2>
+<pre><code>python -m chunking_strategy chunk notes.md
+python -m chunking_strategy chunk notes.md --strategy markdown_chunker --format json -o chunks.json
+python -m chunking_strategy chunk notes.md -s sentence_based --max-sentences 3
+python -m chunking_strategy chunk report.pdf --strategy pdf_chunker --format json --validate --quality-report
+python -m chunking_strategy chunk huge.txt --summary-only
 python -m chunking_strategy test-strategy sentence_based</code></pre>
+      <p><code>--format</code> is <code>json</code> (default), <code>text</code>, or <code>yaml</code>. How that JSON is shaped: <a href="json.html">JSON</a>. <code>pdf_chunker</code> needs <code>pip install chunking-strategy[pdf]</code>.</p>
 
-      <h2>N-way and speed</h2>
+      <h2>2. A directory</h2>
+<pre><code>python -m chunking_strategy batch *.txt --strategy sentence_based --workers 4 --show-progress
+python -m chunking_strategy batch *.py --strategy python_code -o ./chunks --format json
+python -m chunking_strategy batch-directory ./corpus --strategy auto
+python -m chunking_strategy process-directory ./corpus --config config_examples/enhanced_auto_strategy.yaml
+python -m chunking_strategy batch *.pdf --parallel-mode process --workers 4 --validate --quality-report</code></pre>
+      <p><code>--parallel-mode</code> is <code>auto</code> | <code>sequential</code> | <code>thread</code> | <code>process</code>. Scale and YAML: <a href="config.html">Config and scale</a>.</p>
+
+      <h2>3. Pick a name without the lab</h2>
 <pre><code>python -m chunking_strategy compare doc.txt -s fixed_size,sentence_based,recursive_character
+python -m chunking_strategy compare doc.txt -s json_chunker,fixed_size --format json
 python -m chunking_strategy benchmark doc.txt --quick
-python -m chunking_strategy benchmark doc.txt --custom-algorithms ./my_chunker.py</code></pre>
-      <p>Full story: <a href="compare.html">N-way compare</a>.</p>
+python -m chunking_strategy benchmark doc.txt --strategies "fixed_size,sentence_based" --runs 3
+python -m chunking_strategy benchmark doc.txt --custom-algorithms ./my_chunker.py --output-dir ./bench</code></pre>
+      <p>Tables and what quality_score means: <a href="compare.html">N-way compare</a>.</p>
 
-      <h2>Custom algorithms</h2>
+      <h2>4. Embeddings, still CLI</h2>
+<pre><code>pip install 'chunking-strategy[ml]'
+python -m chunking_strategy list-models
+python -m chunking_strategy embed doc.txt --strategy sentence_based --model all-MiniLM-L6-v2 -o vectors.json
+python -m chunking_strategy embed-batch ./corpus --strategy recursive_character -o ./vectors</code></pre>
+      <p>Models, thresholds, and lab vs pip: <a href="ml.html">ML and embeddings</a>.</p>
+
+      <h2>5. Your own chunker, still CLI</h2>
 <pre><code>python -m chunking_strategy custom load ./my_chunker.py
 python -m chunking_strategy custom load-dir ./examples/custom_algorithms
-python -m chunking_strategy custom benchmark ./my_chunker.py --compare-with sentence_based</code></pre>
-      <p>Full story: <a href="custom.html">Bring your own</a>.</p>
+python -m chunking_strategy custom benchmark ./my_chunker.py --compare-with sentence_based --compare-with fixed_size</code></pre>
+      <p>How to write the file: <a href="custom.html">Bring your own</a>.</p>
 
-      <h2>Embeddings and debug</h2>
-<pre><code>python -m chunking_strategy embed doc.txt --strategy sentence_based
-python -m chunking_strategy embed-batch ./corpus
-python -m chunking_strategy list-models
+      <h2>Everything else on the CLI</h2>
+<pre><code>python -m chunking_strategy init-config
 python -m chunking_strategy hardware
-python -m chunking_strategy debug
-python -m chunking_strategy init-config</code></pre>
-      <p>Global flags: <code>-v</code> / <code>-q</code>, <code>--debug</code>, <code>--log-level</code>, <code>--log-file</code>. Output formats on <code>chunk</code> are <code>json</code> | <code>text</code> | <code>yaml</code>. Recipes: <code>examples/04_cli_examples.py</code>.</p>
+python -m chunking_strategy debug</code></pre>
+      <p>Recipes in the repo: <code>examples/04_cli_examples.py</code>. Flag-by-flag: <code>CLI_REFERENCE.md</code>.</p>
     </article>
   </div>
   <p class="site-foot">Long form: <code>CLI_REFERENCE.md</code>.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

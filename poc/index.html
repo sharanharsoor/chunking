@@ -193,7 +193,7 @@
     select:focus-visible, textarea:focus-visible, .drop:focus-visible,
     .chunk:focus-visible, .cta:focus-visible, .pip-pill:focus-visible,
     .dest:focus-visible, .focus-chip:focus-visible, .picker-btn:focus-visible,
-    .picker-opt:focus-visible, .split-rail:focus-visible {
+    .picker-opt:focus-visible, .split-rail:focus-visible, .split-paper:focus-visible {
       outline: 2px solid var(--focus);
       outline-offset: 2px;
     }
@@ -252,6 +252,7 @@
       overflow: hidden;
     }
     .app.dragging-split { cursor: col-resize; user-select: none; }
+    .app.dragging-paper { cursor: row-resize; user-select: none; }
     .split-rail {
       grid-column: 2;
       grid-row: 1;
@@ -277,15 +278,42 @@
     .app.dragging-split .split-rail::after {
       background: var(--accent);
     }
+    .split-paper {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      position: relative;
+      z-index: 2;
+      height: 8px;
+      margin: -4px 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: row-resize;
+    }
+    .split-paper::after {
+      content: "";
+      position: absolute;
+      inset: 3px 18%;
+      border-radius: 99px;
+      background: var(--line);
+    }
+    .split-paper:hover::after,
+    .split-paper:focus::after,
+    .split-paper:focus-visible::after,
+    .app.dragging-paper .split-paper::after {
+      background: var(--accent);
+    }
     .stage {
+      --paper-h: 42%;
       grid-column: 3;
       grid-row: 1;
       min-width: 0;
       min-height: 0;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-rows: minmax(200px, 42%) 1fr;
-      gap: 12px;
+      grid-template-rows: minmax(160px, var(--paper-h)) 8px minmax(160px, 1fr);
+      column-gap: 12px;
+      row-gap: 0;
     }
     .rail, .paper, .col {
       min-width: 0;
@@ -767,8 +795,8 @@
     #source.plain { color: var(--paper-ink); }
 
     .col { display: flex; flex-direction: column; background: var(--col); }
-    .col.a { grid-column: 1; grid-row: 2; }
-    .col.b { grid-column: 2; grid-row: 2; }
+    .col.a { grid-column: 1; grid-row: 3; }
+    .col.b { grid-column: 2; grid-row: 3; }
     .col-head {
       min-width: 0;
       padding: 10px 12px 8px;
@@ -1082,11 +1110,11 @@
       .stage {
         grid-column: 1 / -1;
         grid-row: 1;
-        grid-template-rows: auto auto;
+        --paper-h: 280px;
+        grid-template-rows: minmax(160px, var(--paper-h)) 8px minmax(200px, auto);
       }
-      .paper { min-height: 240px; }
-      .col.a { min-height: 280px; }
-      .col.b { min-height: 280px; }
+      .col.a { min-height: 240px; }
+      .col.b { min-height: 240px; }
       .rail { grid-column: 1 / -1; grid-row: 2; max-height: none; }
       .how { grid-template-columns: 1fr; }
       .rag-board { width: auto; overflow-x: auto; }
@@ -1216,6 +1244,7 @@
             <textarea id="source" class="source-face pane" spellcheck="false" placeholder="Type or paste text here"></textarea>
           </div>
         </section>
+        <button type="button" class="split-paper" id="split-paper" role="separator" aria-label="Resize the source editor" aria-orientation="horizontal" aria-valuemin="160" aria-valuenow="280"></button>
 
         <section class="col a">
           <div class="col-head">
@@ -3269,6 +3298,63 @@
         if (e.key === "ArrowRight") {
           e.preventDefault();
           localStorage.setItem(KEY, String(apply(cur + 16)));
+        }
+      });
+    })();
+
+    (function bindPaperSplit() {
+      var app = document.querySelector(".app");
+      var stage = app && app.querySelector(".stage");
+      var paper = document.getElementById("paper");
+      var handle = document.getElementById("split-paper");
+      if (!app || !stage || !paper || !handle) return;
+      var KEY = "lab-paper-h";
+      var MIN = 160;
+      function maxH() {
+        return Math.max(MIN, stage.clientHeight - MIN - 8);
+      }
+      function apply(px) {
+        var h = Math.max(MIN, Math.min(maxH(), Math.round(px)));
+        stage.style.setProperty("--paper-h", h + "px");
+        handle.setAttribute("aria-valuemin", String(MIN));
+        handle.setAttribute("aria-valuemax", String(maxH()));
+        handle.setAttribute("aria-valuenow", String(h));
+        return h;
+      }
+      function restore() {
+        var saved = parseInt(localStorage.getItem(KEY) || "", 10);
+        if (saved) apply(saved);
+      }
+      restore();
+      addEventListener("resize", restore);
+      handle.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        app.classList.add("dragging-paper");
+        var startY = e.clientY;
+        var startH = paper.getBoundingClientRect().height;
+        function move(ev) {
+          apply(startH + (ev.clientY - startY));
+        }
+        function up(ev) {
+          handle.releasePointerCapture(ev.pointerId);
+          app.classList.remove("dragging-paper");
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", up);
+          localStorage.setItem(KEY, String(apply(paper.getBoundingClientRect().height)));
+        }
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", up);
+      });
+      handle.addEventListener("keydown", function (e) {
+        var cur = paper.getBoundingClientRect().height;
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          localStorage.setItem(KEY, String(apply(cur - 24)));
+        }
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          localStorage.setItem(KEY, String(apply(cur + 24)));
         }
       });
     })();

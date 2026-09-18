@@ -27,20 +27,7 @@
     <button type="button" class="theme-btn" id="theme">Theme</button>
   </header>
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a class="here" href="strategies.html">Strategies</a>
-      <a href="python.html">Python API</a>
-      <a href="cli.html">CLI</a>
-      <a href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
     <article class="article">
       <p class="kicker">43 names in the registry</p>
       <h1>Same string in the dropdown and in pip</h1>
@@ -80,16 +67,10 @@ chunking-strategy list-strategies --tier all</code></pre>
       <h2>Pip-only <span class="badge pip">python_only</span></h2>
       <p><code>pdf_chunker</code> (layout, images, tables), <code>universal_document</code> (Tika), <code>adaptive</code>, <code>scene_based_video</code>. The lab extracts PDF/Word to text, then runs a text strategy. It will not grow a fake <code>pdf_chunker</code>.</p>
 
-      <div class="warn">Do not call LangChain’s separator cascade <code>recursive</code> in this project. Here <code>recursive</code> is the tree, <code>recursive_character</code> is the cascade. Mixing those words in an interview is how you look like you copied a blog post.</div>
+      <div class="note">In this library <code>recursive</code> is a parent/child tree (paragraph then sentence). <code>recursive_character</code> is the separator cascade (paragraphs, then lines, then spaces). They are different strategies. LangChain’s cascade is the second name here.</div>
     </article>
   </div>
   <p class="site-foot">Tiers live in <code>schemas/strategy-tiers.yaml</code>.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Config and scale — chunking-strategy docs</title>
+  <meta name="description" content="YAML profiles, directories, workers, and streaming for large corpora." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs"></nav>
+    <article class="article">
+      <p class="kicker">Directories, not one tab</p>
+      <h1>One YAML, a thousand files</h1>
+      <p class="lede">The lab is how you pick a name. A corpus is how you keep that name. YAML selects a primary strategy per extension, a fallback chain, chunk sizes, and whether to stream. The CLI then walks a directory with workers.</p>
+
+      <h2>Start from a profile</h2>
+<pre><code>python -m chunking_strategy init-config
+python -m chunking_strategy process-directory ./corpus --config config_examples/enhanced_auto_strategy.yaml
+python -m chunking_strategy batch-directory ./corpus --strategy auto --workers 4 --show-progress
+python -m chunking_strategy batch ./corpus/*.pdf --config my.yaml --parallel-mode process --workers 4 -o ./chunks</code></pre>
+      <table>
+        <thead><tr><th>Profile</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td><code>enhanced_auto_strategy.yaml</code></td><td>Mixed corpus. Auto primary + fallbacks.</td></tr>
+          <tr><td><code>code_focused_config.yaml</code></td><td>Repos. <code>python_code</code> / <code>universal_code</code>.</td></tr>
+          <tr><td><code>document_first_config.yaml</code></td><td>Prose, PDFs, research.</td></tr>
+          <tr><td><code>large_files_streaming.yaml</code></td><td>100 MB+ files. Streaming buffers, <code>fixed_size</code> primary.</td></tr>
+          <tr><td><code>embedding_optimized.yaml</code></td><td>Even sizes for a vector index.</td></tr>
+          <tr><td><code>rag_system.yaml</code></td><td>RAG default sizes.</td></tr>
+          <tr><td><code>multimodal_embeddings.yaml</code></td><td>Text plus images.</td></tr>
+          <tr><td><code>basic_example.yaml</code></td><td>Learning. Everything sentence-based.</td></tr>
+        </tbody>
+      </table>
+      <p>They live under <code>config_examples/</code> and <code>config_examples/use_case_configs/</code> (JSONL streaming, Tika, hardware). <code>CONFIGURATION_GUIDE.md</code> is the long form.</p>
+
+      <h2>What a profile actually says</h2>
+<pre><code>profile_name: "large_files_streaming"
+strategies:
+  primary: "fixed_size"
+  fallbacks: ["sentence_based", "paragraph_based"]
+  configs:
+    fixed_size:
+      chunk_size: 2048
+      overlap_size: 256
+      unit: "character"
+strategy_selection:
+  ".txt":
+    primary: "sentence_based"
+    fallbacks: ["paragraph_based", "fixed_size"]
+  ".py":
+    primary: "python_code"
+    fallbacks: ["paragraph_based", "fixed_size"]</code></pre>
+      <p>If the specialist throws (bad Python syntax, missing extra), the next fallback runs. A CLI <code>-s</code> / <code>strategy_override</code> always wins over the YAML primary.</p>
+
+      <h2>Streaming instead of RAM</h2>
+      <p>The tab caps at 150 MB because the file is in the browser. On disk:</p>
+<pre><code>from chunking_strategy import create_chunker
+from chunking_strategy.core.streaming import StreamingChunker, MemoryMappedStreamer
+
+for chunk in StreamingChunker("sentence_based").stream_file("huge.txt"):
+    index(chunk)
+
+for chunk in MemoryMappedStreamer(create_chunker("fixed_size")).stream_file("huge.bin"):
+    index(chunk)</code></pre>
+      <p>Orchestrator <code>chunk_file</code> already switches to a streaming path on large inputs. Checkpoints can resume a crashed walk. Demos: <code>examples/06_streaming_benefits_demo.py</code>, <code>10_enhanced_streaming_demo.py</code>, <code>11_streaming_and_tika_demo.py</code>, <code>12_parallelization_demo.py</code>, <code>13_smart_parallelization_demo.py</code>, <code>15_comprehensive_directory_processing_demo.py</code>.</p>
+
+      <h2>Workers</h2>
+<pre><code>python -m chunking_strategy batch *.txt --workers 4 --parallel-mode auto
+python -m chunking_strategy batch *.txt --parallel-mode thread --workers 8
+python -m chunking_strategy batch *.pdf --parallel-mode process --workers 4
+python -m chunking_strategy hardware</code></pre>
+      <p><code>auto</code> picks thread vs process from file count and size. <code>hardware</code> prints what the machine can actually run. POSIX extras <code>[media]</code>, <code>[tika]</code>, <code>[hardware]</code> stay off Windows CI on purpose.</p>
+
+      <h2>Custom algorithms in the same run</h2>
+<pre><code>python -m chunking_strategy benchmark ./corpus/a.txt --custom-algorithms ./my_chunker.py
+python -m chunking_strategy custom load-dir ./team_chunkers --recursive</code></pre>
+      <p>That is how a team keeps one YAML and still plugs a house strategy. See <a href="custom.html">Bring your own</a>.</p>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script src="docs.js"></script>
+</body>
+</html>

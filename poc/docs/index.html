@@ -28,20 +28,7 @@
   </header>
 
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a class="here" href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a href="strategies.html">Strategies</a>
-      <a href="python.html">Python API</a>
-      <a href="cli.html">CLI</a>
-      <a href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
 
     <article class="article">
       <p class="kicker">chunking-strategy 0.5.0</p>
@@ -53,9 +40,25 @@
           <h3>The lab</h3>
           <p>Drop a file. Two columns. Click a chunk, see the span. Cap 150 MB. Nothing leaves the browser.</p>
         </a>
+        <a class="card pip" href="cli.html">
+          <h3>CLI only</h3>
+          <p>Install, chunk to JSON, batch a directory, compare, embed. No Python file required.</p>
+        </a>
+        <a class="card pip" href="json.html">
+          <h3>JSON</h3>
+          <p>The file a pipeline reads, and <code>json_chunker</code> for JSON/JSONL inputs.</p>
+        </a>
+        <a class="card pip" href="ml.html">
+          <h3>ML and embeddings</h3>
+          <p><code>semantic</code> decides the cut. <code>embed</code> writes vectors. Lab MiniLM is a preview.</p>
+        </a>
+        <a class="card pip" href="config.html">
+          <h3>Config and scale</h3>
+          <p>YAML profiles, workers, streaming. How a corpus actually runs.</p>
+        </a>
         <a class="card pip" href="install.html">
           <h3>pip install chunking-strategy</h3>
-          <p>Same strategy names, then directories, extras, and no 150 MB cap. This is the product.</p>
+          <p>Same strategy names, then directories, extras, and no 150 MB cap.</p>
         </a>
       </div>
 
@@ -74,7 +77,7 @@
 
       <h2>Five minutes</h2>
       <ol class="steps">
-        <li>Open the <a href="../">lab</a>. Starter text is already <code>fixed_size</code> vs <code>sentence_based</code>. Click a chunk. The underline is that span. Drag the divider if the lists feel tight.</li>
+        <li>Open the <a href="../">lab</a>. Starter text is already <code>fixed_size</code> vs <code>sentence_based</code>. Click a chunk. Drag the divider under the editor if the paste box is too short, or the sidebar divider if the lists feel tight.</li>
         <li><code>pip install chunking-strategy</code> then:
 <pre><code>from chunking_strategy import create_chunker
 result = create_chunker("sentence_based", max_sentences=2).chunk(open("doc.txt").read())
@@ -102,13 +105,16 @@ print(len(result.chunks), result.quality_score)</code></pre>
           <tr><th>Page</th><th>When you open it</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="lab.html">The lab</a></td><td>Drop, extract, knobs, share URL (never the file), Find, rail width, privacy.</td></tr>
-          <tr><td><a href="install.html">Install</a></td><td>Core vs extras. Do not start strangers on <code>[all]</code>.</td></tr>
-          <tr><td><a href="strategies.html">Strategies</a></td><td>All 43 registry names, lab / grey / pip-only, and the recursive naming trap.</td></tr>
+          <tr><td><a href="lab.html">The lab</a></td><td>Drop, extract, knobs, share URL (never the file), Find, sidebar width, source height, privacy.</td></tr>
+          <tr><td><a href="install.html">Install</a></td><td>Core vs extras. Skip <code>[all]</code> unless you need torch, OpenCV, and Tika together.</td></tr>
+          <tr><td><a href="cli.html">CLI only</a></td><td>Install, chunk to JSON, batch a directory, compare, embed. No Python file.</td></tr>
+          <tr><td><a href="json.html">JSON</a></td><td>Output JSON for pipelines, and <code>json_chunker</code> for JSON/JSONL inputs.</td></tr>
+          <tr><td><a href="ml.html">ML and embeddings</a></td><td><code>semantic</code> cuts, <code>embed</code> vectors, lab MiniLM vs pip <code>[ml]</code>.</td></tr>
+          <tr><td><a href="config.html">Config and scale</a></td><td>YAML profiles, workers, streaming, directories.</td></tr>
+          <tr><td><a href="strategies.html">Strategies</a></td><td>All 43 registry names, lab / grey / pip-only. <code>recursive</code> vs <code>recursive_character</code>.</td></tr>
           <tr><td><a href="compare.html">N-way compare</a></td><td><code>compare</code> table vs <code>benchmark</code> timings, including custom files.</td></tr>
           <tr><td><a href="custom.html">Bring your own</a></td><td><code>@register_chunker</code>, CLI <code>custom</code>, worked examples.</td></tr>
-          <tr><td><a href="python.html">Python API</a></td><td><code>create_chunker</code>, orchestrator, universal, streaming, embeddings, config YAML.</td></tr>
-          <tr><td><a href="cli.html">CLI</a></td><td><code>chunk</code>, <code>batch</code>, <code>list-strategies --tier</code>, <code>embed</code>.</td></tr>
+          <tr><td><a href="python.html">Python API</a></td><td><code>create_chunker</code>, orchestrator, universal, streaming. Details in JSON / ML / Config.</td></tr>
           <tr><td><a href="formats.html">Formats</a></td><td>What the tab extracts vs what <code>pdf_chunker</code> / Tika / media do on disk.</td></tr>
         </tbody>
       </table>
@@ -117,12 +123,6 @@ print(len(result.chunks), result.quality_score)</code></pre>
     </article>
   </div>
   <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>. Nothing in the playground is uploaded.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

@@ -27,20 +27,7 @@
     <button type="button" class="theme-btn" id="theme">Theme</button>
   </header>
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a class="here" href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a href="strategies.html">Strategies</a>
-      <a href="python.html">Python API</a>
-      <a href="cli.html">CLI</a>
-      <a href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
     <article class="article">
       <p class="kicker">Python 3.8+</p>
       <h1>Install the library, not a remix</h1>
@@ -51,7 +38,7 @@ pip install chunking-strategy[pdf]
 pip install chunking-strategy[ml]         # embeddings / semantic
 pip install chunking-strategy[media]      # audio / video / images; POSIX
 pip install chunking-strategy[tika]       # POSIX, 1400+ formats</code></pre>
-      <div class="warn"><code>[all]</code> pulls torch, OpenCV, and Tika. Do not recommend it to strangers. If a strategy needs an extra, you get <code>MissingExtraError</code> with the one-line pip hint.</div>
+      <div class="note"><code>[all]</code> pulls torch, OpenCV, and Tika. Install extras you actually need. If a strategy needs one, you get <code>MissingExtraError</code> with the one-line pip hint.</div>
 
       <h2>Thirty seconds in Python</h2>
 <pre><code>from chunking_strategy import create_chunker, ChunkerOrchestrator
@@ -81,12 +68,6 @@ pytest tests/ -q</code></pre>
     </article>
   </div>
   <p class="site-foot">Package: <a href="https://pypi.org/project/chunking-strategy/">chunking-strategy on PyPI</a>.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

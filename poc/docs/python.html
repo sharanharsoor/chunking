@@ -27,20 +27,7 @@
     <button type="button" class="theme-btn" id="theme">Theme</button>
   </header>
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a href="strategies.html">Strategies</a>
-      <a class="here" href="python.html">Python API</a>
-      <a href="cli.html">CLI</a>
-      <a href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
     <article class="article">
       <p class="kicker">Library</p>
       <h1>Python is the pipeline. The tab is the preview.</h1>
@@ -80,10 +67,10 @@ for chunk in StreamingChunker("sentence_based").stream_file("huge.txt"):
       <h2>Embeddings</h2>
 <pre><code>python -m chunking_strategy embed doc.txt --strategy sentence_based
 python -m chunking_strategy list-models</code></pre>
-      <p><code>[ml]</code> pulls sentence-transformers. The lab <code>semantic</code> path is Transformers.js MiniLM in the tab; do not claim those cuts match. Helpers: <code>examples/03_embedding_workflows.py</code>, <code>05_embeddings_integration_demo.py</code>, <code>18_langchain_integration_demo.py</code>.</p>
+      <p><code>[ml]</code> pulls sentence-transformers. The lab <code>semantic</code> path is Transformers.js MiniLM in the tab; those cuts do not match pip. Full path: <a href="ml.html">ML and embeddings</a>.</p>
 
       <h2>Config YAML</h2>
-      <p>Eight profiles under <code>config_examples/</code>. Start with <code>enhanced_auto_strategy.yaml</code>. Others: <code>code_focused</code>, <code>document_first</code>, <code>large_files_streaming</code>, <code>embedding_optimized</code>, <code>rag_system</code>, <code>multimodal_embeddings</code>, <code>basic_example</code>.</p>
+      <p>Eight profiles under <code>config_examples/</code>. Start with <code>enhanced_auto_strategy.yaml</code>. Corpus walk, workers, and streaming: <a href="config.html">Config and scale</a>. JSON in and out: <a href="json.html">JSON</a>.</p>
 <pre><code>python -m chunking_strategy init-config
 python -m chunking_strategy chunk report.pdf --config config_examples/document_first_config.yaml</code></pre>
 
@@ -92,12 +79,6 @@ python -m chunking_strategy chunk report.pdf --config config_examples/document_f
     </article>
   </div>
   <p class="site-foot">Long form: <code>API_REFERENCE.md</code>, <code>CONFIGURATION_GUIDE.md</code>.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

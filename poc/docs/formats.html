@@ -27,20 +27,7 @@
     <button type="button" class="theme-btn" id="theme">Theme</button>
   </header>
   <div class="shell">
-    <nav class="side" aria-label="Docs">
-      <p>Start</p>
-      <a href="./">Overview</a>
-      <a href="lab.html">The lab</a>
-      <a href="install.html">Install</a>
-      <p>The library can, the tab cannot</p>
-      <a href="compare.html">N-way compare</a>
-      <a href="custom.html">Bring your own</a>
-      <p>Reference</p>
-      <a href="strategies.html">Strategies</a>
-      <a href="python.html">Python API</a>
-      <a href="cli.html">CLI</a>
-      <a class="here" href="formats.html">Formats</a>
-    </nav>
+    <nav class="side" aria-label="Docs"></nav>
     <article class="article">
       <p class="kicker">Extract vs chunk</p>
       <h1>The tab extracts. pip can see layout.</h1>
@@ -66,16 +53,10 @@
       <h2>Size</h2>
       <p>Lab cap is 150 MB because the bytes sit in the tab. pip <code>StreamingChunker</code> / mmap reads from disk. Dropping a 2 GB PDF into the playground is the wrong tool; <code>chunk_file</code> is the right one.</p>
 
-      <div class="note">No PyMuPDF or Ghostscript WASM in the lab. Those licenses are a trap for a static GitHub Pages file. Extract-to-text is the compromise that stays MIT.</div>
+      <div class="note">The lab does not ship PyMuPDF or Ghostscript WASM. Those licenses do not fit a static MIT GitHub Pages file. Extract-to-text is the compromise.</div>
     </article>
   </div>
   <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
-  <script>
-    document.getElementById("theme").addEventListener("click", function () {
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("theme", next);
-    });
-  </script>
+  <script src="docs.js"></script>
 </body>
 </html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON — chunking-strategy docs</title>
+  <meta name="description" content="Chunk JSON files with json_chunker, and read the JSON the CLI writes out." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs"></nav>
+    <article class="article">
+      <p class="kicker">Two different JSON stories</p>
+      <h1>Chunk JSON in. Write JSON out.</h1>
+      <p class="lede"><code>json_chunker</code> splits a JSON or JSONL file on objects, arrays, keys, size, or depth. Separately, every strategy can dump its chunks as JSON for a pipeline. Those are not the same file format.</p>
+
+      <h2>1. Output JSON (any strategy)</h2>
+      <p>This is the connector into RAG, a vector DB, or your own job. CLI:</p>
+<pre><code>python -m chunking_strategy chunk doc.txt --strategy sentence_based --format json -o chunks.json
+python -m chunking_strategy chunk data.json --strategy json_chunker --format json -o out.json</code></pre>
+      <p>The file looks like this:</p>
+<pre><code>{
+  "metadata": {
+    "strategy_used": "sentence_based",
+    "total_chunks": 12,
+    "processing_time": 0.02,
+    "source_info": {"source": "doc.txt"}
+  },
+  "chunks": [
+    {
+      "id": "...",
+      "content": "The text of this chunk...",
+      "modality": "text",
+      "metadata": {
+        "source": "doc.txt",
+        "chunker_used": "sentence_based"
+      }
+    }
+  ]
+}</code></pre>
+      <div class="note">CLI <code>--format json</code> may shorten a very long <code>content</code> field for display safety (about 1000 characters). If you need the full text plus offsets, serialize in Python with <code>chunk.to_dict()</code>.</div>
+<pre><code>import json
+from chunking_strategy import create_chunker
+
+result = create_chunker("sentence_based").chunk(open("doc.txt").read())
+payload = {
+    "strategy_used": result.strategy_used,
+    "quality_score": result.quality_score,
+    "chunks": [c.to_dict() for c in result.chunks],
+}
+json.dump(payload, open("chunks.json", "w"), indent=2)</code></pre>
+      <p>Each <code>to_dict()</code> chunk includes:</p>
+      <table>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>Stable id for this chunk.</td></tr>
+          <tr><td><code>content</code></td><td>Full text (or bytes for media).</td></tr>
+          <tr><td><code>start</code> / <code>end</code></td><td>Inclusive / exclusive offsets. Unit is Unicode scalars unless metadata says otherwise.</td></tr>
+          <tr><td><code>parent_id</code> / <code>children_ids</code></td><td>Hierarchical <code>recursive</code> tree.</td></tr>
+          <tr><td><code>token_count</code></td><td>Set when a real tokenizer ran, not chars/4.</td></tr>
+          <tr><td><code>metadata</code></td><td><code>source</code>, <code>chunker_used</code>, plus extras such as <code>json_start_index</code>, <code>symbol_name</code>, CSV headers.</td></tr>
+        </tbody>
+      </table>
+      <p>Other CLI dumps: <code>--format yaml</code>, <code>--format text</code>, <code>--summary-only</code> (no file), <code>--quality-report</code>.</p>
+
+      <h2>2. json_chunker (splitting JSON / JSONL)</h2>
+      <p>Use this when the <em>input</em> is JSON and you do not want a raw character window to cut through an object.</p>
+<pre><code>from chunking_strategy import create_chunker
+
+# Array of objects: N objects per chunk (default 100)
+create_chunker("json_chunker", chunk_by="objects", objects_per_chunk=25)
+
+# One array, N elements per chunk
+create_chunker("json_chunker", chunk_by="array_elements", elements_per_chunk=200)
+
+# Group records that share a key
+create_chunker("json_chunker", chunk_by="key_groups", group_by_key="category")
+
+# Size budget
+create_chunker("json_chunker", chunk_by="size_limit", size_limit_mb=5)
+
+# Stop descending nested objects past a depth
+create_chunker("json_chunker", chunk_by="depth_level", max_depth=2)</code></pre>
+<pre><code>python -m chunking_strategy chunk events.jsonl --strategy json_chunker -o events_chunks.json
+python -m chunking_strategy chunk catalog.json --strategy json_chunker --format json</code></pre>
+      <p><code>preserve_structure</code> defaults to true so each chunk is still valid JSON. JSONL / NDJSON is a supported input. Metadata extras include <code>json_start_index</code>, <code>json_end_index</code>, <code>json_object_count</code>. The lab runs the same name; Python re-dumps JSON, so byte-for-byte strings can differ from the tab.</p>
+      <p>Streaming JSONL on a large corpus: <code>config_examples/use_case_configs/jsonl_streaming.yaml</code> and <a href="config.html">Config and scale</a>.</p>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script src="docs.js"></script>
+</body>
+</html>

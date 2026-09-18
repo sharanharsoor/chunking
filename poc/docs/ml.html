@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ML and embeddings — chunking-strategy docs</title>
+  <meta name="description" content="semantic chunking, sentence-transformers, embed CLI, and what the lab MiniLM path is not." />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../">Chunking <em>Playground</em></a>
+    <span class="nav-sep">/</span>
+    <a class="brand" href="./">Docs</a>
+    <a class="link-btn push" href="../">Lab</a>
+    <a class="link-btn" href="https://pypi.org/project/chunking-strategy/">PyPI</a>
+    <a class="link-btn" href="https://github.com/sharanharsoor/chunking">GitHub</a>
+    <button type="button" class="theme-btn" id="theme">Theme</button>
+  </header>
+  <div class="shell">
+    <nav class="side" aria-label="Docs"></nav>
+    <article class="article">
+      <p class="kicker">pip install chunking-strategy[ml]</p>
+      <h1>Cut on meaning, then embed</h1>
+      <p class="lede">Two ML jobs. <code>semantic</code> decides <em>where</em> to cut using sentence embeddings. <code>embed</code> takes already-cut chunks and writes vectors for a database. The lab only does a Transformers.js MiniLM preview of the first job. It will not match pip.</p>
+
+      <h2>Install</h2>
+<pre><code>pip install chunking-strategy[ml]
+pip install chunking-strategy[tiktoken]   # if you also want cl100k windows</code></pre>
+      <p>Missing extra raises <code>MissingExtraError</code> with that pip line. Default embedding model is <code>all-MiniLM-L6-v2</code>. <code>[text]</code> no longer pulls torch; that was a 0.5.0 change.</p>
+
+      <h2>semantic: topic boundaries</h2>
+      <p>Sentences are embedded, then a new chunk starts when similarity to the previous context drops below a threshold (default 0.7). Lower threshold = fewer, longer chunks. Higher = more cuts.</p>
+<pre><code>from chunking_strategy import create_chunker
+
+c = create_chunker(
+    "semantic",
+    embedding_model="all-MiniLM-L6-v2",
+    similarity_threshold=0.7,
+    min_chunk_sentences=3,
+    max_chunk_sentences=15,
+    boundary_detection="similarity_threshold",  # or sliding_window, dynamic_threshold, coherence_based
+)
+result = c.chunk(open("article.txt").read())</code></pre>
+<pre><code>python -m chunking_strategy chunk article.txt --strategy semantic --format json -o semantic.json</code></pre>
+      <p>Aliases: <code>semantic_chunker</code>, <code>semantic_chunking</code>. Related pip-only names: <code>embedding_based</code>, <code>context_enriched</code>, <code>discourse_aware</code>, <code>ml_cdc</code> (grey in the tab until a JS port exists).</p>
+      <div class="note">The playground <code>semantic</code> is grey until MiniLM loads from Hugging Face (~25 MB). Those cuts are a browser model, not sentence-transformers. Do not treat lab vs pip as a golden.</div>
+
+      <h2>embed: vectors after the cut</h2>
+<pre><code>python -m chunking_strategy list-models
+python -m chunking_strategy embed doc.txt --strategy sentence_based --model all-MiniLM-L6-v2 -o vectors.json
+python -m chunking_strategy embed-batch ./corpus --strategy recursive_character -o ./vectors</code></pre>
+      <p>Each exported row is built for a vector DB: <code>id</code>, <code>vector</code> (dimension of the model), <code>payload</code> (text + metadata). Destinations people actually use: Qdrant, Weaviate, Pinecone, Chroma. Flags: <code>--batch-size</code>, <code>--normalize</code> / <code>--no-normalize</code>, <code>--device cuda|cpu</code>, <code>--export-format json|dict</code>.</p>
+<pre><code>from chunking_strategy import create_chunker
+from chunking_strategy.core.embeddings import (
+    EmbeddingModel, EmbeddingConfig, embed_chunking_result, export_for_vector_db,
+)
+
+chunks = create_chunker("sentence_based").chunk(open("doc.txt").read())
+cfg = EmbeddingConfig(model=EmbeddingModel("all-MiniLM-L6-v2"), batch_size=32)
+embedded = embed_chunking_result(chunks, cfg)
+print(export_for_vector_db(embedded, format="json")[:500])</code></pre>
+      <p>Worked examples: <code>examples/03_embedding_workflows.py</code>, <code>05_embeddings_integration_demo.py</code>, <code>16_verify_embedding_setup.py</code>, <code>18_langchain_integration_demo.py</code>.</p>
+
+      <h2>YAML when ML is the point</h2>
+      <p><code>config_examples/embedding_optimized.yaml</code> and <code>rag_system.yaml</code> keep chunk sizes even so embedding batches stay regular. <code>multimodal_embeddings.yaml</code> is the text+image profile. Load with <code>--config</code> on <code>chunk</code>, <code>batch</code>, or <code>embed</code>. See <a href="config.html">Config and scale</a>.</p>
+    </article>
+  </div>
+  <p class="site-foot">MIT. Lab matches <code>chunking-strategy==0.5.0</code>.</p>
+  <script src="docs.js"></script>
+</body>
+</html>

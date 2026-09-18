@@ -229,6 +229,29 @@ pre, .ascii {
   font-size: 12.5px;
   line-height: 1.45;
 }
+.code {
+  position: relative;
+  margin: 12px 0 20px;
+}
+.code pre { margin: 0; padding-top: 40px; }
+.copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--code-ink);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font: 600 11px var(--font-ui);
+  cursor: pointer;
+}
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 .ascii { white-space: pre; }
 pre code { font-size: inherit; }
 .steps { counter-reset: step; list-style: none; padding: 0; }
