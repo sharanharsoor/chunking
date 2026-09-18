@@ -14,6 +14,7 @@
 ### Changed
 - Docs dark theme: snippet panels, tables, and inline code have a lifted fill and a visible border so copy blocks are not the same black as the page.
 - Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
+- Lab default view is taller (about 920px, a little page scroll) so the source editor and rail are not packed into the leftover viewport.
 - Lab sidebar width can be dragged so the source and A/B lists get more of the screen.
 
 ## 0.5.0 (2026-09-11)

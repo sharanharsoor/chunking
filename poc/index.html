@@ -118,6 +118,17 @@
       -webkit-font-smoothing: antialiased;
       position: relative;
     }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 42% 32% at 8% 12%, color-mix(in srgb, var(--a) 9%, transparent), transparent 62%),
+        radial-gradient(ellipse 38% 28% at 92% 8%, color-mix(in srgb, var(--b) 8%, transparent), transparent 58%),
+        radial-gradient(ellipse 36% 24% at 78% 92%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%);
+    }
     #stars {
       position: fixed;
       inset: 0;
@@ -210,7 +221,7 @@
 
     .hero {
       text-align: center;
-      padding: 22px 16px 14px;
+      padding: 36px 16px 28px;
     }
     .hero h1 {
       margin: 0;
@@ -233,8 +244,8 @@
       border: 1px solid var(--line);
       border-radius: 16px;
       overflow: hidden;
-      height: calc(100dvh - 14rem);
-      min-height: 560px;
+      height: max(920px, calc(100dvh - 5rem));
+      min-height: 920px;
       display: flex;
       flex-direction: column;
     }
@@ -246,8 +257,8 @@
       display: grid;
       grid-template-columns: var(--rail-w) 8px minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
-      gap: 12px;
-      padding: 12px;
+      gap: 14px;
+      padding: 16px;
       background: color-mix(in srgb, var(--desk) 92%, transparent);
       overflow: hidden;
     }
@@ -304,15 +315,15 @@
       background: var(--accent);
     }
     .stage {
-      --paper-h: 42%;
+      --paper-h: 48%;
       grid-column: 3;
       grid-row: 1;
       min-width: 0;
       min-height: 0;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-rows: minmax(160px, var(--paper-h)) 8px minmax(160px, 1fr);
-      column-gap: 12px;
+      grid-template-rows: minmax(220px, var(--paper-h)) 8px minmax(200px, 1fr);
+      column-gap: 14px;
       row-gap: 0;
     }
     .rail, .paper, .col {
@@ -336,10 +347,10 @@
     .rail-scroll {
       flex: 1;
       min-height: 0;
-      padding: 12px 12px 8px;
+      padding: 16px 14px 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
     }
     .drop {
       flex-shrink: 0;
@@ -347,7 +358,7 @@
       border: 1.5px dashed var(--line);
       border-radius: 10px;
       background: var(--drop);
-      padding: 14px 12px;
+      padding: 18px 14px;
       cursor: pointer;
       text-align: center;
       transition: border-color 0.15s, background 0.15s;
@@ -404,7 +415,7 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--chrome);
-      padding: 10px;
+      padding: 14px 12px 12px;
     }
     .card.a { box-shadow: inset 3px 0 0 var(--a); }
     .card.b { box-shadow: inset 3px 0 0 var(--b); }
@@ -663,7 +674,7 @@
       font-size: 11px;
       color: var(--muted);
       background: var(--paper-bar);
-      padding: 8px 14px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--line);
     }
     .paper-meta strong { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
@@ -744,7 +755,7 @@
       position: absolute;
       inset: 0;
       margin: 0;
-      padding: 14px 18px 16px;
+      padding: 18px 20px 20px;
       border: 0;
       font-size: clamp(0.98rem, 1.2vw, 1.08rem);
       line-height: 1.7;
@@ -1110,8 +1121,8 @@
       .stage {
         grid-column: 1 / -1;
         grid-row: 1;
-        --paper-h: 280px;
-        grid-template-rows: minmax(160px, var(--paper-h)) 8px minmax(200px, auto);
+        --paper-h: 360px;
+        grid-template-rows: minmax(220px, var(--paper-h)) 8px minmax(240px, auto);
       }
       .col.a { min-height: 240px; }
       .col.b { min-height: 240px; }
@@ -3308,7 +3319,7 @@
       var paper = document.getElementById("paper");
       var handle = document.getElementById("split-paper");
       if (!app || !stage || !paper || !handle) return;
-      var KEY = "lab-paper-h";
+      var KEY = "lab-paper-h-v2";
       var MIN = 160;
       function maxH() {
         return Math.max(MIN, stage.clientHeight - MIN - 8);
