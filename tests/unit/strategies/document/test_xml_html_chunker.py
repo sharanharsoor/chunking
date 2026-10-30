@@ -230,6 +230,27 @@ class TestXMLHTMLChunkingStrategies:
 
         assert "book" in found_tags or "title" in found_tags or "author" in found_tags
 
+    def test_heading_tag_keeps_the_section_body(self):
+        chunker = XMLHTMLChunker(
+            chunk_by="tag_based",
+            target_tags=["h2"],
+            parser="bs4",
+            min_chunk_size=5,
+        )
+        html = "<h2>Alpha</h2><p>alpha body text stays here</p><h2>Beta</h2><p>beta body text stays here</p>"
+        result = chunker.chunk(html)
+        bodies = [chunk.content for chunk in result.chunks]
+        assert any("alpha body text" in body for body in bodies)
+        assert any("beta body text" in body for body in bodies)
+        alpha = next(body for body in bodies if "alpha body text" in body)
+        assert "beta body text" not in alpha
+
+    def test_single_line_markup_is_not_opened_as_a_path(self):
+        chunker = XMLHTMLChunker(min_chunk_size=1)
+        markup = "<p>" + ("y" * 280) + "</p>"
+        result = chunker.chunk(markup)  # must not raise ENAMETOOLONG
+        assert result.strategy_used == "xml_html_chunker"
+
     def test_element_type_chunking(self):
         """Test element type-based chunking."""
         chunker = XMLHTMLChunker(chunk_by="element_type", min_chunk_size=10)

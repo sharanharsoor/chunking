@@ -133,6 +133,194 @@ This tests the fallback behavior when header-based chunking finds no headers."""
         assert result.chunks[0].metadata.extra["no_headers_found"] is True
         assert result.chunks[0].metadata.extra["chunk_type"] == "single"
 
+    def test_preamble_before_first_header_is_kept(self):
+        content = (
+            "This lead-in is long enough to stand as its own chunk before any heading.\n\n"
+            "# Title\n\nBody under the title."
+        )
+        chunker = MarkdownChunker(min_chunk_size=20)
+        result = chunker.chunk(content)
+        assert any("lead-in" in chunk.content for chunk in result.chunks)
+        assert any("# Title" in chunk.content for chunk in result.chunks)
+
+    def test_headerless_page_respects_max_tokens(self):
+        content = "word " * 80
+        chunker = MarkdownChunker(min_chunk_size=1, max_tokens=16, max_chunk_size=100_000)
+        result = chunker.chunk(content)
+        assert result.total_chunks > 1
+        enc = chunker._tiktoken()
+        from chunking_strategy.core.token_packing import count_tokens
+        assert all(count_tokens(chunk.content, enc) <= 16 for chunk in result.chunks)
+
+    def test_single_line_prose_is_not_opened_as_a_path(self):
+        content = "x" * 280
+        chunker = MarkdownChunker(min_chunk_size=1)
+        result = chunker.chunk(content)
+        assert result.total_chunks == 1
+        assert "x" * 40 in result.chunks[0].content
+
+    def test_strip_cannot_push_a_window_over_max_tokens(self):
+        # " LGPL" is 1 cl100k token; stripping the space makes it 2.
+        content = " LGPL" * 30
+        chunker = MarkdownChunker(
+            min_chunk_size=1, max_tokens=4, max_chunk_size=100_000, overlap_tokens=1
+        )
+        result = chunker.chunk(content)
+        enc = chunker._tiktoken()
+        from chunking_strategy.core.token_packing import count_tokens
+        counts = [count_tokens(chunk.content, enc) for chunk in result.chunks]
+        assert counts
+        assert max(counts) <= 4
+
+    def test_oversized_section_splits_on_a_sentence(self):
+        sentence = "The cluster recovers failover across zones. "
+        content = "## Body\n\n" + sentence * 80
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=10,
+        )
+        result = chunker.chunk(content)
+        assert result.total_chunks > 1
+        for chunk in result.chunks:
+            first = chunk.content.lstrip().splitlines()[0]
+            assert first.startswith("#") or first.startswith("The cluster")
+
+    def test_sections_pack_until_the_cap(self):
+        content = (
+            "### Pipeline for the InOnly exchange pattern\n\n"
+            + ("The pipeline copies the In message to each endpoint. " * 12)
+            + "\n\n### Message router\n\n"
+            + ("The router chooses a destination for the exchange. " * 20)
+            + "\n\n### Next topic that does not fit\n\n"
+            + ("This later topic is a separate subject. " * 80)
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=400, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert any(
+            "InOnly" in chunk.content and "router" in chunk.content
+            for chunk in result.chunks
+        )
+        later = [chunk.content for chunk in result.chunks if "separate subject" in chunk.content]
+        assert later
+        assert all("InOnly" not in chunk for chunk in later)
+
+    def test_footer_stays_on_the_previous_chunk(self):
+        content = (
+            "## Body\n\n"
+            + ("The product handles failover across zones. " * 20)
+            + "\n\n## More like this\n\nA related post.\n"
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=400, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert any("failover" in chunk.content and "More like this" in chunk.content for chunk in result.chunks)
+        assert not any(
+            chunk.content.strip().startswith("## More like this")
+            for chunk in result.chunks
+        )
+
+    def test_token_budget_packs_short_headings(self):
+        content = "\n\n".join(
+            f"## Section {i}\n\nThis is a short section about topic {i}."
+            for i in range(8)
+        )
+        chunker = MarkdownChunker(
+            header_level=2, min_chunk_size=1, max_tokens=40, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        enc = chunker._tiktoken()
+        from chunking_strategy.core.token_packing import count_tokens
+        assert 1 < result.total_chunks < 8
+        assert all(count_tokens(chunk.content, enc) <= 40 for chunk in result.chunks)
+        assert all("## Section" in chunk.content for chunk in result.chunks)
+
+    def test_short_heading_shares_a_chunk_with_its_neighbor(self):
+        content = (
+            "## Models\n\nRed Hat Ansible Lightspeed uses models.\n\n"
+            "## Details\n\n" + ("This detail sentence explains the feature. " * 20)
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=400, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert any("Models" in chunk.content and "Details" in chunk.content for chunk in result.chunks)
+        assert not any(
+            chunk.content.strip().startswith("## Models") and "Details" not in chunk.content
+            for chunk in result.chunks
+        )
+
+    def test_short_tail_rides_a_full_previous_window(self):
+        content = (
+            "## Body\n\n" + ("alpha " * 120) + "\n\n"
+            "### Note\n\nSee the driver notes for this release."
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=100,
+            max_chunk_size=100_000, overlap_tokens=40,
+        )
+        result = chunker.chunk(content)
+        assert any("Note" in chunk.content and "alpha" in chunk.content for chunk in result.chunks)
+        assert not any(
+            "Note" in chunk.content and "alpha" not in chunk.content
+            for chunk in result.chunks
+        )
+
+    def test_short_heading_merges_into_a_split_tail(self):
+        content = (
+            "## Body\n\n" + ("alpha " * 200) + "\n\n"
+            "### Note\n\nA short closing note about the driver."
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=0,
+        )
+        result = chunker.chunk(content)
+        assert any("Note" in chunk.content and "alpha" in chunk.content for chunk in result.chunks)
+        assert not any(
+            "Note" in chunk.content and "alpha" not in chunk.content
+            for chunk in result.chunks
+        )
+
+    def test_lead_in_heading_joins_a_body_that_fills_the_cap(self):
+        content = (
+            "# Title\n\nOne sentence of lead-in.\n\n"
+            "## About\n\nA short note before the procedure.\n\n"
+            "## Procedure\n\n" + ("word " * 400)
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert any("Title" in chunk.content and "word" in chunk.content for chunk in result.chunks)
+        assert not any(
+            "Title" in chunk.content and "word" not in chunk.content
+            for chunk in result.chunks
+        )
+
+    def test_short_heading_prefixes_an_oversized_body(self):
+        content = "## Models\n\n" + ("word " * 800) + "\n\n## Next\n\n" + ("beta " * 800)
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=50, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert result.chunks
+        assert "Models" in result.chunks[0].content and "word" in result.chunks[0].content
+        assert not any(
+            "Models" in chunk.content and "word" not in chunk.content
+            for chunk in result.chunks
+        )
+
+    def test_short_section_is_merged_not_dropped(self):
+        content = "# Title\n\nHi.\n\n## Real section\n\n" + ("body " * 40)
+        chunker = MarkdownChunker(min_chunk_size=50)
+        result = chunker.chunk(content)
+        blob = "\n".join(chunk.content for chunk in result.chunks)
+        assert "Hi." in blob
+        assert "body" in blob
+
 
 class TestMarkdownChunkerStrategies:
     """Test different chunking strategies."""
@@ -333,6 +521,120 @@ End of table."""
         chunk_content = result.chunks[0].content
         assert "| Name | Age | City |" in chunk_content
         assert "| Alice | 25 | NYC |" in chunk_content
+
+    def test_table_under_the_cap_stays_one_chunk(self):
+        content = (
+            "## Operators\n\n#### Red Hat Quay\n\n"
+            "| Version | Ends |\n| --- | --- |\n| 3.1 | 2024 |\n"
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=400, max_chunk_size=100_000
+        )
+        result = chunker.chunk(content)
+        assert result.total_chunks == 1
+        assert "Red Hat Quay" in result.chunks[0].content
+        assert "| 3.1 | 2024 |" in result.chunks[0].content
+
+    def test_oversized_table_splits_on_rows_and_keeps_the_heading(self):
+        header = "| Version | Tier | Ends |"
+        sep = "| --- | --- | --- |"
+        rows = "\n".join(f"| 4.{i} | Platform | 01 Jun 2024 |" for i in range(40))
+        content = f"## Operators\n\n#### Red Hat Quay\n\n{header}\n{sep}\n{rows}\n"
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=10,
+        )
+        result = chunker.chunk(content)
+        from chunking_strategy.core.token_packing import count_tokens
+        enc = chunker._tiktoken()
+        assert result.total_chunks > 1
+        assert all(count_tokens(chunk.content, enc) <= 80 for chunk in result.chunks)
+        for chunk in result.chunks:
+            assert "Red Hat Quay" in chunk.content
+            assert header in chunk.content
+            for line in chunk.content.splitlines():
+                if line.startswith("| 4."):
+                    assert line.endswith("|")
+                    assert line.count("|") == header.count("|")
+
+    def test_split_table_returns_a_parent_window(self):
+        header = "| Version | Tier | Ends |"
+        sep = "| --- | --- | --- |"
+        rows = "\n".join(f"| 4.{i} | Platform | 01 Jun 2024 |" for i in range(40))
+        content = f"## Operators\n\n#### Red Hat Quay\n\n{header}\n{sep}\n{rows}\n"
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=0, parent_chars=900,
+        )
+        result = chunker.chunk(content)
+        from chunking_strategy.core.token_packing import count_tokens
+        enc = chunker._tiktoken()
+        assert result.total_chunks > 2
+        assert all(count_tokens(chunk.content, enc) <= 80 for chunk in result.chunks)
+        mid = result.chunks[len(result.chunks) // 2]
+        parent = mid.metadata.extra.get("parent", "")
+        own_rows = [line for line in mid.content.splitlines() if line.startswith("| 4.")]
+        parent_rows = [line for line in parent.splitlines() if line.startswith("| 4.")]
+        assert own_rows
+        assert own_rows[0] in parent
+        assert "Red Hat Quay" in parent
+        assert len(parent_rows) > len(own_rows)
+        assert len(parent) < len(content)
+
+    def test_heading_above_a_paragraph_stays_on_every_table_piece(self):
+        header = "| Version | Tier | Ends |"
+        sep = "| --- | --- | --- |"
+        rows = "\n".join(f"| 4.{i} | Platform | 01 Jun 2024 |" for i in range(40))
+        content = (
+            "# Platform Aligned Operators\n\n"
+            "The following operators are released and maintained.\n\n"
+            f"{header}\n{sep}\n{rows}\n"
+        )
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=0,
+        )
+        result = chunker.chunk(content)
+        from chunking_strategy.core.token_packing import count_tokens
+        enc = chunker._tiktoken()
+        table_chunks = [chunk for chunk in result.chunks if "| 4." in chunk.content]
+        assert len(table_chunks) > 1
+        assert all(count_tokens(chunk.content, enc) <= 80 for chunk in result.chunks)
+        for chunk in table_chunks:
+            assert "Platform Aligned Operators" in chunk.content
+            assert header in chunk.content
+
+    def test_table_remainder_is_not_left_under_the_floor(self):
+        header = "| Version | Tier | Ends |"
+        sep = "| --- | --- | --- |"
+        rows = "\n".join(f"| 4.{i} | Platform | 01 Jun 2024 |" for i in range(40))
+        content = f"#### Red Hat Quay\n\n{header}\n{sep}\n{rows}\n"
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=0,
+        )
+        result = chunker.chunk(content)
+        from chunking_strategy.core.token_packing import count_tokens
+        enc = chunker._tiktoken()
+        floor = 80 // 3
+        counts = [count_tokens(chunk.content, enc) for chunk in result.chunks]
+        assert counts
+        assert all(count >= floor for count in counts)
+        assert all("Red Hat Quay" in chunk.content for chunk in result.chunks)
+
+    def test_later_prose_windows_keep_the_section_heading(self):
+        sentence = "The cluster recovers failover across zones. "
+        content = "## Body\n\n" + sentence * 80
+        chunker = MarkdownChunker(
+            header_level=3, min_chunk_size=1, max_tokens=80,
+            max_chunk_size=100_000, overlap_tokens=10,
+        )
+        result = chunker.chunk(content)
+        from chunking_strategy.core.token_packing import count_tokens
+        enc = chunker._tiktoken()
+        assert result.total_chunks > 1
+        assert all(count_tokens(chunk.content, enc) <= 80 for chunk in result.chunks)
+        assert all("Body" in chunk.content for chunk in result.chunks)
 
 
 class TestMarkdownChunkerLists:

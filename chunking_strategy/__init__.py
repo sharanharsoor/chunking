@@ -155,6 +155,7 @@ def _load_heavy_strategies():
         try:
             import chunking_strategy.strategies.text.semantic_chunker  # noqa: F401
             import chunking_strategy.strategies.text.embedding_based_chunker  # noqa: F401
+            import chunking_strategy.strategies.text.discourse_aware_chunker  # noqa: F401
         except ImportError:
             pass
 
@@ -311,7 +312,7 @@ except Exception:
     pass
 
 # Version info
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 __author__ = "Sharan Harsoor"
 __email__ = "sharanharsoor@gmail.com"
 

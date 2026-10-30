@@ -40,7 +40,6 @@ from chunking_strategy.strategies.general.gear_cdc_chunker import GearCDCChunker
 from chunking_strategy.strategies.general.ml_cdc_chunker import MLCDCChunker
 from chunking_strategy.strategies.general.tttd_chunker import TTTDChunker
 from chunking_strategy.strategies.text.sentence_based import SentenceBasedChunker
-from chunking_strategy.strategies.text.discourse_aware_chunker import DiscourseAwareChunker
 from chunking_strategy.strategies.document.pdf_chunker import PDFChunker
 from chunking_strategy.strategies.document.doc_chunker import DocChunker
 from chunking_strategy.strategies.document.markdown_chunker import MarkdownChunker
@@ -70,7 +69,6 @@ __all__ = [
     "MLCDCChunker",
     "TTTDChunker",
     "SentenceBasedChunker",
-    "DiscourseAwareChunker",
     "PDFChunker",
     "DocChunker",
     "MarkdownChunker",

@@ -227,11 +227,18 @@ class XMLHTMLChunker(StreamableChunker, AdaptableChunker):
         elif isinstance(content, bytes):
             markup_content = content.decode(self.encoding)
         elif isinstance(content, str):
-            # Check if it's a file path or actual content
-            if (len(content) < 300 and '\n' not in content and
-                content.strip() and not content.isspace() and
-                Path(content).exists() and Path(content).is_file()):
-                file_path = Path(content)
+            # A short single line may be a path. Longer text, or a name the OS
+            # rejects, is content. macOS raises ENAMETOOLONG around 255 bytes.
+            file_path = None
+            if (len(content) < 255 and "\n" not in content and
+                    content.strip() and not content.isspace()):
+                try:
+                    candidate = Path(content)
+                    if candidate.is_file():
+                        file_path = candidate
+                except OSError:
+                    file_path = None
+            if file_path is not None:
                 with open(file_path, 'r', encoding=self.encoding) as f:
                     markup_content = f.read()
                 source_info = source_info or {}
@@ -474,6 +481,13 @@ class XMLHTMLChunker(StreamableChunker, AdaptableChunker):
         source_info: Dict[str, Any]
     ) -> List[Chunk]:
         """Chunk by specific target tags."""
+        if (
+            self.parser_backend == "bs4"
+            and self.target_tags
+            and all(re.fullmatch(r"h[1-6]", tag) for tag in self.target_tags)
+        ):
+            return self._chunk_heading_sections(parsed_tree, source_info)
+
         chunks = []
 
         if self.parser_backend == "bs4":
@@ -490,6 +504,30 @@ class XMLHTMLChunker(StreamableChunker, AdaptableChunker):
                 chunk = self._create_tag_chunk(element, content, i, source_info)
                 chunks.append(chunk)
 
+        return chunks
+
+    def _chunk_heading_sections(
+        self,
+        parsed_tree: Any,
+        source_info: Dict[str, Any],
+    ) -> List[Chunk]:
+        """Each heading chunk runs through the body under it, up to the next heading.
+
+        find_all(h2) alone returns the heading line. Product pages need the
+        paragraphs and tables that follow that heading.
+        """
+        targets = set(self.target_tags or [])
+        headings = parsed_tree.find_all(list(targets))
+        chunks = []
+        for index, heading in enumerate(headings):
+            parts = [str(heading)]
+            for sibling in heading.next_siblings:
+                if getattr(sibling, "name", None) in targets:
+                    break
+                parts.append(str(sibling))
+            content = BeautifulSoup("".join(parts), "html.parser").get_text("\n", strip=True)
+            if content and len(content.strip()) >= self.min_chunk_size:
+                chunks.append(self._create_tag_chunk(heading, content, len(chunks), source_info))
         return chunks
 
     def _chunk_by_hierarchy(

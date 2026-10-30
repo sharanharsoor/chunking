@@ -2,20 +2,22 @@
 
 ## Unreleased
 
-### Added
-- Docs site at `poc/docs/` (GitHub Pages `/docs/`): lab, install, CLI-only, JSON, ML, config/scale, logs/debug, strategies, N-way compare, bring-your-own, Python API, formats. Linked from the playground.
-- Docs: JSON log lines (`format_json=True`), `debug collect` zip contents, pipeline / adaptive / quality metrics, extra `custom` CLI commands.
-- Lab toolbox points N-way compare and custom strategies at pip, with links into those docs.
-- Lab source editor height can be dragged (and ArrowUp / ArrowDown) so the paste box can grow.
-- Lab hierarchical `recursive`: parent/child tree (paragraph then sentence), matched to the Python golden. This is not `recursive_character`.
-- Lab `python_code` uses tree-sitter for module-level `def`/`class` (indent fallback). pip stays stdlib `ast`; nested methods are separate chunks. Compared on `symbol_name` / `symbol_kind` / `line_start` / `line_end`.
-- Lab `semantic` loads Transformers.js MiniLM from Hugging Face (~25 MB) on first pick. Grey until that load finishes. Cuts are not claimed to match pip `[ml]`.
+## 0.6.0 (2026-10-30)
 
-### Changed
-- Docs dark theme: snippet panels, tables, and inline code have a lifted fill and a visible border so copy blocks are not the same black as the page.
-- Lab tab icon is a two-column mark (copper / teal) instead of the browser default globe.
-- Lab default view is taller (about 920px, a little page scroll) so the source editor and rail are not packed into the leftover viewport.
-- Lab sidebar width can be dragged so the source and A/B lists get more of the screen.
+### Added
+- Markdown heading packer: with `max_tokens` set, adjacent header sections pack until the next one would overflow the token budget instead of emitting a tiny heading-only chunk.
+- Short header sections stick to a neighbor (under 250 characters, or under `max_tokens // 3` when packing) so RAG indexes do not vectorize orphan headings.
+- Table parent windows on markdown/HTML table splits: each embedded slice can keep a wider `_parent_window` for retrieval excerpts.
+- GFM table separator detection and safer HTML/markdown table piece joining.
+- Lazy import of `discourse_aware_chunker` with the other heavy text strategies so importing the package does not hard-require that module at strategies package load time.
+- Unit tests for the markdown packer, short-section merge, footer attach, and parent-window behavior.
+
+### Fixed
+- Oversized section after a short heading: the heading is prefixed onto the body before the token cut.
+- Short tail after a full window is re-cut onto the previous window with overlap instead of being left as a sub-250 character orphan.
+- Sections shorter than `min_chunk_size` merge into a neighbor rather than being dropped.
+- Pages with no headings still take the same pack / short-merge pass.
+- XML/HTML chunker table handling aligned with the markdown parent-window path.
 
 ## 0.5.0 (2026-09-11)
 
